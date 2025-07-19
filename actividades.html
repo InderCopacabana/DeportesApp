@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividades Físicas - DeporteApp</title>
+    <link rel="stylesheet" href="estilos.css">
+    <!-- Añadir Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Encabezado con navegación -->
+    <header>
+
+     
+
+        <div class="container header-content">
+            <div class="logo">DeporteApp</div>
+            <nav>
+                <ul>
+
+                    <li class="dropdown">
+
+                        <a href="index.html">inicio</a>     
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="deportes.html" class="dropdown-toggle">Deportes <span class="arrow">▼</span></a>
+                        <div class="dropdown-content">
+                            <a href="#futbol">Fútbol</a>
+                            <a href="#futbol_de_salon">Fútbol de Salón</a>
+                            <a href="#futbol_sala">Fútbol sala</a>                            
+                            <a href="#ajedrez">Ajedrez</a>
+                            <a href="#baloncesto">Baloncesto</a>
+                            <a href="#balonmano">Balonmano</a>
+                            <a href="#natacion">Natación</a>
+                            <a href="#atletismo">Atletismo</a>
+                            <a href="#patinaje">Patinaje</a>
+                            <a href="#rugby">Rugby</a>
+                            <a href="#tenis">Tenis</a>                            
+                            <a href="#Voleibol">Voleibol</a>
+                            <a href="#Patinaje">Patinaje</a>                            
+                            
+                        </div>
+                    </li>
+                    
+                    <li class="dropdown active">
+                        <a href="actividades.html" class="dropdown-toggle">Actividades Físicas <span class="arrow">▼</span></a>
+                        <div class="dropdown-content">
+                            <a href="#bmx">BMX</a>
+                            <a href="#boxeo">Boxeo</a>
+                            <a href="#descubre_tu_talento">Descubre tú Talento</a>
+                            <a href="#gimnasia">Gimnasia</a>
+                            <a href="#jiu_jitsu">Jiu Jitsu</a>
+                            <a href="#gimnasio">Gimnasio</a>
+                            <a href="#levantamiento_de_pesas">Levantamiento de Pesas</a>
+                            <a href="#tiro_con_arco">Tiro con Arco</a>
+                            <a href="#tackwondo">Tackwondo</a>
+                        </div>
+                    </li>
+                    <li><a href="diagrama.html">Diagrama</a></li>
+                </ul>
+            </nav>
+            <a href="inicio_de_sesion.html" class="btn btn-secondary">Iniciar Sesión</a>
+            <button id="menu-toggle" class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main>
+        <div class="page-header">
+            <div class="container">
+                <h1>Actividades Físicas</h1>
+                <p>Lista completa de actividades físicas disponibles con estadísticas de participación en tiempo real</p>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button onclick="actualizarEstadisticas()" class="btn btn-outline" id="btn-actualizar">
+                        🔄 Actualizar Estadísticas
+                    </button>
+                    <span id="ultima-actualizacion" style="margin-left: 1rem; color: #6c757d; font-size: 0.9rem;"></span>
+                </div>
+            </div>
+        </div>
+
+        <section class="container">
+            <div class="cards-container">
+
+                <!-- BMX -->
+                 <div id="bmx" class="card" data-actividad="bmx">
+                    <div class="card-image">
+                        <img src="imagenes/bmx-02.jpg" alt="BMX">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">BMX</h3>
+                        <p class="card-description">Deporte sobre bicicleta que combina velocidad, saltos y destrezas en pistas de tierra o asfalto. Es ideal para quienes disfrutan la adrenalina y los desafíos sobre ruedas.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                      
+                    </div>
+                </div>
+
+               <div id="boxeo" class="card" data-actividad="boxeo">
+                    <div class="card-image">
+                        <img src="imagenes/boxeo-02.jpg" alt="Boxeo">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Boxeo</h3>
+                        <p class="card-description">Deporte de combate donde dos personas se enfrentan usando solo los puños, con reglas claras y protección. Más allá de la fuerza, requiere técnica, estrategia y mucha disciplina.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                      
+                    </div>
+                </div>
+
+                <!-- DESCUBRE TU Talento -->
+                 <div id="descubre_tu_talento" class="card" data-actividad="descubre_tu_talento">
+                    <div class="card-image">
+                        <img src="imagenes/descubre_tu_talento-02.jpg" alt="descubre_tu_talento">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Descubre Tú Talento</h3>
+                        <p class="card-description">Actividad donde niños y jóvenes exploran diferentes deportes y disciplinas para descubrir sus habilidades naturales y encontrar su pasión deportiva.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                      
+                    </div>
+                </div>
+
+                <!-- gimnasia -->
+                <div id="gimnasia" class="card" data-actividad="gimnasia">
+                    <div class="card-image">
+                        <img src="imagenes/gimnasia-02.jpg" alt="Gimnasia">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Gimnasia</h3>
+                        <p class="card-description">Disciplina que mejora la flexibilidad, coordinación y control del cuerpo a través del movimiento, combinando fuerza, equilibrio y gracia.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                      
+                    </div>
+                </div>
+
+                <!-- jiu jitsu-->
+                 <div id="jiu_jitsu" class="card" data-actividad="jiu_jitsu">
+                    <div class="card-image">
+                        <img src="imagenes/jiu jitsu-02.jpg" alt="jiu_jitsu">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Jiu Jitsu</h3>
+                        <p class="card-description">Arte marcial que enseña defensa personal y control del cuerpo usando llaves y técnicas de agarre, desarrollando disciplina mental y física.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                      
+                    </div>
+                </div>
+
+                 <!-- gimnasio-->
+                 <div id="gimnasio" class="card" data-actividad="gimnasio">
+                    <div class="card-image">
+                        <img src="imagenes/gym-02.jpg" alt="gimnasio">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Gimnasio</h3>
+                        <p class="card-description">Espacio donde se fortalece el cuerpo con ejercicios y rutinas guiadas para mejorar la salud, condición física y bienestar general.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                      
+                    </div>
+                </div>
+
+
+                 <!-- levantamiento de pesas-->
+                 <div id="levantamiento_de_pesas" class="card" data-actividad="levantamiento_de_pesas">
+                    <div class="card-image">
+                        <img src="imagenes/levantamiento-de-pesas-02.jpg" alt="levantamiento_de_pesas">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Levantamiento de Pesas</h3>
+                        <p class="card-description">Disciplina donde se desarrolla fuerza y resistencia mediante el uso de pesas, ideal para mejorar el rendimiento físico y la masa muscular.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                      
+                    </div>
+                </div>
+
+
+                <!-- Tiro con Arco-->
+                <div id="tiro_con_arco" class="card" data-actividad="tiro_con_arco">
+                    <div class="card-image">
+                        <img src="imagenes/tiro-con-arco-02.jpg" alt="tiro-con-arco-02">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Tiro con Arco</h3>
+                        <p class="card-description">Deporte de precisión que consiste en lanzar flechas con arco hacia un blanco, fortaleciendo la concentración, coordinación y control mental.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                      
+                    </div>
+                </div>
+
+                 <!-- TAEKWONDO-->
+                 <div id="taekwondo" class="card" data-actividad="taekwondo">
+                    <div class="card-image">
+                        <img src="imagenes/taekwondo-02.jpg" alt="taekwondo">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Taekwondo</h3>
+                        <p class="card-description">Arte marcial coreano que combina técnicas de patadas, puños y defensa, ideal para mejorar disciplina, agilidad y autocontrol.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                      
+                    </div>
+                </div>
+
+                       
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Pie de página -->
+    <footer>
+  <div class="container" style="text-align: center;">
+    <p>© 2025 DeporteApp. Todos los Derechos Reservados.</p>
+  </div>
+</footer>
+
+
+    <script type="module">
+        import { supabaseClient } from './supabase-config.js';
+
+        // Función para obtener estadísticas de participantes por actividad física
+        async function obtenerEstadisticasActividades() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('participantes')
+                    .select('actividad, genero')
+                    .eq('tipo_actividad', 'actividad_fisica');
+
+                if (error) throw error;
+
+                // Procesar datos para obtener estadísticas por actividad
+                const estadisticas = {};
+                
+                data.forEach(participante => {
+                    const actividad = participante.actividad;
+                    
+                    if (!estadisticas[actividad]) {
+                        estadisticas[actividad] = {
+                            total: 0,
+                            hombres: 0,
+                            mujeres: 0
+                        };
+                    }
+                    
+                    estadisticas[actividad].total++;
+                    
+                    if (participante.genero === 'Hombre') {
+                        estadisticas[actividad].hombres++;
+                    } else if (participante.genero === 'Mujer') {
+                        estadisticas[actividad].mujeres++;
+                    }
+                });
+
+                return estadisticas;
+            } catch (error) {
+                console.error('Error al obtener estadísticas de actividades:', error);
+                return {};
+            }
+        }
+
+        // Función para actualizar una tarjeta con estadísticas
+        function actualizarTarjeta(actividad, stats) {
+            const tarjeta = document.querySelector(`[data-actividad="${actividad}"]`);
+            if (!tarjeta) return;
+
+            const total = stats.total || 0;
+            const hombres = stats.hombres || 0;
+            const mujeres = stats.mujeres || 0;
+            
+            const porcentajeHombres = total > 0 ? Math.round((hombres / total) * 100) : 0;
+            const porcentajeMujeres = total > 0 ? Math.round((mujeres / total) * 100) : 0;
+
+            // Actualizar valores de texto
+            tarjeta.querySelector('[data-stat="total"]').textContent = total;
+            tarjeta.querySelector('[data-stat="hombres"]').textContent = `${hombres} (${porcentajeHombres}%)`;
+            tarjeta.querySelector('[data-stat="mujeres"]').textContent = `${mujeres} (${porcentajeMujeres}%)`;
+
+            // Actualizar barras de progreso
+            const barraHombres = tarjeta.querySelector('[data-chart="male"]');
+            const barraMujeres = tarjeta.querySelector('[data-chart="female"]');
+
+            if (total > 0) {
+                barraHombres.style.width = `${porcentajeHombres}%`;
+                barraHombres.textContent = `${porcentajeHombres}%`;
+                
+                barraMujeres.style.width = `${porcentajeMujeres}%`;
+                barraMujeres.textContent = `${porcentajeMujeres}%`;
+            } else {
+                barraHombres.style.width = '0%';
+                barraHombres.textContent = '0%';
+                
+                barraMujeres.style.width = '0%';
+                barraMujeres.textContent = '0%';
+            }
+
+            // Agregar animación a las barras
+            setTimeout(() => {
+                barraHombres.style.transition = 'width 0.8s ease-in-out';
+                barraMujeres.style.transition = 'width 0.8s ease-in-out';
+            }, 100);
+        }
+
+        // Función principal para actualizar todas las estadísticas
+        async function actualizarEstadisticas() {
+            const boton = document.getElementById('btn-actualizar');
+            const ultimaActualizacion = document.getElementById('ultima-actualizacion');
+            
+            // Mostrar estado de carga
+            boton.textContent = '🔄 Actualizando...';
+            boton.disabled = true;
+
+            try {
+                const estadisticas = await obtenerEstadisticasActividades();
+                
+                // Lista de todas las actividades físicas
+                const actividades = [
+                    'bmx', 'boxeo', 'descubre_tu_talento', 'gimnasia', 
+                    'jiu_jitsu', 'gimnasio', 'levantamiento_de_pesas', 
+                    'tiro_con_arco', 'taekwondo'
+                ];
+
+                // Actualizar cada tarjeta
+                actividades.forEach(actividad => {
+                    const stats = estadisticas[actividad] || { total: 0, hombres: 0, mujeres: 0 };
+                    actualizarTarjeta(actividad, stats);
+                });
+
+                // Actualizar timestamp
+                const ahora = new Date().toLocaleString('es-ES', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                ultimaActualizacion.textContent = `Última actualización: ${ahora}`;
+
+                console.log('Estadísticas de actividades actualizadas exitosamente');
+            } catch (error) {
+                console.error('Error al actualizar estadísticas de actividades:', error);
+                ultimaActualizacion.textContent = 'Error al actualizar estadísticas';
+            } finally {
+                // Restaurar botón
+                boton.textContent = '🔄 Actualizar Estadísticas';
+                boton.disabled = false;
+            }
+        }
+
+        // Función para actualizar estadísticas automáticamente
+        function iniciarActualizacionAutomatica() {
+            // Actualizar cada 30 segundos
+            setInterval(async () => {
+                await actualizarEstadisticas();
+            }, 30000);
+        }
+
+        // Exponer función globalmente para el botón
+        window.actualizarEstadisticas = actualizarEstadisticas;
+
+        // Cargar estadísticas al iniciar la página
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Cargando estadísticas de actividades físicas...');
+            await actualizarEstadisticas();
+            
+            // Iniciar actualización automática
+            iniciarActualizacionAutomatica();
+            
+            console.log('Sistema de estadísticas de actividades en tiempo real activado');
+        });
+
+        // Actualizar cuando la página vuelve a estar visible (usuario regresa a la pestaña)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                actualizarEstadisticas();
+            }
+        });
+    </script>
+
+    <script src="script.js"></script>
+</body>
+</html>

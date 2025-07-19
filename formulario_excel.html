@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión de Participantes - DeporteApp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="estilos.css">
+  <!-- Añadir Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import { protectPage, signOut } from './supabase-config.js';
+
+    document.addEventListener('DOMContentLoaded', async function () {
+      // Proteger esta página - solo para administradores
+      await protectPage(['admin', 'instructor']);
+
+      // Configurar botón de cierre de sesión
+      document.getElementById('logout-btn').addEventListener('click', async function () {
+        try {
+          await signOut();
+          window.location.href = 'index.html';
+        } catch (error) {
+          console.error('Error al cerrar sesión:', error);
+          alert('Error al cerrar sesión. Intente nuevamente.');
+        }
+      });
+    });
+  </script>
+  <style>
+    .form-container {
+      background-color: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #ddd;
+      border-collapse: collapse;
+      padding: 10px;
+    }
+
+    table {
+      width: 100%;
+      margin-bottom: 1rem;
+      background-color: white;
+    }
+
+    th {
+      background-color: var(--color-primary);
+      color: white;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    tr.selected {
+      background-color: #e3f2fd !important;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    input:focus, select:focus {
+      outline: 2px solid var(--color-primary-light);
+      border-color: var(--color-primary);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .results-container {
+      background-color: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    .checkbox-column {
+      width: 40px;
+      text-align: center;
+    }
+
+    .edit-mode {
+      background-color: #fff3cd !important;
+      border: 2px solid #ffc107 !important;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      justify-content: center;
+    }
+
+    .btn-edit {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background-color: #218838;
+    }
+
+    .btn-delete {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background-color: #c82333;
+    }
+
+    /* Estilos para el modal de evidencias */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 2% auto;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 1000px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+    }
+
+    .close:hover {
+      color: #000;
+    }
+
+    .upload-area {
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .upload-area:hover {
+      border-color: var(--color-primary);
+      background-color: #f8f9ff;
+    }
+
+    .upload-area.dragover {
+      border-color: var(--color-primary);
+      background-color: #e3f2fd;
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .evidence-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .evidence-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .evidence-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    .evidence-info {
+      padding: 1rem;
+    }
+
+    .evidence-instructor {
+      font-weight: bold;
+      color: var(--color-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .evidence-datetime {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .evidence-location {
+      color: #888;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .btn-evidence {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-evidence:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid var(--color-primary);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .evidence-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--color-primary);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .filter-controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-controls select,
+    .filter-controls input {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      width: auto;
+      min-width: 150px;
+    }
+
+    .image-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+    }
+
+    .image-modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 90%;
+      max-height: 90%;
+    }
+
+    .image-modal img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .btn-delete-evidence {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-delete-evidence:hover {
+      background-color: #c82333;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Encabezado con navegación -->
+  <header>
+    <div class="container header-content">
+      <div class="logo">DeporteApp</div>
+      <nav>
+        <ul>
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="Deportes.html">Deportes</a></li>
+          <li><a href="actividades.html">Actividades Físicas</a></li>
+          <li><a href="diagrama.html">Diagrama</a></li>
+        </ul>
+      </nav>
+      <button id="logout-btn" class="btn btn-secondary">Cerrar Sesión</button>
+      <button id="menu-toggle" class="menu-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <main>
+    <div class="page-header">
+      <div class="container">
+        <h1>Gestión de Participantes</h1>
+        <p>Administre los datos de participantes en actividades</p>
+      </div>
+    </div>
+
+    <div class="container">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <a href="Dashboard.html" class="back-link btn btn-outline">
+          <span class="arrow-left">←</span> Volver
+        </a>
+        
+        <!-- Botón de Evidencias -->
+        <button onclick="abrirModalEvidencias()" class="btn-evidence">
+          📸 Evidencias Fotográficas
+        </button>
+      </div>
+
+      <div class="form-container">
+        <h2 id="form-title">Agregar Nuevo Participante</h2>
+
+        <form id="formExcel">
+          <table id="tablaFormulario">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Edad</th>
+                <th>Género</th>
+                <th>Actividad</th>
+                <th>Tipo de Actividad</th>
+                <th>Barrio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="text" name="nombre" placeholder="Nombre completo" required></td>
+                <td><input type="number" name="edad" placeholder="Edad" min="5" max="99" required></td>
+                <td>
+                  <select name="genero" required>                    
+                    <option value="">Seleccionar...</option>
+                    <option value="Hombre">Hombre</option>
+                    <option value="Mujer">Mujer</option>
+                  </select>
+                </td>
+                <td>
+                  <select name="actividad" required>
+                    <option value="">Seleccionar</option>
+                    <optgroup label="Deportes">
+                      <option value="futbol">Fútbol</option>
+                      <option value="futbol_de_salon">Fútbol de Salón</option>
+                      <option value="futbol_sala">Fútbol sala</option>
+                      <option value="ajedrez">Ajedrez</option>
+                      <option value="baloncesto">Baloncesto</option>
+                      <option value="balonmano">Balonmano</option>
+                      <option value="natacion">Natación</option>
+                      <option value="atletismo">Atletismo</option>
+                      <option value="patinaje">Patinaje</option>
+                      <option value="rugby">Rugby</option>
+                      <option value="tenis">Tenis</option>
+                      <option value="voleibol">Voleibol</option>
+                    </optgroup>
+                    <optgroup label="Actividades Físicas">
+                      <option value="bmx">BMX</option>
+                      <option value="boxeo">Boxeo</option>
+                      <option value="descubre_tu_talento">Descubre tú Talento</option>
+                      <option value="gimnasia">Gimnasia</option>
+                      <option value="jiu_jitsu">Jiu Jitsu</option>
+                      <option value="gimnasio">Gimnasio</option>
+                      <option value="levantamiento_de_pesas">Levantamiento de Pesas</option>
+                      <option value="tiro_con_arco">Tiro con Arco</option>
+                      <option value="taekwondo">Taekwondo</option>
+                    </optgroup>
+                  </select>
+                </td>
+                <td>
+                  <select name="tipo_actividad" required>
+                    <option value="">Seleccionar...</option>                  
+                    <option value="deporte">Deporte</option>
+                    <option value="actividad_fisica">Actividad Física</option>
+                  </select>
+                </td>
+                <td><input type="text" name="barrio" placeholder="Barrio" required></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="button-group">
+            <button type="submit" class="btn btn-primary" id="btn-guardar">Guardar</button>
+            <button type="button" onclick="cancelarEdicion()" class="btn btn-outline" id="btn-cancelar" style="display: none;">Cancelar</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="results-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+          <h3>Participantes Registrados:</h3>
+          <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <!-- Barra de búsqueda -->
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <input 
+                type="text" 
+                id="search-participante" 
+                placeholder="🔍 Buscar participante..." 
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; min-width: 200px;"
+                onkeyup="filtrarParticipantes()"
+              >
+              <button onclick="limpiarBusqueda()" class="btn btn-outline" style="padding: 0.5rem;">✖️</button>
+            </div>
+            <!-- Botones de acción -->
+            <div class="action-buttons">
+              <button onclick="editarSeleccionados()" class="btn btn-edit" id="btn-editar">✏️ Editar</button>
+              <button onclick="eliminarSeleccionados()" class="btn btn-delete" id="btn-eliminar">🗑️ Eliminar</button>
+              <button onclick="seleccionarTodos()" class="btn btn-outline" id="btn-seleccionar">☑️ Seleccionar Todos</button>
+            </div>
+          </div>
+        </div>
+        <div id="tablaResultado"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de Evidencias -->
+  <div id="modalEvidencias" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="cerrarModalEvidencias()">&times;</span>
+      <h2>📸 Evidencias Fotográficas</h2>
+      
+      <!-- Estadísticas de evidencias -->
+      <div class="evidence-stats" id="evidenceStats">
+        <div class="stat-item">
+          <div class="stat-number" id="totalEvidencias">0</div>
+          <div class="stat-label">Total Evidencias</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="evidenciasHoy">0</div>
+          <div class="stat-label">Hoy</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="evidenciasSemana">0</div>
+          <div class="stat-label">Esta Semana</div>
+        </div>
+      </div>
+
+      <!-- Área de subida -->
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📷</div>
+        <h3>Subir Nueva Evidencia</h3>
+        <p>Haz clic aquí o arrastra una imagen para subirla</p>
+        <p style="font-size: 0.8rem; color: #666;">Se capturará automáticamente la ubicación y hora</p>
+        <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="subirEvidencia(this.files[0])">
+      </div>
+
+      <!-- Controles de filtro -->
+      <div class="filter-controls">
+        <select id="filterinstructor" onchange="filtrarEvidencias()">
+          <option value="">Todos los instructores</option>
+        </select>
+        <input type="date" id="filterFecha" onchange="filtrarEvidencias()">
+        <button onclick="limpiarFiltros()" class="btn btn-outline">Limpiar Filtros</button>
+      </div>
+
+      <!-- Grid de evidencias -->
+      <div id="evidenceGrid" class="evidence-grid">
+        <div style="text-align: center; padding: 2rem;">
+          <div class="loading-spinner"></div>
+          <p>Cargando evidencias...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para ver imagen completa -->
+  <div id="imageModal" class="image-modal" onclick="cerrarImagenModal()">
+    <div class="image-modal-content">
+     <img src="https://mbygotohuxrnqmxosymw.supabase.co/storage/v1/object/public/evidencias/evidencia_dd1aa0dd-cd51-4853-a356-89ca742572da_1752874586926.jpeg"
+     alt="Imagen de evidencia"
+     width="300"
+     onerror="this.onerror=null; this.src='placeholder.svg'" />
+
+
+
+
+
+
+
+    </div>
+  </div>
+
+  <!-- Pie de página -->
+  <footer>
+    <div class="container">
+      <p>© 2025 DeporteApp. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script type="module">
+  import { supabaseClient, getUserProfile } from './supabase-config.js';
+
+  // Variables globales
+  let participantesGuardados = [];
+  let modoEdicion = false;
+  let participanteEditando = null;
+  let evidenciasData = [];
+  let userProfile = null;
+
+  // Inicializar perfil de usuario
+  async function inicializarPerfil() {
+    userProfile = await getUserProfile();
+    console.log('Perfil de usuario:', userProfile);
+  }
+
+ 
+  // Función para crear tabla de evidencias si no existe
+  async function crearTablaEvidencias() {
+    try {
+      // Verificar si la tabla existe consultándola
+      const { data, error } = await supabaseClient
+        .from('evidencias')
+        .select('id')
+        .limit(1);
+      
+      if (error && error.message.includes('does not exist')) {
+        console.log('La tabla evidencias no existe. Debe ser creada manualmente en Supabase.');
+        alert('⚠️ La tabla de evidencias no existe. Contacte al administrador del sistema.');
+      }
+    } catch (error) {
+      console.log('Tabla de evidencias verificada');
+    }
+  }
+
+  // Función para obtener ubicación
+  function obtenerUbicacion() {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve({ error: 'Geolocalización no soportada' });
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            latitud: position.coords.latitude,
+            longitud: position.coords.longitude,
+            precision: position.coords.accuracy
+          });
+        },
+        (error) => {
+          console.error('Error obteniendo ubicación:', error);
+          resolve({ error: error.message });
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000
+        }
+      );
+    });
+  }
+
+  // Función para subir evidencia
+  async function subirEvidencia(file) {
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor, seleccione solo archivos de imagen.');
+      return;
+    }
+
+    if (file.size > 5242880) { // 5MB
+      alert('El archivo es demasiado grande. Máximo 5MB.');
+      return;
+    }
+
+    const uploadArea = document.getElementById('uploadArea');
+    const originalContent = uploadArea.innerHTML;
+    
+    try {
+      // Mostrar estado de carga
+      uploadArea.innerHTML = `
+        <div class="loading-spinner"></div>
+        <p>Subiendo evidencia...</p>
+        <p style="font-size: 0.8rem;">Obteniendo ubicación y guardando imagen...</p>
+      `;
+
+      // Obtener ubicación
+      const ubicacion = await obtenerUbicacion();
+      
+      // Generar nombre único para el archivo
+      const timestamp = new Date().toISOString();
+      const fileName = `evidencia_${userProfile.id}_${Date.now()}.${file.name.split('.').pop()}`;
+      
+      // Subir archivo a Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabaseClient.storage
+        .from('evidencias')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Obtener URL pública del archivo
+      const { data: urlData } = supabaseClient.storage
+        .from('evidencias')
+        .getPublicUrl(fileName);
+
+      console.log('URL generada:', urlData.publicUrl);
+
+      // Verificar que la URL sea accesible
+      try {
+        const response = await fetch(urlData.publicUrl, { method: 'HEAD' });
+        console.log('Estado de la imagen:', response.status);
+      } catch (error) {
+        console.error('Error verificando imagen:', error);
+      }
+
+      // Guardar información en la base de datos
+      const evidenciaData = {
+        instructor_id: userProfile.id,
+        instructor_nombre: userProfile.full_name || userProfile.username,
+        archivo_nombre: fileName,
+        archivo_url: urlData.publicUrl,
+        fecha_subida: timestamp,
+        latitud: ubicacion.latitud || null,
+        longitud: ubicacion.longitud || null,
+        ubicacion_error: ubicacion.error || null
+      };
+
+      const { data: dbData, error: dbError } = await supabaseClient
+        .from('evidencias')
+        .insert([evidenciaData]);
+
+      if (dbError) throw dbError;
+
+      alert('✅ Evidencia subida exitosamente');
+      
+      // Recargar evidencias
+      await cargarEvidencias();
+      
+    } catch (error) {
+      console.error('Error subiendo evidencia:', error);
+      alert(`❌ Error al subir evidencia: ${error.message}`);
+    } finally {
+      // Restaurar contenido original
+      uploadArea.innerHTML = originalContent;
+      document.getElementById('fileInput').value = '';
+    }
+  }
+
+  // Función para cargar evidencias
+  async function cargarEvidencias() {
+    try {
+      let query = supabaseClient
+        .from('evidencias')
+        .select('*')
+        .order('fecha_subida', { ascending: false });
+
+      // Si es instructor, solo mostrar sus evidencias
+      if (userProfile.role === 'instructor') {
+        query = query.eq('instructor_id', userProfile.id);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      evidenciasData = data || [];
+      mostrarEvidencias(evidenciasData);
+      actualizarEstadisticasEvidencias(evidenciasData);
+      cargarFiltroInstructores(evidenciasData);
+
+    } catch (error) {
+      console.error('Error cargando evidencias:', error);
+      document.getElementById('evidenceGrid').innerHTML = `
+        <div style="text-align: center; padding: 2rem; color: #dc3545;">
+          <h4>Error al cargar evidencias</h4>
+          <p>${error.message}</p>
+        </div>
+      `;
+    }
+  }
+
+  // Función para mostrar evidencias en el grid
+  function mostrarEvidencias(evidencias) {
+    const grid = document.getElementById('evidenceGrid');
+    
+    if (!evidencias || evidencias.length === 0) {
+      grid.innerHTML = `
+        <div style="text-align: center; padding: 2rem; color: #666; grid-column: 1 / -1;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">📷</div>
+          <h4>No hay evidencias</h4>
+          <p>Sube tu primera evidencia fotográfica</p>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    evidencias.forEach(evidencia => {
+      const fecha = new Date(evidencia.fecha_subida);
+      const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const ubicacionTexto = evidencia.latitud && evidencia.longitud 
+        ? `📍 ${evidencia.latitud.toFixed(6)}, ${evidencia.longitud.toFixed(6)}`
+        : '📍 Ubicación no disponible';
+
+      html += `
+        <div class="evidence-card">
+          <img 
+            src="${evidencia.archivo_url}" 
+            alt="Evidencia" 
+            class="evidence-image"
+            onclick="abrirImagenModal('${evidencia.archivo_url}')"
+            onerror="this.onerror=null; this.src='placeholder.svg'; console.error('Error cargando imagen:', '${evidencia.archivo_url}');"
+            onload="console.log('Imagen cargada correctamente:', '${evidencia.archivo_url}');"
+          >
+          <div class="evidence-info">
+            <div class="evidence-instructor">${evidencia.instructor_nombre}</div>
+            <div class="evidence-datetime">🕒 ${fechaFormateada}</div>
+            <div class="evidence-location">${ubicacionTexto}</div>
+            ${userProfile.role === 'admin' || evidencia.instructor_id === userProfile.id ? 
+              `<button onclick="eliminarEvidencia('${evidencia.id}')" class="btn-delete-evidence">🗑️ Eliminar</button>` 
+              : ''
+            }
+          </div>
+        </div>
+      `;
+    });
+
+    grid.innerHTML = html;
+  }
+
+  // Función para actualizar estadísticas de evidencias
+  function actualizarEstadisticasEvidencias(evidencias) {
+    const total = evidencias.length;
+    
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const evidenciasHoy = evidencias.filter(e => {
+      const fechaEvidencia = new Date(e.fecha_subida);
+      fechaEvidencia.setHours(0, 0, 0, 0);
+      return fechaEvidencia.getTime() === hoy.getTime();
+    }).length;
+
+    const inicioSemana = new Date();
+    inicioSemana.setDate(inicioSemana.getDate() - inicioSemana.getDay());
+    inicioSemana.setHours(0, 0, 0, 0);
+    const evidenciasSemana = evidencias.filter(e => 
+      new Date(e.fecha_subida) >= inicioSemana
+    ).length;
+
+    document.getElementById('totalEvidencias').textContent = total;
+    document.getElementById('evidenciasHoy').textContent = evidenciasHoy;
+    document.getElementById('evidenciasSemana').textContent = evidenciasSemana;
+  }
+
+  // Función para cargar filtro de instructores
+  function cargarFiltroInstructores(evidencias) {
+    const select = document.getElementById('filterinstructor');
+    const instructores = [...new Set(evidencias.map(e => e.instructor_nombre))];
+    
+    let options = '<option value="">Todos los instructores</option>';
+    instructores.forEach(instructor => {
+      options += `<option value="${instructor}">${instructor}</option>`;
+    });
+    
+    select.innerHTML = options;
+    
+    // Ocultar filtro si es instructor (solo ve sus propias evidencias)
+    if (userProfile.role === 'instructor') {
+      select.style.display = 'none';
+    }
+  }
+
+  // Función para filtrar evidencias
+  function filtrarEvidencias() {
+    const instructorFiltro = document.getElementById('filterinstructor').value;
+    const fechaFiltro = document.getElementById('filterFecha').value;
+    
+    let evidenciasFiltradas = [...evidenciasData];
+    
+    if (instructorFiltro) {
+      evidenciasFiltradas = evidenciasFiltradas.filter(e => 
+        e.instructor_nombre === instructorFiltro
+      );
+    }
+    
+    if (fechaFiltro) {
+      const fechaSeleccionada = new Date(fechaFiltro);
+      evidenciasFiltradas = evidenciasFiltradas.filter(e => {
+        const fechaEvidencia = new Date(e.fecha_subida);
+        return fechaEvidencia.toDateString() === fechaSeleccionada.toDateString();
+      });
+    }
+    
+    mostrarEvidencias(evidenciasFiltradas);
+  }
+
+  // Función para limpiar filtros
+  function limpiarFiltros() {
+    document.getElementById('filterInstructor').value = '';
+    document.getElementById('filterFecha').value = '';
+    mostrarEvidencias(evidenciasData);
+  }
+
+  // Función para eliminar evidencia
+  async function eliminarEvidencia(evidenciaId) {
+    if (!confirm('¿Está seguro de que desea eliminar esta evidencia?')) {
+      return;
+    }
+
+    try {
+      // Obtener información de la evidencia
+      const evidencia = evidenciasData.find(e => e.id === evidenciaId);
+      if (!evidencia) throw new Error('Evidencia no encontrada');
+
+      // Eliminar archivo del storage
+      const { error: storageError } = await supabaseClient.storage
+        .from('evidencias')
+        .remove([evidencia.archivo_nombre]);
+
+      if (storageError) {
+        console.warn('Error eliminando archivo del storage:', storageError);
+      }
+
+      // Eliminar registro de la base de datos
+      const { error: dbError } = await supabaseClient
+        .from('evidencias')
+        .delete()
+        .eq('id', evidenciaId);
+
+      if (dbError) throw dbError;
+
+      alert('✅ Evidencia eliminada exitosamente');
+      await cargarEvidencias();
+
+    } catch (error) {
+      console.error('Error eliminando evidencia:', error);
+      alert(`❌ Error al eliminar evidencia: ${error.message}`);
+    }
+  }
+
+  // Funciones para modales
+  window.abrirModalEvidencias = async function() {
+    await inicializarPerfil();
+    
+    await crearTablaEvidencias();
+    document.getElementById('modalEvidencias').style.display = 'block';
+    await cargarEvidencias();
+  }
+
+  window.cerrarModalEvidencias = function() {
+    document.getElementById('modalEvidencias').style.display = 'none';
+  }
+
+  window.abrirImagenModal = function(url) {
+    document.getElementById('modalImage').src = url;
+    document.getElementById('imageModal').style.display = 'block';
+  }
+
+  window.cerrarImagenModal = function() {
+    document.getElementById('imageModal').style.display = 'none';
+  }
+
+  // Exponer funciones globalmente
+  window.subirEvidencia = subirEvidencia;
+  window.eliminarEvidencia = eliminarEvidencia;
+  window.filtrarEvidencias = filtrarEvidencias;
+  window.limpiarFiltros = limpiarFiltros;
+
+  // Configurar drag and drop
+  document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    
+    if (uploadArea) {
+      uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+      });
+
+      uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+      });
+
+      uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          subirEvidencia(files[0]);
+        }
+      });
+    }
+  });
+
+  // Cerrar modales con Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      cerrarModalEvidencias();
+      cerrarImagenModal();
+    }
+  });
+
+  // Resto del código existente para participantes...
+  
+  // Función para guardar datos en Supabase
+  async function guardarEnSupabase(participante) {
+    try {
+      const { data, error } = await supabaseClient
+        .from('participantes')
+        .insert([participante]);
+
+      if (error) throw error;
+      
+      console.log('Participante guardado exitosamente:', data);
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error al guardar en Supabase:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Función para actualizar participante en Supabase
+  async function actualizarEnSupabase(id, participante) {
+    try {
+      const { data, error } = await supabaseClient
+        .from('participantes')
+        .update(participante)
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      console.log('Participante actualizado exitosamente:', data);
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error al actualizar en Supabase:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Función para eliminar participantes de Supabase
+  async function eliminarDeSupabase(ids) {
+    try {
+      const { data, error } = await supabaseClient
+        .from('participantes')
+        .delete()
+        .in('id', ids);
+
+      if (error) throw error;
+      
+      console.log('Participantes eliminados exitosamente:', data);
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error al eliminar de Supabase:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Función para cargar participantes desde Supabase
+  async function cargarParticipantes() {
+    try {
+      const { data, error } = await supabaseClient
+        .from('participantes')
+        .select('*')
+        .order('fecha_registro', { ascending: false });
+
+      if (error) throw error;
+      
+      participantesGuardados = data || [];
+      mostrarTabla(participantesGuardados);
+      return data;
+    } catch (error) {
+      console.error('Error al cargar participantes:', error);
+      return [];
+    }
+  }
+
+  // Manejo del formulario
+  document.getElementById('formExcel').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    
+    // Mostrar estado de carga
+    submitButton.textContent = modoEdicion ? 'Actualizando...' : 'Guardando...';
+    submitButton.disabled = true;
+
+    const fila = document.querySelector('#tablaFormulario tbody tr');
+    const nombre = fila.querySelector('[name="nombre"]').value.trim();
+    const edad = parseInt(fila.querySelector('[name="edad"]').value);
+    const genero = fila.querySelector('[name="genero"]').value;
+    const actividad = fila.querySelector('[name="actividad"]').value;
+    const tipo_actividad = fila.querySelector('[name="tipo_actividad"]').value;
+    const barrio = fila.querySelector('[name="barrio"]').value.trim();
+
+    // Validar que todos los campos estén completos
+    if (!nombre || !edad || !genero || !actividad || !tipo_actividad || !barrio) {
+      alert('Por favor, complete todos los campos.');
+      submitButton.textContent = originalText;
+      submitButton.disabled = false;
+      return;
+    }
+
+    const participante = {
+      nombre,
+      edad,
+      genero,
+      actividad,
+      tipo_actividad,
+      barrio
+    };
+
+    let resultado;
+    if (modoEdicion && participanteEditando) {
+      // Actualizar participante existente
+      resultado = await actualizarEnSupabase(participanteEditando.id, participante);
+    } else {
+      // Guardar nuevo participante
+      resultado = await guardarEnSupabase(participante);
+    }
+    
+    if (resultado.success) {
+      alert(`✅ Participante ${modoEdicion ? 'actualizado' : 'guardado'} exitosamente.`);
+      
+      // Limpiar formulario y salir del modo edición
+      limpiarFormulario();
+      cancelarEdicion();
+      
+      // Recargar la tabla con datos actualizados
+      await cargarParticipantes();
+    } else {
+      alert(`❌ Error al ${modoEdicion ? 'actualizar' : 'guardar'}: ${resultado.error}`);
+    }
+
+    // Restaurar botón
+    submitButton.textContent = originalText;
+    submitButton.disabled = false;
+  });
+
+  // Función para mostrar tabla de resultados con checkboxes
+  function mostrarTabla(data) {
+    const container = document.getElementById('tablaResultado');
+    
+    if (!data || data.length === 0) {
+      container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 2rem;">No hay participantes registrados</p>';
+      return;
+    }
+
+    let html = `
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; min-width: 900px;">
+          <thead>
+            <tr>
+              <th class="checkbox-column">
+                <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
+              </th>
+              <th>Nombre</th>
+              <th>Edad</th>
+              <th>Género</th>
+              <th>Actividad</th>
+              <th>Tipo</th>
+              <th>Barrio</th>
+              <th>Fecha Registro</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    
+    data.forEach(participante => {
+      const fecha = new Date(participante.fecha_registro).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      html += `
+        <tr data-id="${participante.id}">
+          <td class="checkbox-column">
+            <input type="checkbox" class="row-checkbox" value="${participante.id}">
+          </td>
+          <td>${participante.nombre}</td>
+          <td>${participante.edad}</td>
+          <td>${participante.genero}</td>
+          <td>${participante.actividad}</td>
+          <td>${participante.tipo_actividad}</td>
+          <td>${participante.barrio}</td>
+          <td>${fecha}</td>
+        </tr>
+      `;
+    });
+    
+    html += '</tbody></table></div>';
+    
+    // Agregar estadísticas
+    const totalParticipantes = data.length;
+    const hombres = data.filter(p => p.genero === 'Hombre').length;
+    const mujeres = data.filter(p => p.genero === 'Mujer').length;
+    
+    html += `
+      <div style="margin-top: 1.5rem; padding: 1rem; background-color: #f8f9fa; border-radius: 8px;">
+        <h4 style="margin-bottom: 1rem; color: var(--color-primary);">📊 Estadísticas</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+          <div style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold; color: var(--color-primary);">${totalParticipantes}</div>
+            <div style="color: #6c757d;">Total Participantes</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold; color: var(--color-male);">${hombres}</div>
+            <div style="color: #6c757d;">Hombres (${totalParticipantes > 0 ? Math.round((hombres/totalParticipantes)*100) : 0}%)</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold; color: var(--color-female);">${mujeres}</div>
+            <div style="color: #6c757d;">Mujeres (${totalParticipantes > 0 ? Math.round((mujeres/totalParticipantes)*100) : 0}%)</div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    container.innerHTML = html;
+  }
+
+  // Función para seleccionar/deseleccionar todos
+  window.toggleSelectAll = function() {
+    const selectAll = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('.row-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+      checkbox.checked = selectAll.checked;
+    });
+  }
+
+  // Función para seleccionar todos
+  window.seleccionarTodos = function() {
+    const selectAll = document.getElementById('select-all');
+    if (selectAll) {
+      selectAll.checked = !selectAll.checked;
+      toggleSelectAll();
+    }
+  }
+
+  // Función para editar participantes seleccionados
+  window.editarSeleccionados = function() {
+    const seleccionados = document.querySelectorAll('.row-checkbox:checked');
+    
+    if (seleccionados.length === 0) {
+      alert('Por favor, seleccione al menos un participante para editar.');
+      return;
+    }
+    
+    if (seleccionados.length > 1) {
+      alert('Por favor, seleccione solo un participante para editar.');
+      return;
+    }
+
+    const id = seleccionados[0].value;
+    const participante = participantesGuardados.find(p => p.id === id);
+    
+    if (participante) {
+      cargarParticipanteEnFormulario(participante);
+    }
+  }
+
+  // Función para cargar participante en el formulario para edición
+  function cargarParticipanteEnFormulario(participante) {
+    const fila = document.querySelector('#tablaFormulario tbody tr');
+    
+    fila.querySelector('[name="nombre"]').value = participante.nombre;
+    fila.querySelector('[name="edad"]').value = participante.edad;
+    fila.querySelector('[name="genero"]').value = participante.genero;
+    fila.querySelector('[name="actividad"]').value = participante.actividad;
+    fila.querySelector('[name="tipo_actividad"]').value = participante.tipo_actividad;
+    fila.querySelector('[name="barrio"]').value = participante.barrio;
+
+    // Activar modo edición
+    modoEdicion = true;
+    participanteEditando = participante;
+    
+    // Cambiar UI
+    document.getElementById('form-title').textContent = 'Editar Participante';
+    document.getElementById('btn-guardar').textContent = 'Actualizar';
+    document.getElementById('btn-cancelar').style.display = 'inline-block';
+    
+    // Scroll al formulario
+    document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Función para cancelar edición
+  window.cancelarEdicion = function() {
+    modoEdicion = false;
+    participanteEditando = null;
+    
+    // Restaurar UI
+    document.getElementById('form-title').textContent = 'Agregar Nuevo Participante';
+    document.getElementById('btn-guardar').textContent = 'Guardar';
+    document.getElementById('btn-cancelar').style.display = 'none';
+    
+    limpiarFormulario();
+  }
+
+  // Función para eliminar participantes seleccionados
+  window.eliminarSeleccionados = async function() {
+    const seleccionados = document.querySelectorAll('.row-checkbox:checked');
+    
+    if (seleccionados.length === 0) {
+      alert('Por favor, seleccione al menos un participante para eliminar.');
+      return;
+    }
+
+    const confirmacion = confirm(`¿Está seguro de que desea eliminar ${seleccionados.length} participante(s)? Esta acción no se puede deshacer.`);
+    
+    if (!confirmacion) return;
+
+    const ids = Array.from(seleccionados).map(checkbox => checkbox.value);
+    
+    const resultado = await eliminarDeSupabase(ids);
+    
+    if (resultado.success) {
+      alert(`✅ ${ids.length} participante(s) eliminado(s) exitosamente.`);
+      await cargarParticipantes();
+    } else {
+      alert(`❌ Error al eliminar: ${resultado.error}`);
+    }
+  }
+
+  // Función para limpiar formulario
+  function limpiarFormulario() {
+    document.querySelectorAll('#tablaFormulario input, #tablaFormulario select').forEach(input => {
+      input.value = '';
+    });
+  }
+
+  // Función para filtrar participantes por nombre
+  function filtrarParticipantes() {
+    const searchTerm = document.getElementById('search-participante').value.toLowerCase().trim();
+    const tabla = document.querySelector('#tablaResultado table');
+    
+    if (!tabla) return;
+    
+    const filas = tabla.querySelectorAll('tbody tr');
+    let participantesVisibles = 0;
+    
+    filas.forEach(fila => {
+      const nombreCell = fila.querySelector('td:nth-child(2)'); // Segunda columna (nombre)
+      
+      if (nombreCell) {
+        const nombre = nombreCell.textContent.toLowerCase();
+        const coincide = nombre.includes(searchTerm);
+        
+        fila.style.display = coincide ? '' : 'none';
+        
+        if (coincide) {
+          participantesVisibles++;
+          
+          // Resaltar texto coincidente
+          if (searchTerm.length > 0) {
+            const textoOriginal = nombreCell.textContent;
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            nombreCell.innerHTML = textoOriginal.replace(regex, '<mark style="background-color: yellow; padding: 0.1rem;">$1</mark>');
+          } else {
+            nombreCell.innerHTML = nombreCell.textContent; // Restaurar texto original
+          }
+        }
+      }
+    });
+    
+    // Mostrar mensaje si no hay resultados
+    mostrarMensajeBusqueda(participantesVisibles, searchTerm);
+  }
+
+  // Función para mostrar mensaje de búsqueda
+  function mostrarMensajeBusqueda(participantesVisibles, searchTerm) {
+    const container = document.getElementById('tablaResultado');
+    let mensajeExistente = document.getElementById('mensaje-busqueda');
+    
+    // Remover mensaje anterior si existe
+    if (mensajeExistente) {
+      mensajeExistente.remove();
+    }
+    
+    // Mostrar mensaje solo si hay término de búsqueda y no hay resultados
+    if (searchTerm.length > 0 && participantesVisibles === 0) {
+      const mensaje = document.createElement('div');
+      mensaje.id = 'mensaje-busqueda';
+      mensaje.style.cssText = `
+        text-align: center; 
+        padding: 2rem; 
+        color: #666; 
+        background-color: #f8f9fa; 
+        border-radius: 8px; 
+        margin-top: 1rem;
+        border: 2px dashed #ddd;
+      `;
+      mensaje.innerHTML = `
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+        <h4 style="margin-bottom: 0.5rem; color: #333;">No se encontraron participantes</h4>
+        <p>No hay participantes que coincidan con "<strong>${searchTerm}</strong>"</p>
+        <button onclick="limpiarBusqueda()" class="btn btn-outline" style="margin-top: 1rem;">Limpiar búsqueda</button>
+      `;
+      container.appendChild(mensaje);
+    } else if (searchTerm.length > 0 && participantesVisibles > 0) {
+      // Mostrar contador de resultados
+      const mensaje = document.createElement('div');
+      mensaje.id = 'mensaje-busqueda';
+      mensaje.style.cssText = `
+        text-align: center; 
+        padding: 0.5rem; 
+        color: #28a745; 
+        background-color: #d4edda; 
+        border-radius: 4px; 
+        margin-bottom: 1rem;
+        border: 1px solid #c3e6cb;
+      `;
+      mensaje.innerHTML = `📋 Se encontraron <strong>${participantesVisibles}</strong> participante(s) con "${searchTerm}"`;
+      container.insertBefore(mensaje, container.firstChild);
+    }
+  }
+
+  // Función para limpiar búsqueda
+  function limpiarBusqueda() {
+    const searchInput = document.getElementById('search-participante');
+    searchInput.value = '';
+    
+    // Mostrar todas las filas
+    const tabla = document.querySelector('#tablaResultado table');
+    if (tabla) {
+      const filas = tabla.querySelectorAll('tbody tr');
+      filas.forEach(fila => {
+        fila.style.display = '';
+        
+        // Restaurar texto original sin resaltado
+        const nombreCell = fila.querySelector('td:nth-child(2)');
+        if (nombreCell) {
+          nombreCell.innerHTML = nombreCell.textContent;
+        }
+      });
+    }
+    
+    // Remover mensaje de búsqueda
+    const mensajeExistente = document.getElementById('mensaje-busqueda');
+    if (mensajeExistente) {
+      mensajeExistente.remove();
+    }
+    
+    // Enfocar el input de búsqueda
+    searchInput.focus();
+  }
+
+  // Exponer funciones globalmente
+  window.filtrarParticipantes = filtrarParticipantes;
+  window.limpiarBusqueda = limpiarBusqueda;
+
+  // Cargar datos al iniciar la página
+  document.addEventListener('DOMContentLoaded', async function() {
+    console.log('Cargando participantes desde Supabase...');
+    await cargarParticipantes();
+  });
+
+  // Agregar atajo de teclado para búsqueda rápida
+  document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + F para enfocar la búsqueda
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+      e.preventDefault();
+      const searchInput = document.getElementById('search-participante');
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+      }
+    }
+    
+    // Escape para limpiar búsqueda
+    if (e.key === 'Escape') {
+      limpiarBusqueda();
+    }
+  });
+</script>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
