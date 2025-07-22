@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,7 @@
     <link rel="stylesheet" href="estilos.css">
     <!-- Añadir Supabase JS desde CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+
     <!-- Protección de página - Solo para usuarios autenticados -->
     <script type="module">
         import { protectPage, getUserProfile, signOut } from './supabase-config.js';
@@ -22,20 +23,20 @@
         .dashboard-container {
             padding: 2rem 0;
         }
-        
+
         .dashboard-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
         }
-        
+
         .user-info {
             display: flex;
             align-items: center;
             gap: 1rem;
         }
-        
+
         .user-avatar {
             width: 50px;
             height: 50px;
@@ -47,13 +48,13 @@
             color: white;
             font-weight: bold;
         }
-        
+
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
         }
-        
+
         .dashboard-card {
             background-color: white;
             border-radius: 10px;
@@ -61,17 +62,17 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
+
         .dashboard-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
         }
-        
+
         .dashboard-card h3 {
             margin-bottom: 1rem;
             color: var(--color-primary);
         }
-        
+
         .stat-large {
             font-size: 2.5rem;
             font-weight: bold;
@@ -79,18 +80,18 @@
             margin-bottom: 0.5rem;
             transition: all 0.3s ease;
         }
-        
+
         .stat-description {
             color: var(--color-text-light);
             margin-bottom: 1rem;
         }
-        
+
         .action-buttons {
             display: flex;
             gap: 1rem;
             margin-top: 1rem;
         }
-    
+
         .floating-menu {
             position: fixed;
             bottom: 20px;
@@ -115,17 +116,24 @@
             background-color: #0056b3;
             transform: translateY(-2px);
         }
-        
+
         .loading-stat {
             opacity: 0.6;
             animation: pulse 1.5s infinite;
         }
-        
+
         @keyframes pulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
+
+            0%,
+            100% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
         }
-        
+
         .update-info {
             text-align: center;
             margin-top: 2rem;
@@ -135,7 +143,7 @@
             color: #6c757d;
             font-size: 0.9rem;
         }
-        
+
         .refresh-button {
             margin-left: 1rem;
             padding: 0.5rem 1rem;
@@ -147,16 +155,16 @@
             font-size: 0.9rem;
             transition: background-color 0.3s ease;
         }
-        
+
         .refresh-button:hover {
             background-color: var(--color-primary-dark);
         }
-        
+
         .refresh-button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
         }
-        
+
         .stat-breakdown {
             margin-top: 1rem;
             padding-top: 1rem;
@@ -164,7 +172,7 @@
             font-size: 0.9rem;
             color: #666;
         }
-        
+
         .stat-item {
             display: flex;
             justify-content: space-between;
@@ -184,8 +192,163 @@
             margin-bottom: 0.5rem;
             color: white;
         }
+
+        .user-avatar {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background-color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .avatar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 50%;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .user-avatar:hover .avatar-overlay {
+            opacity: 1;
+        }
+
+        .avatar-upload-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .avatar-modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 1rem auto;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 3px solid #ddd;
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .avatar-upload-area:hover {
+            border-color: var(--color-primary);
+            background-color: #f8f9ff;
+        }
+
+        .avatar-upload-area.dragover {
+            border-color: var(--color-primary);
+            background-color: #e3f2fd;
+        }
+
+        .avatar-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-modal:hover {
+            color: #000;
+        }
+
+        .loading-avatar {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading-avatar::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #fff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
     </style>
 </head>
+
 <body>
     <!-- Menú flotante para acceso rápido al formulario -->
     <div class="floating-menu">
@@ -266,7 +429,7 @@
                         <a href="formulario_excel.html" class="btn btn-primary">Gestionar</a>
                     </div>
                 </div>
-                
+
                 <div class="dashboard-card">
                     <h3>Deportes</h3>
                     <div class="stat-large loading-stat" id="total-deportes">Cargando...</div>
@@ -289,7 +452,7 @@
                         <a href="deportes.html" class="btn btn-outline">Ver Detalles</a>
                     </div>
                 </div>
-                
+
                 <div class="dashboard-card">
                     <h3>Actividades Físicas</h3>
                     <div class="stat-large loading-stat" id="total-actividades">Cargando...</div>
@@ -313,7 +476,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="update-info">
                 <p id="ultima-actualizacion">Última actualización: Cargando...</p>
                 <p><small>Los datos se actualizan automáticamente cada 30 segundos</small></p>
@@ -338,6 +501,7 @@
 
         // Variables globales
         let intervalId = null;
+        let currentUserProfile = null;
 
         document.addEventListener('DOMContentLoaded', async function () {
             try {
@@ -349,6 +513,8 @@
 
                 if (profile) {
                     console.log("Perfil obtenido:", profile);
+                    currentUserProfile = profile;
+
                     document.getElementById('user-name').textContent =
                         profile.full_name || profile.username || 'Usuario';
 
@@ -363,10 +529,8 @@
                         document.querySelector('.page-header h1').textContent = 'Panel de Instructor';
                     }
 
-                    const initials = (profile.full_name || profile.username || 'U')
-                        .charAt(0)
-                        .toUpperCase();
-                    document.getElementById('user-avatar').textContent = initials;
+                    // Configurar avatar
+                    await configurarAvatar(profile);
                 }
 
                 document.getElementById('logout-btn').addEventListener('click', async function () {
@@ -381,7 +545,7 @@
 
                 // Cargar estadísticas iniciales
                 await actualizarEstadisticas();
-                
+
                 // Configurar actualización automática
                 iniciarActualizacionAutomatica();
 
@@ -391,6 +555,287 @@
                 window.location.href = 'inicio_de_sesion.html';
             }
         });
+
+        // Función para configurar el avatar del usuario
+        async function configurarAvatar(profile) {
+            const avatarElement = document.getElementById('user-avatar');
+
+            if (profile.avatar_url) {
+                // Mostrar imagen del avatar
+                avatarElement.innerHTML = `
+            <img src="${profile.avatar_url}" alt="Avatar" onerror="mostrarIniciales('${profile.full_name || profile.username || 'U'}')">
+            <div class="avatar-overlay">📷 Cambiar</div>
+        `;
+            } else {
+                // Mostrar iniciales
+                const initials = (profile.full_name || profile.username || 'U')
+                    .charAt(0)
+                    .toUpperCase();
+                avatarElement.innerHTML = `
+            ${initials}
+            <div class="avatar-overlay">📷 Subir</div>
+        `;
+            }
+
+            // Agregar evento click para abrir modal
+            avatarElement.addEventListener('click', abrirModalAvatar);
+        }
+
+        // Función para mostrar iniciales cuando falla la carga de imagen
+        function mostrarIniciales(name) {
+            const avatarElement = document.getElementById('user-avatar');
+            const initials = name.charAt(0).toUpperCase();
+            avatarElement.innerHTML = `
+        ${initials}
+        <div class="avatar-overlay">📷 Subir</div>
+    `;
+        }
+
+        // Función para abrir modal de avatar
+        function abrirModalAvatar() {
+            const modal = document.getElementById('avatarModal');
+            if (!modal) {
+                crearModalAvatar();
+            }
+            document.getElementById('avatarModal').style.display = 'block';
+
+            // Mostrar avatar actual en preview
+            const preview = document.getElementById('avatarPreview');
+            if (currentUserProfile.avatar_url) {
+                preview.innerHTML = `<img src="${currentUserProfile.avatar_url}" alt="Avatar actual">`;
+            } else {
+                const initials = (currentUserProfile.full_name || currentUserProfile.username || 'U')
+                    .charAt(0).toUpperCase();
+                preview.innerHTML = `<div style="font-size: 3rem; color: #666;">${initials}</div>`;
+            }
+        }
+
+        // Función para crear modal de avatar
+        function crearModalAvatar() {
+            const modalHTML = `
+        <div id="avatarModal" class="avatar-upload-modal">
+            <div class="avatar-modal-content">
+                <button class="close-modal" onclick="cerrarModalAvatar()">&times;</button>
+                <h3>Cambiar Foto de Perfil</h3>
+                
+                <div id="avatarPreview" class="avatar-preview">
+                    <div style="font-size: 3rem; color: #666;">📷</div>
+                </div>
+                
+                <div class="avatar-upload-area" id="uploadArea" onclick="document.getElementById('avatarInput').click()">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📁</div>
+                    <p><strong>Haz clic aquí o arrastra una imagen</strong></p>
+                    <p style="font-size: 0.8rem; color: #666;">JPG, PNG o GIF (máximo 2MB)</p>
+                    <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="previsualizarAvatar(this.files[0])">
+                </div>
+                
+                <div class="avatar-buttons">
+                    <button onclick="subirAvatar()" class="btn btn-primary" id="btnSubirAvatar" disabled>
+                        💾 Guardar Foto
+                    </button>
+                    <button onclick="eliminarAvatar()" class="btn btn-outline" id="btnEliminarAvatar">
+                        🗑️ Eliminar Foto
+                    </button>
+                    <button onclick="cerrarModalAvatar()" class="btn btn-secondary">
+                        ❌ Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            // Configurar drag and drop
+            const uploadArea = document.getElementById('uploadArea');
+
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    previsualizarAvatar(files[0]);
+                }
+            });
+        }
+
+        // Variable global para el archivo seleccionado
+        let archivoSeleccionado = null;
+
+        // Función para previsualizar avatar
+        function previsualizarAvatar(file) {
+            if (!file) return;
+
+            // Validar tipo de archivo
+            if (!file.type.startsWith('image/')) {
+                alert('Por favor, seleccione solo archivos de imagen.');
+                return;
+            }
+
+            // Validar tamaño (2MB máximo)
+            if (file.size > 2097152) {
+                alert('El archivo es demasiado grande. Máximo 2MB.');
+                return;
+            }
+
+            archivoSeleccionado = file;
+
+            // Mostrar preview
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('avatarPreview').innerHTML =
+                    `<img src="${e.target.result}" alt="Preview">`;
+                document.getElementById('btnSubirAvatar').disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Función para subir avatar
+        async function subirAvatar() {
+            if (!archivoSeleccionado) {
+                alert('Por favor, seleccione una imagen primero.');
+                return;
+            }
+
+            const btnSubir = document.getElementById('btnSubirAvatar');
+            const originalText = btnSubir.textContent;
+
+            try {
+                btnSubir.textContent = '⏳ Subiendo...';
+                btnSubir.disabled = true;
+
+                // Generar nombre único para el archivo
+                const fileExtension = archivoSeleccionado.name.split('.').pop();
+                const fileName = `avatar_${currentUserProfile.id}_${Date.now()}.${fileExtension}`;
+
+                // Eliminar avatar anterior si existe
+                if (currentUserProfile.avatar_url) {
+                    const oldFileName = currentUserProfile.avatar_url.split('/').pop();
+                    await supabaseClient.storage
+                        .from('avatars')
+                        .remove([oldFileName]);
+                }
+
+                // Subir nuevo archivo
+                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                    .from('avatars')
+                    .upload(fileName, archivoSeleccionado);
+
+                if (uploadError) throw uploadError;
+
+                // Obtener URL pública
+                const { data: urlData } = supabaseClient.storage
+                    .from('avatars')
+                    .getPublicUrl(fileName);
+
+                // Actualizar perfil en la base de datos
+                const { error: updateError } = await supabaseClient
+                    .from('profiles')
+                    .update({ avatar_url: urlData.publicUrl })
+                    .eq('id', currentUserProfile.id);
+
+                if (updateError) throw updateError;
+
+                // Actualizar perfil local
+                currentUserProfile.avatar_url = urlData.publicUrl;
+
+                // Actualizar UI
+                await configurarAvatar(currentUserProfile);
+
+                alert('✅ Foto de perfil actualizada exitosamente');
+                cerrarModalAvatar();
+
+            } catch (error) {
+                console.error('Error al subir avatar:', error);
+                alert(`❌ Error al subir la foto: ${error.message}`);
+            } finally {
+                btnSubir.textContent = originalText;
+                btnSubir.disabled = false;
+            }
+        }
+
+        // Función para eliminar avatar
+        async function eliminarAvatar() {
+            if (!currentUserProfile.avatar_url) {
+                alert('No hay foto de perfil para eliminar.');
+                return;
+            }
+
+            if (!confirm('¿Está seguro de que desea eliminar su foto de perfil?')) {
+                return;
+            }
+
+            const btnEliminar = document.getElementById('btnEliminarAvatar');
+            const originalText = btnEliminar.textContent;
+
+            try {
+                btnEliminar.textContent = '⏳ Eliminando...';
+                btnEliminar.disabled = true;
+
+                // Eliminar archivo del storage
+                const fileName = currentUserProfile.avatar_url.split('/').pop();
+                await supabaseClient.storage
+                    .from('avatars')
+                    .remove([fileName]);
+
+                // Actualizar perfil en la base de datos
+                const { error: updateError } = await supabaseClient
+                    .from('profiles')
+                    .update({ avatar_url: null })
+                    .eq('id', currentUserProfile.id);
+
+                if (updateError) throw updateError;
+
+                // Actualizar perfil local
+                currentUserProfile.avatar_url = null;
+
+                // Actualizar UI
+                await configurarAvatar(currentUserProfile);
+
+                alert('✅ Foto de perfil eliminada exitosamente');
+                cerrarModalAvatar();
+
+            } catch (error) {
+                console.error('Error al eliminar avatar:', error);
+                alert(`❌ Error al eliminar la foto: ${error.message}`);
+            } finally {
+                btnEliminar.textContent = originalText;
+                btnEliminar.disabled = false;
+            }
+        }
+
+        // Función para cerrar modal
+        function cerrarModalAvatar() {
+            document.getElementById('avatarModal').style.display = 'none';
+            archivoSeleccionado = null;
+            document.getElementById('btnSubirAvatar').disabled = true;
+        }
+
+        // Exponer funciones globalmente
+        window.abrirModalAvatar = abrirModalAvatar;
+        window.cerrarModalAvatar = cerrarModalAvatar;
+        window.previsualizarAvatar = previsualizarAvatar;
+        window.subirAvatar = subirAvatar;
+        window.eliminarAvatar = eliminarAvatar;
+        window.mostrarIniciales = mostrarIniciales;
+
+        // Cerrar modal con Escape
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                cerrarModalAvatar();
+            }
+        });
+
+        // Resto del código existente para estadísticas...
 
         // Función para obtener todas las estadísticas
         async function obtenerEstadisticas() {
@@ -411,11 +856,11 @@
         // Función para calcular estadísticas detalladas
         function calcularEstadisticas(participantes) {
             const total = participantes.length;
-            
+
             // Estadísticas generales
             const hombres = participantes.filter(p => p.genero === 'Hombre').length;
             const mujeres = participantes.filter(p => p.genero === 'Mujer').length;
-            const edadPromedio = total > 0 
+            const edadPromedio = total > 0
                 ? (participantes.reduce((sum, p) => sum + p.edad, 0) / total).toFixed(1)
                 : 0;
 
@@ -429,7 +874,7 @@
                 deportesConteo[p.actividad] = (deportesConteo[p.actividad] || 0) + 1;
             });
             const deportePopular = Object.entries(deportesConteo)
-                .sort(([,a], [,b]) => b - a)[0];
+                .sort(([, a], [, b]) => b - a)[0];
 
             // Actividades más populares
             const actividadesConteo = {};
@@ -437,7 +882,7 @@
                 actividadesConteo[p.actividad] = (actividadesConteo[p.actividad] || 0) + 1;
             });
             const actividadPopular = Object.entries(actividadesConteo)
-                .sort(([,a], [,b]) => b - a)[0];
+                .sort(([, a], [, b]) => b - a)[0];
 
             return {
                 total: {
@@ -476,23 +921,23 @@
 
             // Actualizar totales
             document.getElementById('total-participantes').textContent = stats.total.count.toLocaleString();
-            document.getElementById('total-hombres').textContent = `${stats.total.hombres} (${stats.total.count > 0 ? Math.round((stats.total.hombres/stats.total.count)*100) : 0}%)`;
-            document.getElementById('total-mujeres').textContent = `${stats.total.mujeres} (${stats.total.count > 0 ? Math.round((stats.total.mujeres/stats.total.count)*100) : 0}%)`;
+            document.getElementById('total-hombres').textContent = `${stats.total.hombres} (${stats.total.count > 0 ? Math.round((stats.total.hombres / stats.total.count) * 100) : 0}%)`;
+            document.getElementById('total-mujeres').textContent = `${stats.total.mujeres} (${stats.total.count > 0 ? Math.round((stats.total.mujeres / stats.total.count) * 100) : 0}%)`;
             document.getElementById('edad-promedio').textContent = `${stats.total.edadPromedio} años`;
 
             // Actualizar deportes
             document.getElementById('total-deportes').textContent = stats.deportes.count.toLocaleString();
-            document.getElementById('deportes-hombres').textContent = `${stats.deportes.hombres} (${stats.deportes.count > 0 ? Math.round((stats.deportes.hombres/stats.deportes.count)*100) : 0}%)`;
-            document.getElementById('deportes-mujeres').textContent = `${stats.deportes.mujeres} (${stats.deportes.count > 0 ? Math.round((stats.deportes.mujeres/stats.deportes.count)*100) : 0}%)`;
-            document.getElementById('deporte-popular').textContent = stats.deportes.popular 
+            document.getElementById('deportes-hombres').textContent = `${stats.deportes.hombres} (${stats.deportes.count > 0 ? Math.round((stats.deportes.hombres / stats.deportes.count) * 100) : 0}%)`;
+            document.getElementById('deportes-mujeres').textContent = `${stats.deportes.mujeres} (${stats.deportes.count > 0 ? Math.round((stats.deportes.mujeres / stats.deportes.count) * 100) : 0}%)`;
+            document.getElementById('deporte-popular').textContent = stats.deportes.popular
                 ? `${stats.deportes.popular.nombre} (${stats.deportes.popular.cantidad})`
                 : 'N/A';
 
             // Actualizar actividades físicas
             document.getElementById('total-actividades').textContent = stats.actividades.count.toLocaleString();
-            document.getElementById('actividades-hombres').textContent = `${stats.actividades.hombres} (${stats.actividades.count > 0 ? Math.round((stats.actividades.hombres/stats.actividades.count)*100) : 0}%)`;
-            document.getElementById('actividades-mujeres').textContent = `${stats.actividades.mujeres} (${stats.actividades.count > 0 ? Math.round((stats.actividades.mujeres/stats.actividades.count)*100) : 0}%)`;
-            document.getElementById('actividad-popular').textContent = stats.actividades.popular 
+            document.getElementById('actividades-hombres').textContent = `${stats.actividades.hombres} (${stats.actividades.count > 0 ? Math.round((stats.actividades.hombres / stats.actividades.count) * 100) : 0}%)`;
+            document.getElementById('actividades-mujeres').textContent = `${stats.actividades.mujeres} (${stats.actividades.count > 0 ? Math.round((stats.actividades.mujeres / stats.actividades.count) * 100) : 0}%)`;
+            document.getElementById('actividad-popular').textContent = stats.actividades.popular
                 ? `${stats.actividades.popular.nombre} (${stats.actividades.popular.cantidad})`
                 : 'N/A';
 
@@ -511,7 +956,7 @@
         async function actualizarEstadisticas() {
             const refreshBtn = document.getElementById('btn-refresh');
             const originalText = refreshBtn.textContent;
-            
+
             try {
                 refreshBtn.textContent = '🔄 Actualizando...';
                 refreshBtn.disabled = true;
@@ -519,13 +964,13 @@
                 console.log('Obteniendo estadísticas del dashboard...');
                 const participantes = await obtenerEstadisticas();
                 const stats = calcularEstadisticas(participantes);
-                
+
                 actualizarUI(stats);
-                
+
                 console.log('Dashboard actualizado exitosamente:', stats);
             } catch (error) {
                 console.error('Error al actualizar estadísticas del dashboard:', error);
-                
+
                 // Mostrar error en la UI
                 document.getElementById('ultima-actualizacion').textContent = 'Error al actualizar estadísticas';
             } finally {
@@ -540,12 +985,12 @@
             if (intervalId) {
                 clearInterval(intervalId);
             }
-            
+
             // Actualizar cada 30 segundos
             intervalId = setInterval(async () => {
                 await actualizarEstadisticas();
             }, 30000);
-            
+
             console.log('Actualización automática del dashboard iniciada (cada 30 segundos)');
         }
 
@@ -557,7 +1002,7 @@
         });
 
         // Actualizar cuando la página vuelve a estar visible
-        document.addEventListener('visibilitychange', function() {
+        document.addEventListener('visibilitychange', function () {
             if (!document.hidden) {
                 actualizarEstadisticas();
             }
@@ -569,4 +1014,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>

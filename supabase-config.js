@@ -83,6 +83,128 @@ export async function signOut() {
   }
 }
 
+// ✅ Envía enlace de recuperación de contraseña - CORREGIDO
+export async function resetPassword(email) {
+  try {
+    // Obtener la URL base actual
+    const currentUrl = window.location.origin
+    const redirectUrl = `${currentUrl}/reset-password.html`
+
+    console.log("Enviando enlace de recuperación a:", email)
+    console.log("URL de redirección:", redirectUrl)
+
+    const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl,
+    })
+
+    if (error) throw error
+    console.log("Enlace de recuperación enviado:", data)
+    return data
+  } catch (error) {
+    console.error("Error al enviar enlace de recuperación:", error)
+    throw error
+  }
+}
+
+// ✅ Actualiza la contraseña (para usar después del reset) - CORREGIDO
+export async function updatePassword(newPassword) {
+  try {
+    console.log("Actualizando contraseña...")
+
+    const { data, error } = await supabaseClient.auth.updateUser({
+      password: newPassword,
+    })
+
+    if (error) throw error
+    console.log("Contraseña actualizada exitosamente:", data)
+    return data
+  } catch (error) {
+    console.error("Error al actualizar contraseña:", error)
+    throw error
+  }
+}
+
+// ✅ Maneja la sesión de recuperación de contraseña
+export async function handlePasswordRecovery() {
+  try {
+    console.log("Manejando recuperación de contraseña...")
+
+    // Obtener la sesión actual
+    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession()
+
+    if (sessionError) {
+      console.error("Error al obtener sesión:", sessionError)
+      throw sessionError
+    }
+
+    console.log("Datos de sesión para recuperación:", sessionData)
+
+    if (!sessionData.session) {
+      throw new Error("No hay sesión activa para recuperación")
+    }
+
+    return sessionData.session
+  } catch (error) {
+    console.error("Error al manejar recuperación:", error)
+    throw error
+  }
+}
+
+// ✅ Sube avatar al storage
+export async function uploadAvatar(file, userId) {
+  try {
+    const fileExt = file.name.split(".").pop()
+    const fileName = `${userId}-${Math.random()}.${fileExt}`
+    const filePath = `${fileName}`
+
+    const { data, error } = await supabaseClient.storage.from("avatars").upload(filePath, file)
+
+    if (error) throw error
+
+    // Obtener URL pública
+    const {
+      data: { publicUrl },
+    } = supabaseClient.storage.from("avatars").getPublicUrl(filePath)
+
+    return { filePath, publicUrl }
+  } catch (error) {
+    console.error("Error al subir avatar:", error)
+    throw error
+  }
+}
+
+// ✅ Actualiza avatar_url en el perfil
+export async function updateUserAvatar(avatarUrl) {
+  try {
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser()
+    if (userError) throw userError
+
+    const { data, error } = await supabaseClient
+      .from("profiles")
+      .update({ avatar_url: avatarUrl })
+      .eq("id", userData.user.id)
+      .select()
+
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error("Error al actualizar avatar:", error)
+    throw error
+  }
+}
+
+// ✅ Elimina avatar del storage
+export async function deleteAvatar(filePath) {
+  try {
+    const { error } = await supabaseClient.storage.from("avatars").remove([filePath])
+
+    if (error) throw error
+  } catch (error) {
+    console.error("Error al eliminar avatar:", error)
+    throw error
+  }
+}
+
 // ✅ Redirige según el rol del perfil - CORREGIDO
 export async function redirectBasedOnRole() {
   try {
