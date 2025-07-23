@@ -1,29 +1,34 @@
 /* Variables */
 :root {
-    /* Colores principales */
-    --color-primary: #4361ee;
-    --color-primary-dark: #3a56d4;
-    --color-primary-light: #4895ef;
-    --color-secondary: #4cc9f0;
-    --color-accent: #f72585;
+  /* Colores principales */
+  --color-primary: #21284D;         /* Antes era #4361ee - Cambiar a azul oscuro */
+  --color-primary-dark: #1A2040;    /* Versión más oscura del azul principal */
+  --color-primary-light: #2D3761;   /* Versión más clara del azul principal */
   
-    /* Colores neutros */
-    --color-dark: #1a1a2e;
-    --color-dark-medium: #16213e;
-    --color-dark-light: #0f3460;
-    --color-light: #ffffff;
-    --color-light-medium: #f8f9fa;
-    --color-light-dark: #e9ecef;
+  /* Usar el azul claro como secundario pero con moderación */
+  --color-secondary: #009BD8;       /* Antes era #4cc9f0 */
   
-    /* Colores de texto */
-    --color-text-dark: #212529;
-    --color-text-medium: #495057;
-    --color-text-light: #6c757d;
-    --color-text-white: #f8f9fa;
+  /* Mantener el color de acento pero usarlo menos */
+  --color-accent: #009BD8;          /* Antes era #f72585 - Cambiar a azul claro */
   
-    /* Colores de gráficos */
-    --color-male: #4361ee;
-    --color-female: #f72585;
+  /* Colores neutros */
+  --color-dark: #21284D;            /* Usar el azul oscuro como color oscuro */
+  --color-dark-medium: #1A2040;     /* Versión más oscura */
+  --color-dark-light: #2D3761;      /* Versión más clara */
+  --color-light: #FFFFFF;           /* Blanco */
+  --color-light-medium: #F8F9FA;    /* Casi blanco */
+  --color-light-dark: #E9ECEF;      /* Gris muy claro */
+  
+  /* Colores de texto */
+  --color-text-dark: #000000;       /* Negro para texto principal */
+  --color-text-medium: #21284D;     /* Azul oscuro para texto secundario */
+  --color-text-light: #6c757d;      /* Mantener gris para texto terciario */
+  --color-text-white: #FFFFFF;      /* Blanco para texto sobre fondos oscuros */
+  
+  /* Colores de gráficos */
+  --color-male: #21284D;            /* Azul oscuro para hombres */
+  --color-female: #009BD8;          /* Azul claro para mujeres */
+
   
     /* Sombras */
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -112,7 +117,7 @@
     left: 0;
     width: 60px;
     height: 3px;
-    background-color: var(--color-accent);
+    background-color: var(--color-secondary);
     border-radius: var(--border-radius-full);
   }
   
@@ -158,7 +163,7 @@
   
   /* Encabezado */
   header {
-    background-color: var(--color-dark);
+    background-color: var(--color-primary);
     color: var(--color-light);
     padding: var(--spacing-lg) 0;
     position: sticky;
@@ -205,7 +210,7 @@
   }
   
   nav ul li.active a {
-    color: var(--color-accent);
+    color: var(--color-secondary);
   }
   
   /* Menús desplegables */
@@ -352,7 +357,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(26, 26, 46, 0.9) 0%, rgba(15, 52, 96, 0.8) 100%);
+    background: linear-gradient(135deg, rgba(33, 40, 77, 0.9) 0%, rgba(33, 40, 77, 0.8) 100%);
     z-index: 1;
   }
   
@@ -419,6 +424,7 @@
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: var(--spacing-xl);
     margin-top: var(--spacing-xl);
+    margin-bottom: 4rem; 
   }
   
   .card {
@@ -536,11 +542,11 @@
   }
   
   .gender-segment.male {
-    background-color: var(--color-male);
+    background-color: var(--color-primary);
   }
   
   .gender-segment.female {
-    background-color: var(--color-female);
+    background-color: var(--color-secondary);
   }
   
   .chart-legend {
@@ -745,7 +751,7 @@
     left: 0;
     width: 30px;
     height: 2px;
-    background-color: var(--color-accent);
+    background-color: var(--color-secondary);
     border-radius: var(--border-radius-full);
   }
   
@@ -795,7 +801,7 @@
   
   /* Página de cabecera */
   .page-header {
-    background: linear-gradient(135deg, var(--color-dark-medium) 0%, var(--color-dark-light) 100%);
+    background-color: var(--color-secondary);
     color: var(--color-light);
     padding: var(--spacing-2xl) 0;
     margin-bottom: var(--spacing-xl);
@@ -846,7 +852,7 @@
     left: 0;
     width: 80px;
     height: 3px;
-    background-color: var(--color-accent);
+    background-color: var(--color-secondary);
     border-radius: var(--border-radius-full);
   }
   
@@ -891,7 +897,7 @@
     left: 0;
     width: 40px;
     height: 2px;
-    background-color: var(--color-accent);
+    background-color: var(--color-secondary);
     border-radius: var(--border-radius-full);
   }
   
@@ -1171,6 +1177,7 @@
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
 
 
 
