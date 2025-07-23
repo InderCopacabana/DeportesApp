@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <title>Gestión de Participantes - INDER Copacabana</title>
@@ -10,11 +9,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module">
     import { protectPage, signOut } from './supabase-config.js';
-
     document.addEventListener('DOMContentLoaded', async function () {
       // Proteger esta página - solo para administradores
       await protectPage(['admin', 'instructor']);
-
       // Configurar botón de cierre de sesión
       document.getElementById('logout-btn').addEventListener('click', async function () {
         try {
@@ -35,7 +32,6 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       margin-bottom: 2rem;
     }
-
     table,
     th,
     td {
@@ -43,28 +39,23 @@
       border-collapse: collapse;
       padding: 10px;
     }
-
     table {
       width: 100%;
       margin-bottom: 1rem;
       background-color: white;
     }
-
     th {
       background-color: var(--color-primary);
       color: white;
       font-weight: 600;
       text-align: left;
     }
-
     tr:nth-child(even) {
       background-color: #f8f9fa;
     }
-
     tr.selected {
       background-color: #e3f2fd !important;
     }
-
     input, select {
       width: 100%;
       padding: 8px;
@@ -72,66 +63,54 @@
       border-radius: 4px;
       box-sizing: border-box;
     }
-
     input:focus, select:focus {
       outline: 2px solid var(--color-primary-light);
       border-color: var(--color-primary);
     }
-
     .button-group {
       display: flex;
       gap: 1rem;
       margin-top: 1rem;
       flex-wrap: wrap;
     }
-
     .results-container {
       background-color: white;
       border-radius: 10px;
       padding: 2rem;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-
     .back-link {
       display: inline-block;
       margin-bottom: 1rem;
     }
-
     .checkbox-column {
       width: 40px;
       text-align: center;
     }
-
     .edit-mode {
       background-color: #fff3cd !important;
       border: 2px solid #ffc107 !important;
     }
-
     .action-buttons {
       display: flex;
       gap: 0.5rem;
       margin-top: 1rem;
       justify-content: center;
     }
-
     .btn-edit {
       background-color: #28a745;
       color: white;
     }
-
     .btn-edit:hover {
       background-color: #218838;
     }
-
     .btn-delete {
       background-color: #dc3545;
       color: white;
     }
-
     .btn-delete:hover {
       background-color: #c82333;
     }
-
     /* Estilos para el modal de evidencias */
     .modal {
       display: none;
@@ -144,7 +123,6 @@
       background-color: rgba(0,0,0,0.5);
       animation: fadeIn 0.3s ease;
     }
-
     .modal-content {
       background-color: white;
       margin: 2% auto;
@@ -157,17 +135,14 @@
       position: relative;
       animation: slideIn 0.3s ease;
     }
-
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
     }
-
     @keyframes slideIn {
       from { transform: translateY(-50px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
-
     .close {
       color: #aaa;
       float: right;
@@ -178,11 +153,9 @@
       right: 1rem;
       top: 1rem;
     }
-
     .close:hover {
       color: #000;
     }
-
     .upload-area {
       border: 2px dashed #ddd;
       border-radius: 8px;
@@ -192,24 +165,20 @@
       transition: all 0.3s ease;
       cursor: pointer;
     }
-
     .upload-area:hover {
       border-color: var(--color-primary);
       background-color: #f8f9ff;
     }
-
     .upload-area.dragover {
       border-color: var(--color-primary);
       background-color: #e3f2fd;
     }
-
     .evidence-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 1.5rem;
       margin-top: 2rem;
     }
-
     .evidence-card {
       background: white;
       border-radius: 12px;
@@ -217,43 +186,43 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-
     .evidence-card:hover {
       transform: translateY(-5px);
       box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     }
-
     .evidence-image {
       width: 100%;
       height: 200px;
       object-fit: cover;
       cursor: pointer;
     }
-
     .evidence-info {
       padding: 1rem;
     }
-
     .evidence-instructor {
       font-weight: bold;
       color: var(--color-primary);
       margin-bottom: 0.5rem;
     }
-
     .evidence-datetime {
       color: #666;
       font-size: 0.9rem;
       margin-bottom: 0.5rem;
     }
-
     .evidence-location {
       color: #888;
       font-size: 0.8rem;
       display: flex;
       align-items: center;
       gap: 0.25rem;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
     }
-
+    .evidence-coordinates {
+      color: #999;
+      font-size: 0.7rem;
+      font-style: italic;
+    }
     .btn-evidence {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
@@ -267,12 +236,10 @@
       align-items: center;
       gap: 0.5rem;
     }
-
     .btn-evidence:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     }
-
     .loading-spinner {
       border: 3px solid #f3f3f3;
       border-top: 3px solid var(--color-primary);
@@ -282,12 +249,10 @@
       animation: spin 1s linear infinite;
       margin: 0 auto;
     }
-
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-
     .evidence-stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -297,22 +262,18 @@
       background: #f8f9fa;
       border-radius: 8px;
     }
-
     .stat-item {
       text-align: center;
     }
-
     .stat-number {
       font-size: 2rem;
       font-weight: bold;
       color: var(--color-primary);
     }
-
     .stat-label {
       font-size: 0.9rem;
       color: #666;
     }
-
     .filter-controls {
       display: flex;
       gap: 1rem;
@@ -320,7 +281,6 @@
       flex-wrap: wrap;
       align-items: center;
     }
-
     .filter-controls select,
     .filter-controls input {
       padding: 0.5rem;
@@ -329,7 +289,6 @@
       width: auto;
       min-width: 150px;
     }
-
     .image-modal {
       display: none;
       position: fixed;
@@ -340,7 +299,6 @@
       height: 100%;
       background-color: rgba(0,0,0,0.9);
     }
-
     .image-modal-content {
       position: absolute;
       top: 50%;
@@ -349,13 +307,11 @@
       max-width: 90%;
       max-height: 90%;
     }
-
     .image-modal img {
       width: 100%;
       height: auto;
       border-radius: 8px;
     }
-
     .btn-delete-evidence {
       background-color: #dc3545;
       color: white;
@@ -366,13 +322,27 @@
       font-size: 0.8rem;
       margin-top: 0.5rem;
     }
-
     .btn-delete-evidence:hover {
       background-color: #c82333;
     }
+    .location-info {
+      background-color: #f8f9fa;
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-top: 1rem;
+      border-left: 4px solid var(--color-primary);
+    }
+    .location-address {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.25rem;
+    }
+    .location-coords {
+      font-size: 0.8rem;
+      color: #666;
+    }
   </style>
 </head>
-
 <body>
   <!-- Encabezado con navegación -->
   <header>
@@ -418,7 +388,6 @@
 
       <div class="form-container">
         <h2 id="form-title">Agregar Nuevo Participante</h2>
-
         <form id="formExcel">
           <table id="tablaFormulario">
             <thead>
@@ -436,7 +405,7 @@
                 <td><input type="text" name="nombre" placeholder="Nombre completo" required></td>
                 <td><input type="number" name="edad" placeholder="Edad" min="5" max="99" required></td>
                 <td>
-                  <select name="genero" required>                    
+                  <select name="genero" required>
                     <option value="">Seleccionar...</option>
                     <option value="Hombre">Hombre</option>
                     <option value="Mujer">Mujer</option>
@@ -474,17 +443,15 @@
                 </td>
                 <td>
                   <select name="tipo_actividad" required>
-                    <option value="">Seleccionar...</option>                  
+                    <option value="">Seleccionar...</option>
                     <option value="deporte">Deporte</option>
                     <option value="actividad_fisica">Actividad Física</option>
                   </select>
                 </td>
                 <td><input type="text" name="barrio" placeholder="Barrio" required></td>
               </tr>
-              
             </tbody>
           </table>
-
           <div class="button-group">
             <button type="submit" class="btn btn-primary" id="btn-guardar">Guardar</button>
             <button type="button" onclick="cancelarEdicion()" class="btn btn-outline" id="btn-cancelar" style="display: none;">Cancelar</button>
@@ -549,16 +516,12 @@
         <p>Haz clic aquí o arrastra una imagen para subirla</p>
         <p style="font-size: 0.8rem; color: #666;">Se capturará automáticamente la ubicación y hora</p>
         <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="subirEvidencia(this.files[0])">
-        <!-- Agregar después del input de archivo -->
-<div class="form-group">
-    <label for="ubicacion-evidencia">📍 Ubicación:</label>
-    <input type="text" id="ubicacion-evidencia" readonly 
-           placeholder="Obteniendo ubicación..." 
-           style="background-color: #f8f9fa; cursor: not-allowed;">
-    <small class="form-text text-muted">
-        La ubicación se detecta automáticamente al subir la evidencia
-    </small>
-</div>
+        
+        <!-- Información de ubicación mejorada -->
+        <div class="location-info" id="locationInfo" style="display: none;">
+          <div class="location-address" id="ubicacion-evidencia">📍 Obteniendo ubicación...</div>
+          <div class="location-coords" id="coordenadas-evidencia"></div>
+        </div>
       </div>
 
       <!-- Controles de filtro -->
@@ -583,17 +546,7 @@
   <!-- Modal para ver imagen completa -->
   <div id="imageModal" class="image-modal" onclick="cerrarImagenModal()">
     <div class="image-modal-content">
-     <img src="https://mbygotohuxrnqmxosymw.supabase.co/storage/v1/object/public/evidencias/evidencia_dd1aa0dd-cd51-4853-a356-89ca742572da_1752874586926.jpeg"
-     alt="Imagen de evidencia"
-     width="300"
-     onerror="this.onerror=null; this.src='placeholder.svg'" />
-
-
-
-
-
-
-
+      <img id="modalImage" src="/placeholder.svg" alt="Imagen de evidencia" />
     </div>
   </div>
 
@@ -619,14 +572,15 @@
     userProfile = await getUserProfile();
     console.log('Perfil de usuario:', userProfile);
   }
-  // Función para obtener dirección desde coordenadas
-async function obtenerDireccion(latitud, longitud) {
+
+  // Función mejorada para obtener dirección desde coordenadas
+  async function obtenerDireccion(latitud, longitud) {
     try {
         console.log(`Obteniendo dirección para: ${latitud}, ${longitud}`);
         
         // Usar API de geocodificación inversa (OpenStreetMap Nominatim - gratuita)
         const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitud}&lon=${longitud}&addressdetails=1&accept-language=es`
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitud}&lon=${longitud}&addressdetails=1&accept-language=es&zoom=18`
         );
         
         if (!response.ok) {
@@ -636,7 +590,7 @@ async function obtenerDireccion(latitud, longitud) {
         const data = await response.json();
         console.log('Datos de ubicación:', data);
         
-        // Formatear la dirección
+        // Formatear la dirección en formato colombiano
         let direccion = '';
         
         if (data.address) {
@@ -645,43 +599,59 @@ async function obtenerDireccion(latitud, longitud) {
             // Construir dirección en formato colombiano
             const calle = addr.road || addr.street || '';
             const numero = addr.house_number || '';
-            const barrio = addr.neighbourhood || addr.suburb || '';
-            const ciudad = addr.city || addr.town || addr.municipality || '';
-            const departamento = addr.state || '';
+            const barrio = addr.neighbourhood || addr.suburb || addr.quarter || '';
+            const ciudad = addr.city || addr.town || addr.municipality || 'Copacabana';
+            const departamento = addr.state || 'Antioquia';
             
-            if (calle && numero) {
-                direccion = `${calle} # ${numero}`;
-            } else if (calle) {
-                direccion = calle;
-            }
-            
-            if (barrio) {
-                direccion += `, ${barrio}`;
-            }
-            
-            if (ciudad) {
-                direccion += `, ${ciudad}`;
-            }
-            
-            if (departamento && departamento !== ciudad) {
-                direccion += `, ${departamento}`;
+            // Formato: Calle # Número, Barrio
+            if (calle) {
+                if (numero) {
+                    // Formato colombiano: Calle 111 # 49-25
+                    direccion = `${calle} # ${numero}`;
+                } else {
+                    direccion = calle;
+                }
+                
+                if (barrio && barrio !== calle) {
+                    direccion += `, ${barrio}`;
+                }
+                
+                // Agregar ciudad si es diferente a Copacabana
+                if (ciudad && ciudad.toLowerCase() !== 'copacabana') {
+                    direccion += `, ${ciudad}`;
+                }
+            } else if (barrio) {
+                // Si no hay calle, usar el barrio
+                direccion = barrio;
+                if (ciudad && ciudad.toLowerCase() !== 'copacabana') {
+                    direccion += `, ${ciudad}`;
+                }
+            } else {
+                // Usar el display_name como fallback
+                direccion = data.display_name || `Coordenadas: ${latitud}, ${longitud}`;
             }
         }
         
         // Si no se pudo formatear bien, usar display_name
-        if (!direccion || direccion.length < 10) {
+        if (!direccion || direccion.length < 5) {
             direccion = data.display_name || `Lat: ${latitud}, Lng: ${longitud}`;
         }
+        
+        // Limpiar la dirección (remover información redundante)
+        direccion = direccion
+            .replace(/,\s*Colombia/gi, '')
+            .replace(/,\s*Antioquia,\s*Copacabana/gi, ', Copacabana')
+            .replace(/,\s*Copacabana,\s*Copacabana/gi, ', Copacabana')
+            .trim();
         
         return direccion;
         
     } catch (error) {
         console.error('Error al obtener dirección:', error);
-        return `Coordenadas: ${latitud}, ${longitud}`;
+        return `Coordenadas: ${latitud.toFixed(6)}, ${longitud.toFixed(6)}`;
     }
-}
+  }
 
- 
   // Función para crear tabla de evidencias si no existe
   async function crearTablaEvidencias() {
     try {
@@ -690,7 +660,7 @@ async function obtenerDireccion(latitud, longitud) {
         .from('evidencias')
         .select('id')
         .limit(1);
-      
+        
       if (error && error.message.includes('does not exist')) {
         console.log('La tabla evidencias no existe. Debe ser creada manualmente en Supabase.');
         alert('⚠️ La tabla de evidencias no existe. Contacte al administrador del sistema.');
@@ -700,67 +670,93 @@ async function obtenerDireccion(latitud, longitud) {
     }
   }
 
-  // Función para obtener ubicación
-  // Modificar la función existente obtenerUbicacion()
+ // Función mejorada para obtener ubicación
 async function obtenerUbicacion() {
-    return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-            reject(new Error('Geolocalización no soportada'));
-            return;
-        }
+  return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+          reject(new Error('Geolocalización no soportada'));
+          return;
+      }
 
-        // Mostrar estado de carga
-        document.getElementById('ubicacion-evidencia').value = '🔄 Obteniendo ubicación...';
+      // Mostrar información de ubicación - VERIFICAR QUE EXISTAN LOS ELEMENTOS
+      const locationInfo = document.getElementById('locationInfo');
+      const ubicacionElement = document.getElementById('ubicacion-evidencia');
+      const coordenadasElement = document.getElementById('coordenadas-evidencia');
+      
+      // Solo mostrar información si los elementos existen
+      if (locationInfo && ubicacionElement && coordenadasElement) {
+          locationInfo.style.display = 'block';
+          ubicacionElement.textContent = '🔄 Obteniendo ubicación...';
+          coordenadasElement.textContent = '';
+      }
 
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const latitud = position.coords.latitude;
-                const longitud = position.coords.longitude;
-                
-                console.log('Ubicación obtenida:', { latitud, longitud });
-                
-                // Obtener la dirección
-                document.getElementById('ubicacion-evidencia').value = '🔄 Obteniendo dirección...';
-                const direccion = await obtenerDireccion(latitud, longitud);
-                
-                // Mostrar la dirección en el campo
-                document.getElementById('ubicacion-evidencia').value = `📍 ${direccion}`;
-                
-                resolve({
-                    latitud: latitud,
-                    longitud: longitud,
-                    direccion: direccion
-                });
-            },
-            (error) => {
-                console.error('Error de geolocalización:', error);
-                document.getElementById('ubicacion-evidencia').value = '❌ No se pudo obtener la ubicación';
-                
-                let mensaje = 'Error desconocido';
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        mensaje = 'Permiso de ubicación denegado';
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        mensaje = 'Ubicación no disponible';
-                        break;
-                    case error.TIMEOUT:
-                        mensaje = 'Tiempo de espera agotado';
-                        break;
-                }
-                
-                reject(new Error(mensaje));
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 300000
-            }
-        );
-    });
+      navigator.geolocation.getCurrentPosition(
+          async (position) => {
+              const latitud = position.coords.latitude;
+              const longitud = position.coords.longitude;
+              const precision = position.coords.accuracy;
+              
+              console.log('Ubicación obtenida:', { latitud, longitud, precision });
+              
+              // Mostrar coordenadas solo si los elementos existen
+              if (coordenadasElement) {
+                  coordenadasElement.textContent = `Coordenadas: ${latitud.toFixed(6)}, ${longitud.toFixed(6)} (±${Math.round(precision)}m)`;
+              }
+              
+              // Obtener la dirección
+              if (ubicacionElement) {
+                  ubicacionElement.textContent = '🔄 Obteniendo dirección...';
+              }
+              const direccion = await obtenerDireccion(latitud, longitud);
+              
+              // Mostrar la dirección
+              if (ubicacionElement) {
+                  ubicacionElement.textContent = `📍 ${direccion}`;
+              }
+              
+              resolve({
+                  latitud: latitud,
+                  longitud: longitud,
+                  direccion: direccion,
+                  precision: precision
+              });
+          },
+          (error) => {
+              console.error('Error de geolocalización:', error);
+              
+              // Solo mostrar error si los elementos existen
+              if (ubicacionElement) {
+                  ubicacionElement.textContent = '❌ No se pudo obtener la ubicación';
+              }
+              if (coordenadasElement) {
+                  coordenadasElement.textContent = '';
+              }
+              
+              let mensaje = 'Error desconocido';
+              switch(error.code) {
+                  case error.PERMISSION_DENIED:
+                      mensaje = 'Permiso de ubicación denegado';
+                      break;
+                  case error.POSITION_UNAVAILABLE:
+                      mensaje = 'Ubicación no disponible';
+                      break;
+                  case error.TIMEOUT:
+                      mensaje = 'Tiempo de espera agotado';
+                      break;
+              }
+              
+              reject(new Error(mensaje));
+          },
+          {
+              enableHighAccuracy: true,
+              timeout: 15000,
+              maximumAge: 60000
+          }
+      );
+  });
 }
 
-  // Función para subir evidencia
+  // Función mejorada para subir evidencia
   async function subirEvidencia(file) {
     if (!file) return;
 
@@ -806,15 +802,7 @@ async function obtenerUbicacion() {
 
       console.log('URL generada:', urlData.publicUrl);
 
-      // Verificar que la URL sea accesible
-      try {
-        const response = await fetch(urlData.publicUrl, { method: 'HEAD' });
-        console.log('Estado de la imagen:', response.status);
-      } catch (error) {
-        console.error('Error verificando imagen:', error);
-      }
-
-      // Guardar información en la base de datos
+      // Guardar información en la base de datos CON LA DIRECCIÓN
       const evidenciaData = {
         instructor_id: userProfile.id,
         instructor_nombre: userProfile.full_name || userProfile.username,
@@ -823,6 +811,7 @@ async function obtenerUbicacion() {
         fecha_subida: timestamp,
         latitud: ubicacion.latitud || null,
         longitud: ubicacion.longitud || null,
+        direccion: ubicacion.direccion || null, // ¡IMPORTANTE: Guardar la dirección!
         ubicacion_error: ubicacion.error || null
       };
 
@@ -844,6 +833,7 @@ async function obtenerUbicacion() {
       // Restaurar contenido original
       uploadArea.innerHTML = originalContent;
       document.getElementById('fileInput').value = '';
+      document.getElementById('locationInfo').style.display = 'none';
     }
   }
 
@@ -861,14 +851,12 @@ async function obtenerUbicacion() {
       }
 
       const { data, error } = await query;
-
       if (error) throw error;
 
       evidenciasData = data || [];
       mostrarEvidencias(evidenciasData);
       actualizarEstadisticasEvidencias(evidenciasData);
       cargarFiltroInstructores(evidenciasData);
-
     } catch (error) {
       console.error('Error cargando evidencias:', error);
       document.getElementById('evidenceGrid').innerHTML = `
@@ -880,7 +868,7 @@ async function obtenerUbicacion() {
     }
   }
 
-  // Función para mostrar evidencias en el grid
+  // Función mejorada para mostrar evidencias en el grid
   function mostrarEvidencias(evidencias) {
     const grid = document.getElementById('evidenceGrid');
     
@@ -906,26 +894,37 @@ async function obtenerUbicacion() {
         minute: '2-digit'
       });
 
-      const ubicacionTexto = evidencia.latitud && evidencia.longitud 
-        ? `📍 ${evidencia.latitud.toFixed(6)}, ${evidencia.longitud.toFixed(6)}`
-        : '📍 Ubicación no disponible';
+      // Mostrar dirección si está disponible, sino mostrar coordenadas
+      let ubicacionTexto = '📍 Ubicación no disponible';
+      let coordenadasTexto = '';
+
+      if (evidencia.direccion) {
+        // Mostrar la dirección formateada
+        ubicacionTexto = `📍 ${evidencia.direccion}`;
+        if (evidencia.latitud && evidencia.longitud) {
+          coordenadasTexto = `${evidencia.latitud.toFixed(6)}, ${evidencia.longitud.toFixed(6)}`;
+        }
+      } else if (evidencia.latitud && evidencia.longitud) {
+        // Fallback a coordenadas si no hay dirección
+        ubicacionTexto = `📍 ${evidencia.latitud.toFixed(6)}, ${evidencia.longitud.toFixed(6)}`;
+      }
 
       html += `
         <div class="evidence-card">
           <img 
-            src="${evidencia.archivo_url}" 
-            alt="Evidencia" 
+            src="${evidencia.archivo_url}"
+            alt="Evidencia"
             class="evidence-image"
             onclick="abrirImagenModal('${evidencia.archivo_url}')"
-            onerror="this.onerror=null; this.src='placeholder.svg'; console.error('Error cargando imagen:', '${evidencia.archivo_url}');"
-            onload="console.log('Imagen cargada correctamente:', '${evidencia.archivo_url}');"
+            onerror="this.onerror=null; this.src='/placeholder.svg?height=200&width=300';"
           >
           <div class="evidence-info">
             <div class="evidence-instructor">${evidencia.instructor_nombre}</div>
             <div class="evidence-datetime">🕒 ${fechaFormateada}</div>
             <div class="evidence-location">${ubicacionTexto}</div>
+            ${coordenadasTexto ? `<div class="evidence-coordinates">${coordenadasTexto}</div>` : ''}
             ${userProfile.role === 'admin' || evidencia.instructor_id === userProfile.id ? 
-              `<button onclick="eliminarEvidencia('${evidencia.id}')" class="btn-delete-evidence">🗑️ Eliminar</button>` 
+              `<button onclick="eliminarEvidencia('${evidencia.id}')" class="btn-delete-evidence">🗑️ Eliminar</button>`
               : ''
             }
           </div>
@@ -1004,7 +1003,7 @@ async function obtenerUbicacion() {
 
   // Función para limpiar filtros
   function limpiarFiltros() {
-    document.getElementById('filterInstructor').value = '';
+    document.getElementById('filterinstructor').value = '';
     document.getElementById('filterFecha').value = '';
     mostrarEvidencias(evidenciasData);
   }
@@ -1039,7 +1038,6 @@ async function obtenerUbicacion() {
 
       alert('✅ Evidencia eliminada exitosamente');
       await cargarEvidencias();
-
     } catch (error) {
       console.error('Error eliminando evidencia:', error);
       alert(`❌ Error al eliminar evidencia: ${error.message}`);
@@ -1581,9 +1579,9 @@ async function obtenerUbicacion() {
       limpiarBusqueda();
     }
   });
+
 </script>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
-
 </html>
