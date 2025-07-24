@@ -380,6 +380,9 @@
           <span class="arrow-left">←</span> Volver
         </a>
         
+        <button onclick="abrirModalAsistencia()" class="btn-evidence" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+  📋 Tomar Asistencia
+</button>
         <!-- Botón de Evidencias -->
         <button onclick="abrirModalEvidencias()" class="btn-evidence">
           📸 Evidencias Fotográficas
@@ -487,6 +490,7 @@
     </div>
   </main>
 
+  
   <!-- Modal de Evidencias -->
   <div id="modalEvidencias" class="modal">
     <div class="modal-content">
@@ -549,6 +553,98 @@
       <img id="modalImage" src="/placeholder.svg" alt="Imagen de evidencia" />
     </div>
   </div>
+
+  <!-- Modal de Asistencia -->
+<div id="modalAsistencia" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="cerrarModalAsistencia()">&times;</span>
+    <h2>📋 Tomar Asistencia</h2>
+    
+    <!-- Formulario de asistencia -->
+    <div class="form-container" style="margin-bottom: 2rem;">
+      <form id="formAsistencia">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div>
+            <label for="fecha-clase">📅 Fecha de Clase:</label>
+            <input type="date" id="fecha-clase" required>
+          </div>
+          <div>
+            <label for="hora-clase">🕐 Hora de Clase:</label>
+            <input type="time" id="hora-clase" required>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label for="actividad-asistencia">🏃 Actividad/Deporte:</label>
+          <select id="actividad-asistencia" required>
+            <option value="">Seleccionar actividad...</option>
+            <optgroup label="Deportes">
+              <option value="futbol">Fútbol</option>
+              <option value="futbol_de_salon">Fútbol de Salón</option>
+              <option value="futbol_sala">Fútbol sala</option>
+              <option value="ajedrez">Ajedrez</option>
+              <option value="baloncesto">Baloncesto</option>
+              <option value="balonmano">Balonmano</option>
+              <option value="natacion">Natación</option>
+              <option value="atletismo">Atletismo</option>
+              <option value="patinaje">Patinaje</option>
+              <option value="rugby">Rugby</option>
+              <option value="tenis">Tenis</option>
+              <option value="voleibol">Voleibol</option>
+            </optgroup>
+            <optgroup label="Actividades Físicas">
+              <option value="bmx">BMX</option>
+              <option value="boxeo">Boxeo</option>
+              <option value="descubre_tu_talento">Descubre tú Talento</option>
+              <option value="gimnasia">Gimnasia</option>
+              <option value="jiu_jitsu">Jiu Jitsu</option>
+              <option value="gimnasio">Gimnasio</option>
+              <option value="levantamiento_de_pesas">Levantamiento de Pesas</option>
+              <option value="tiro_con_arco">Tiro con Arco</option>
+              <option value="taekwondo">Taekwondo</option>
+            </optgroup>
+          </select>
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label for="buscar-participante">👤 Buscar Participante:</label>
+          <input type="text" id="buscar-participante" placeholder="Escriba el nombre del participante..." autocomplete="off">
+          <div id="sugerencias-participantes" style="display: none; border: 1px solid #ddd; border-top: none; max-height: 200px; overflow-y: auto; background: white; position: relative; z-index: 1000;"></div>
+        </div>
+        
+        <div id="info-participante" style="display: none; background: #f8f9fa; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+          <h4>Información del Participante:</h4>
+          <div id="datos-participante"></div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+          <label style="font-weight: bold;">¿Asistió a la clase?</label>
+          <label style="display: flex; align-items: center; gap: 0.5rem;">
+            <input type="radio" name="asistio" value="true" checked> ✅ Sí
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem;">
+            <input type="radio" name="asistio" value="false"> ❌ No
+          </label>
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label for="observaciones">📝 Observaciones (opcional):</label>
+          <textarea id="observaciones" rows="3" placeholder="Comentarios adicionales..."></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">💾 Guardar Asistencia</button>
+      </form>
+    </div>
+    
+    <!-- Lista de asistencias del día -->
+    <div class="results-container">
+      <h3>📊 Asistencias de Hoy</h3>
+      <div id="lista-asistencias-hoy">
+        <p style="text-align: center; color: #666;">Cargando asistencias...</p>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- Pie de página -->
   <footer>
@@ -1105,7 +1201,262 @@ async function obtenerUbicacion() {
     }
   });
 
-  // Resto del código existente para participantes...
+  // Variables globales para asistencia
+let participanteSeleccionado = null;
+let asistenciasHoy = [];
+
+// Función para abrir modal de asistencia
+window.abrirModalAsistencia = async function() {
+  await inicializarPerfil();
+  
+  // Establecer fecha y hora actual
+  const ahora = new Date();
+  document.getElementById('fecha-clase').value = ahora.toISOString().split('T')[0];
+  document.getElementById('hora-clase').value = ahora.toTimeString().slice(0, 5);
+  
+  document.getElementById('modalAsistencia').style.display = 'block';
+  await cargarAsistenciasHoy();
+}
+
+// Función para cerrar modal de asistencia
+window.cerrarModalAsistencia = function() {
+  document.getElementById('modalAsistencia').style.display = 'none';
+  limpiarFormularioAsistencia();
+}
+
+// Función para buscar participantes
+document.addEventListener('DOMContentLoaded', function() {
+  const buscarInput = document.getElementById('buscar-participante');
+  if (buscarInput) {
+    buscarInput.addEventListener('input', buscarParticipantes);
+  }
+});
+
+async function buscarParticipantes() {
+  const termino = document.getElementById('buscar-participante').value.trim();
+  const sugerenciasDiv = document.getElementById('sugerencias-participantes');
+  
+  if (termino.length < 2) {
+    sugerenciasDiv.style.display = 'none';
+    return;
+  }
+  
+  try {
+    const { data, error } = await supabaseClient
+      .from('participantes')
+      .select('*')
+      .ilike('nombre', `%${termino}%`)
+      .limit(10);
+    
+    if (error) throw error;
+    
+    if (data.length === 0) {
+      sugerenciasDiv.innerHTML = '<div style="padding: 0.5rem; color: #666;">No se encontraron participantes</div>';
+      sugerenciasDiv.style.display = 'block';
+      return;
+    }
+    
+    let html = '';
+    data.forEach(participante => {
+      html += `
+        <div onclick="seleccionarParticipante('${participante.id}')" 
+             style="padding: 0.5rem; cursor: pointer; border-bottom: 1px solid #eee; hover: background-color: #f5f5f5;"
+             onmouseover="this.style.backgroundColor='#f5f5f5'"
+             onmouseout="this.style.backgroundColor='white'">
+          <strong>${participante.nombre}</strong><br>
+          <small>${participante.edad} años - ${participante.genero} - ${participante.actividad}</small>
+        </div>
+      `;
+    });
+    
+    sugerenciasDiv.innerHTML = html;
+    sugerenciasDiv.style.display = 'block';
+    
+  } catch (error) {
+    console.error('Error buscando participantes:', error);
+  }
+}
+
+// Función para seleccionar participante
+window.seleccionarParticipante = async function(participanteId) {
+  try {
+    const { data, error } = await supabaseClient
+      .from('participantes')
+      .select('*')
+      .eq('id', participanteId)
+      .single();
+    
+    if (error) throw error;
+    
+    participanteSeleccionado = data;
+    
+    // Mostrar información del participante
+    document.getElementById('buscar-participante').value = data.nombre;
+    document.getElementById('sugerencias-participantes').style.display = 'none';
+    
+    const infoDiv = document.getElementById('info-participante');
+    const datosDiv = document.getElementById('datos-participante');
+    
+    datosDiv.innerHTML = `
+      <p><strong>Nombre:</strong> ${data.nombre}</p>
+      <p><strong>Edad:</strong> ${data.edad} años</p>
+      <p><strong>Género:</strong> ${data.genero}</p>
+      <p><strong>Actividad Principal:</strong> ${data.actividad}</p>
+      <p><strong>Barrio:</strong> ${data.barrio}</p>
+    `;
+    
+    infoDiv.style.display = 'block';
+    
+  } catch (error) {
+    console.error('Error seleccionando participante:', error);
+    alert('Error al cargar información del participante');
+  }
+}
+
+// Función para manejar el formulario de asistencia
+document.addEventListener('DOMContentLoaded', function() {
+  const formAsistencia = document.getElementById('formAsistencia');
+  if (formAsistencia) {
+    formAsistencia.addEventListener('submit', guardarAsistencia);
+  }
+});
+
+async function guardarAsistencia(e) {
+  e.preventDefault();
+  
+  if (!participanteSeleccionado) {
+    alert('Por favor, seleccione un participante');
+    return;
+  }
+  
+  const fechaClase = document.getElementById('fecha-clase').value;
+  const horaClase = document.getElementById('hora-clase').value;
+  const actividad = document.getElementById('actividad-asistencia').value;
+  const asistio = document.querySelector('input[name="asistio"]:checked').value === 'true';
+  const observaciones = document.getElementById('observaciones').value.trim();
+  
+  if (!fechaClase || !horaClase || !actividad) {
+    alert('Por favor, complete todos los campos obligatorios');
+    return;
+  }
+  
+  try {
+    const asistenciaData = {
+      participante_id: participanteSeleccionado.id,
+      instructor_id: userProfile.id,
+      fecha_clase: fechaClase,
+      hora_clase: horaClase,
+      actividad: actividad,
+      asistio: asistio,
+      observaciones: observaciones || null
+    };
+    
+    const { data, error } = await supabaseClient
+      .from('asistencias')
+      .insert([asistenciaData]);
+    
+    if (error) throw error;
+    
+    alert('✅ Asistencia guardada exitosamente');
+    limpiarFormularioAsistencia();
+    await cargarAsistenciasHoy();
+    
+  } catch (error) {
+    console.error('Error guardando asistencia:', error);
+    alert(`❌ Error al guardar asistencia: ${error.message}`);
+  }
+}
+
+// Función para cargar asistencias del día
+async function cargarAsistenciasHoy() {
+  try {
+    const fechaHoy = new Date().toISOString().split('T')[0];
+    
+    let query = supabaseClient
+      .from('asistencias')
+      .select(`
+        *,
+        participantes (nombre, edad, genero)
+      `)
+      .eq('fecha_clase', fechaHoy)
+      .order('hora_clase', { ascending: false });
+    
+    // Si es instructor, solo mostrar sus asistencias
+    if (userProfile.role === 'instructor') {
+      query = query.eq('instructor_id', userProfile.id);
+    }
+    
+    const { data, error } = await query;
+    if (error) throw error;
+    
+    asistenciasHoy = data || [];
+    mostrarAsistenciasHoy(asistenciasHoy);
+    
+  } catch (error) {
+    console.error('Error cargando asistencias:', error);
+    document.getElementById('lista-asistencias-hoy').innerHTML = 
+      '<p style="color: #dc3545;">Error al cargar asistencias</p>';
+  }
+}
+
+// Función para mostrar asistencias del día
+function mostrarAsistenciasHoy(asistencias) {
+  const container = document.getElementById('lista-asistencias-hoy');
+  
+  if (!asistencias || asistencias.length === 0) {
+    container.innerHTML = '<p style="text-align: center; color: #666;">No hay asistencias registradas hoy</p>';
+    return;
+  }
+  
+  let html = `
+    <table style="width: 100%; margin-top: 1rem;">
+      <thead>
+        <tr>
+          <th>Hora</th>
+          <th>Participante</th>
+          <th>Actividad</th>
+          <th>Asistió</th>
+          <th>Observaciones</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+  
+  asistencias.forEach(asistencia => {
+    const hora = asistencia.hora_clase.slice(0, 5);
+    const participante = asistencia.participantes;
+    
+    html += `
+      <tr>
+        <td>${hora}</td>
+        <td>${participante.nombre}<br><small>${participante.edad} años - ${participante.genero}</small></td>
+        <td>${asistencia.actividad}</td>
+        <td>${asistencia.asistio ? '✅ Sí' : '❌ No'}</td>
+        <td>${asistencia.observaciones || '-'}</td>
+      </tr>
+    `;
+  });
+  
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// Función para limpiar formulario de asistencia
+function limpiarFormularioAsistencia() {
+  document.getElementById('buscar-participante').value = '';
+  document.getElementById('observaciones').value = '';
+  document.getElementById('info-participante').style.display = 'none';
+  document.getElementById('sugerencias-participantes').style.display = 'none';
+  document.querySelector('input[name="asistio"][value="true"]').checked = true;
+  participanteSeleccionado = null;
+}
+
+// Cerrar sugerencias al hacer clic fuera
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#buscar-participante') && !e.target.closest('#sugerencias-participantes')) {
+    document.getElementById('sugerencias-participantes').style.display = 'none';
+  }
+});
   
   // Función para guardar datos en Supabase
   async function guardarEnSupabase(participante) {

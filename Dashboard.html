@@ -8,16 +8,10 @@
     <link rel="stylesheet" href="estilos.css">
     <!-- Añadir Supabase JS desde CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
-    <!-- Protección de página - Solo para usuarios autenticados -->
-    <script type="module">
-        import { protectPage, getUserProfile, signOut } from './supabase-config.js';
 
-        document.addEventListener('DOMContentLoaded', async function () {
-            // PROTEGER ESTA PÁGINA - Solo instructores y admins
-            await protectPage(['admin', 'instructor']);
-        });
-    </script>
 
     <style>
         .dashboard-container {
@@ -37,17 +31,7 @@
             gap: 1rem;
         }
 
-        .user-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: var(--color-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
+
 
         .dashboard-grid {
             display: grid;
@@ -346,6 +330,129 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #333;
+            text-align: center;
+        }
+
+        .chart-canvas {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stat-card.tertiary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .stat-card.quaternary {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .filter-dropdown {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .filter-dropdown:focus {
+            outline: 2px solid var(--color-primary);
+            border-color: var(--color-primary);
+        }
     </style>
 </head>
 
@@ -399,80 +506,88 @@
                         <p id="user-role">Administrador</p>
                     </div>
                 </div>
+                <select id="filter-instructor" class="filter-dropdown" style="display: none; margin-right: 1rem;">
+                    <option value="todos">Todos los Instructores</option>
+                </select>
                 <div>
                     <button onclick="actualizarEstadisticas()" class="refresh-button" id="btn-refresh">
                         🔄 Actualizar
                     </button>
+
+                    <button onclick="abrirModalDescarga()" class="refresh-button"
+                        style="background-color: #28a745; margin-left: 0.5rem;">
+                        📊 Descargar Estadísticas
+                    </button>
                 </div>
             </div>
 
-            <div class="dashboard-grid">
-                <div class="dashboard-card">
-                    <h3>Total Participantes</h3>
-                    <div class="stat-large loading-stat" id="total-participantes">Cargando...</div>
-                    <p class="stat-description">Participantes en todas las actividades</p>
-                    <div class="stat-breakdown" id="breakdown-total">
-                        <div class="stat-item">
-                            <span>Hombres:</span>
-                            <span id="total-hombres">-</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Mujeres:</span>
-                            <span id="total-mujeres">-</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Edad promedio:</span>
-                            <span id="edad-promedio">-</span>
-                        </div>
-                    </div>
-                    <div class="action-buttons">
-                        <a href="formulario_excel.html" class="btn btn-primary">Gestionar</a>
+            <!-- REEMPLAZAR TODO EL dashboard-grid CON ESTO -->
+            <!-- Controles del Dashboard -->
+            <div class="dashboard-controls"
+                style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                <select id="filter-tipo" class="filter-dropdown">
+                    <option value="todos">Todas las Actividades</option>
+                    <option value="deporte">Solo Deportes</option>
+                    <option value="actividad_fisica">Solo Actividades Físicas</option>
+                </select>
+                <select id="filter-genero" class="filter-dropdown">
+                    <option value="todos">Todos los Géneros</option>
+                    <option value="Hombre">Solo Hombres</option>
+                    <option value="Mujer">Solo Mujeres</option>
+                </select>
+            </div>
+
+            <!-- Resumen de Estadísticas -->
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-participantes">0</div>
+                    <div class="stat-label">Total Participantes</div>
+                </div>
+                <div class="stat-card secondary">
+                    <div class="stat-number" id="total-deportes">0</div>
+                    <div class="stat-label">Deportes</div>
+                </div>
+                <div class="stat-card tertiary">
+                    <div class="stat-number" id="total-actividades">0</div>
+                    <div class="stat-label">Actividades Físicas</div>
+                </div>
+                <div class="stat-card quaternary">
+                    <div class="stat-number" id="total-asistencias">0</div>
+                    <div class="stat-label">Total Asistencias</div>
+                </div>
+            </div>
+
+            <!-- Gráficos Principales -->
+            <div class="charts-grid">
+                <!-- Gráfico de Distribución por Edad -->
+                <div class="chart-container">
+                    <h3 class="chart-title">Distribución por Edad</h3>
+                    <div class="chart-canvas">
+                        <canvas id="chart-edades"></canvas>
                     </div>
                 </div>
 
-                <div class="dashboard-card">
-                    <h3>Deportes</h3>
-                    <div class="stat-large loading-stat" id="total-deportes">Cargando...</div>
-                    <p class="stat-description">Participantes en actividades deportivas</p>
-                    <div class="stat-breakdown" id="breakdown-deportes">
-                        <div class="stat-item">
-                            <span>Hombres:</span>
-                            <span id="deportes-hombres">-</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Mujeres:</span>
-                            <span id="deportes-mujeres">-</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Más popular:</span>
-                            <span id="deporte-popular">-</span>
-                        </div>
-                    </div>
-                    <div class="action-buttons">
-                        <a href="deportes.html" class="btn btn-outline">Ver Detalles</a>
+                <!-- Gráfico de Distribución por Género -->
+                <div class="chart-container">
+                    <h3 class="chart-title">Distribución por Género</h3>
+                    <div class="chart-canvas">
+                        <canvas id="chart-genero"></canvas>
                     </div>
                 </div>
 
-                <div class="dashboard-card">
-                    <h3>Actividades Físicas</h3>
-                    <div class="stat-large loading-stat" id="total-actividades">Cargando...</div>
-                    <p class="stat-description">Participantes en actividades físicas</p>
-                    <div class="stat-breakdown" id="breakdown-actividades">
-                        <div class="stat-item">
-                            <span>Hombres:</span>
-                            <span id="actividades-hombres">-</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Mujeres:</span>
-                            <span id="actividades-mujeres">-</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Más popular:</span>
-                            <span id="actividad-popular">-</span>
-                        </div>
+                <!-- Gráfico de Actividades Más Populares -->
+                <div class="chart-container">
+                    <h3 class="chart-title">Actividades Más Populares</h3>
+                    <div class="chart-canvas">
+                        <canvas id="chart-actividades"></canvas>
                     </div>
-                    <div class="action-buttons">
-                        <a href="actividades.html" class="btn btn-outline">Ver Detalles</a>
+                </div>
+
+                <!-- Gráfico de Asistencias -->
+                <div class="chart-container">
+                    <h3 class="chart-title">Estadísticas de Asistencia</h3>
+                    <div class="chart-canvas">
+                        <canvas id="chart-asistencias"></canvas>
                     </div>
                 </div>
             </div>
@@ -480,6 +595,79 @@
             <div class="update-info">
                 <p id="ultima-actualizacion">Última actualización: Cargando...</p>
                 <p><small>Los datos se actualizan automáticamente cada 30 segundos</small></p>
+            </div>
+        </div>
+        <!-- Modal de Descarga de Estadísticas -->
+        <div id="modalDescarga" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 600px;">
+                <span class="close" onclick="cerrarModalDescarga()">&times;</span>
+                <h2>📊 Descargar Estadísticas</h2>
+
+                <div style="margin-bottom: 2rem;">
+                    <h4>Seleccionar Período:</h4>
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-enero" value="1"> Enero
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-febrero" value="2"> Febrero
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-marzo" value="3"> Marzo
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-abril" value="4"> Abril
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-mayo" value="5"> Mayo
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-junio" value="6"> Junio
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-julio" value="7"> Julio
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-agosto" value="8"> Agosto
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-septiembre" value="9"> Septiembre
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-octubre" value="10"> Octubre
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-noviembre" value="11"> Noviembre
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-diciembre" value="12"> Diciembre
+                        </label>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <button onclick="seleccionarTodosMeses()" class="btn btn-outline">Seleccionar Todos</button>
+                        <button onclick="limpiarSeleccionMeses()" class="btn btn-outline">Limpiar Selección</button>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <select id="año-descarga" class="filter-dropdown">
+                            <option value="2024">2024</option>
+                            <option value="2025" selected>2025</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button onclick="previsualizarEstadisticas()" class="btn btn-primary">
+                        👁️ Previsualizar
+                    </button>
+                    <button onclick="descargarEstadisticas()" class="btn btn-primary"
+                        style="background-color: #28a745;">
+                        📥 Descargar Excel
+                    </button>
+                </div>
+
+                <div id="preview-estadisticas" style="margin-top: 2rem; max-height: 400px; overflow-y: auto;"></div>
             </div>
         </div>
     </main>
@@ -502,37 +690,33 @@
         // Variables globales
         let intervalId = null;
         let currentUserProfile = null;
+        let chartEdades, chartGenero, chartActividades, chartAsistencias;
 
         document.addEventListener('DOMContentLoaded', async function () {
             try {
                 console.log("Verificando protección de página...");
                 // PROTEGER PÁGINA: Solo instructores y admins
                 await protectPage(['instructor', 'admin']);
-
                 const profile = await getUserProfile();
-
                 if (profile) {
                     console.log("Perfil obtenido:", profile);
-                    currentUserProfile = profile;
 
+                    currentUserProfile = profile;
                     document.getElementById('user-name').textContent =
                         profile.full_name || profile.username || 'Usuario';
-
                     // Actualizar rol mostrado
                     const roleText = profile.role === 'admin' ? 'Administrador' : 'Instructor';
                     document.getElementById('user-role').textContent = roleText;
-
                     // Actualizar título de la página según el rol
                     if (profile.role === 'admin') {
                         document.querySelector('.page-header h1').textContent = 'Panel de Administración';
                     } else {
                         document.querySelector('.page-header h1').textContent = 'Panel de Instructor';
                     }
-
                     // Configurar avatar
                     await configurarAvatar(profile);
+                    await configurarSelectorInstructor(profile);
                 }
-
                 document.getElementById('logout-btn').addEventListener('click', async function () {
                     try {
                         await signOut();
@@ -543,12 +727,14 @@
                     }
                 });
 
+                // Agregar event listeners para filtros
+                document.getElementById('filter-tipo').addEventListener('change', actualizarEstadisticas);
+                document.getElementById('filter-genero').addEventListener('change', actualizarEstadisticas);
+
                 // Cargar estadísticas iniciales
                 await actualizarEstadisticas();
-
                 // Configurar actualización automática
                 iniciarActualizacionAutomatica();
-
             } catch (error) {
                 console.error("Error en la inicialización del dashboard:", error);
                 // Redirigir a login si hay error
@@ -556,10 +742,10 @@
             }
         });
 
+
         // Función para configurar el avatar del usuario
         async function configurarAvatar(profile) {
             const avatarElement = document.getElementById('user-avatar');
-
             if (profile.avatar_url) {
                 // Mostrar imagen del avatar
                 avatarElement.innerHTML = `
@@ -576,7 +762,6 @@
             <div class="avatar-overlay">📷 Subir</div>
         `;
             }
-
             // Agregar evento click para abrir modal
             avatarElement.addEventListener('click', abrirModalAvatar);
         }
@@ -598,7 +783,6 @@
                 crearModalAvatar();
             }
             document.getElementById('avatarModal').style.display = 'block';
-
             // Mostrar avatar actual en preview
             const preview = document.getElementById('avatarPreview');
             if (currentUserProfile.avatar_url) {
@@ -643,21 +827,16 @@
             </div>
         </div>
     `;
-
             document.body.insertAdjacentHTML('beforeend', modalHTML);
-
             // Configurar drag and drop
             const uploadArea = document.getElementById('uploadArea');
-
             uploadArea.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 uploadArea.classList.add('dragover');
             });
-
             uploadArea.addEventListener('dragleave', () => {
                 uploadArea.classList.remove('dragover');
             });
-
             uploadArea.addEventListener('drop', (e) => {
                 e.preventDefault();
                 uploadArea.classList.remove('dragover');
@@ -674,21 +853,17 @@
         // Función para previsualizar avatar
         function previsualizarAvatar(file) {
             if (!file) return;
-
             // Validar tipo de archivo
             if (!file.type.startsWith('image/')) {
                 alert('Por favor, seleccione solo archivos de imagen.');
                 return;
             }
-
             // Validar tamaño (2MB máximo)
             if (file.size > 2097152) {
                 alert('El archivo es demasiado grande. Máximo 2MB.');
                 return;
             }
-
             archivoSeleccionado = file;
-
             // Mostrar preview
             const reader = new FileReader();
             reader.onload = function (e) {
@@ -705,18 +880,14 @@
                 alert('Por favor, seleccione una imagen primero.');
                 return;
             }
-
             const btnSubir = document.getElementById('btnSubirAvatar');
             const originalText = btnSubir.textContent;
-
             try {
                 btnSubir.textContent = '⏳ Subiendo...';
                 btnSubir.disabled = true;
-
                 // Generar nombre único para el archivo
                 const fileExtension = archivoSeleccionado.name.split('.').pop();
                 const fileName = `avatar_${currentUserProfile.id}_${Date.now()}.${fileExtension}`;
-
                 // Eliminar avatar anterior si existe
                 if (currentUserProfile.avatar_url) {
                     const oldFileName = currentUserProfile.avatar_url.split('/').pop();
@@ -724,36 +895,27 @@
                         .from('avatars')
                         .remove([oldFileName]);
                 }
-
                 // Subir nuevo archivo
                 const { data: uploadData, error: uploadError } = await supabaseClient.storage
                     .from('avatars')
                     .upload(fileName, archivoSeleccionado);
-
                 if (uploadError) throw uploadError;
-
                 // Obtener URL pública
                 const { data: urlData } = supabaseClient.storage
                     .from('avatars')
                     .getPublicUrl(fileName);
-
                 // Actualizar perfil en la base de datos
                 const { error: updateError } = await supabaseClient
                     .from('profiles')
                     .update({ avatar_url: urlData.publicUrl })
                     .eq('id', currentUserProfile.id);
-
                 if (updateError) throw updateError;
-
                 // Actualizar perfil local
                 currentUserProfile.avatar_url = urlData.publicUrl;
-
                 // Actualizar UI
                 await configurarAvatar(currentUserProfile);
-
                 alert('✅ Foto de perfil actualizada exitosamente');
                 cerrarModalAvatar();
-
             } catch (error) {
                 console.error('Error al subir avatar:', error);
                 alert(`❌ Error al subir la foto: ${error.message}`);
@@ -761,7 +923,7 @@
                 btnSubir.textContent = originalText;
                 btnSubir.disabled = false;
             }
-        }
+        };
 
         // Función para eliminar avatar
         async function eliminarAvatar() {
@@ -769,41 +931,31 @@
                 alert('No hay foto de perfil para eliminar.');
                 return;
             }
-
             if (!confirm('¿Está seguro de que desea eliminar su foto de perfil?')) {
                 return;
             }
-
             const btnEliminar = document.getElementById('btnEliminarAvatar');
             const originalText = btnEliminar.textContent;
-
             try {
                 btnEliminar.textContent = '⏳ Eliminando...';
                 btnEliminar.disabled = true;
-
                 // Eliminar archivo del storage
                 const fileName = currentUserProfile.avatar_url.split('/').pop();
                 await supabaseClient.storage
                     .from('avatars')
                     .remove([fileName]);
-
                 // Actualizar perfil en la base de datos
                 const { error: updateError } = await supabaseClient
                     .from('profiles')
                     .update({ avatar_url: null })
                     .eq('id', currentUserProfile.id);
-
                 if (updateError) throw updateError;
-
                 // Actualizar perfil local
                 currentUserProfile.avatar_url = null;
-
                 // Actualizar UI
                 await configurarAvatar(currentUserProfile);
-
                 alert('✅ Foto de perfil eliminada exitosamente');
                 cerrarModalAvatar();
-
             } catch (error) {
                 console.error('Error al eliminar avatar:', error);
                 alert(`❌ Error al eliminar la foto: ${error.message}`);
@@ -811,7 +963,7 @@
                 btnEliminar.textContent = originalText;
                 btnEliminar.disabled = false;
             }
-        }
+        };
 
         // Función para cerrar modal
         function cerrarModalAvatar() {
@@ -835,121 +987,617 @@
             }
         });
 
-        // Resto del código existente para estadísticas...
+        // Función para configurar selector de instructor
+        async function configurarSelectorInstructor(profile) {
+            const selectorInstructor = document.getElementById('filter-instructor');
 
-        // Función para obtener todas las estadísticas
-        async function obtenerEstadisticas() {
+            if (profile.role === 'admin') {
+                // Admin puede ver todos los instructores
+                selectorInstructor.style.display = 'inline-block';
+
+                try {
+                    // Cargar lista de instructores
+                    const { data: instructores, error } = await supabaseClient
+                        .from('profiles')
+                        .select('id, full_name, username')
+                        .eq('role', 'instructor')
+                        .order('full_name');
+
+                    if (!error && instructores) {
+                        let options = '<option value="todos">Todos los Instructores</option>';
+                        instructores.forEach(instructor => {
+                            const nombre = instructor.full_name || instructor.username;
+                            options += `<option value="${instructor.id}">${nombre}</option>`;
+                        });
+                        selectorInstructor.innerHTML = options;
+
+                        // Agregar event listener
+                        selectorInstructor.addEventListener('change', actualizarEstadisticas);
+                    }
+                } catch (error) {
+                    console.error('Error cargando instructores:', error);
+                }
+            } else {
+                // Instructor solo ve sus propios datos
+                selectorInstructor.style.display = 'none';
+            }
+        }
+
+        // Función para obtener datos filtrados
+        async function obtenerDatos() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('participantes')
-                    .select('*')
-                    .order('fecha_registro', { ascending: false });
+                const filterTipo = document.getElementById('filter-tipo').value;
+                const filterGenero = document.getElementById('filter-genero').value;
+                const filterInstructor = document.getElementById('filter-instructor').value;
 
+                let query = supabaseClient.from('participantes').select('*');
+
+                // Aplicar filtros
+                if (filterTipo !== 'todos') {
+                    query = query.eq('tipo_actividad', filterTipo);
+                }
+                if (filterGenero !== 'todos') {
+                    query = query.eq('genero', filterGenero);
+                }
+
+                // Filtro por instructor
+                if (currentUserProfile.role === 'instructor') {
+                    const { data: asistenciasInstructor } = await supabaseClient
+                        .from('asistencias')
+                        .select('participante_id')
+                        .eq('instructor_id', currentUserProfile.id);
+
+                    if (asistenciasInstructor && asistenciasInstructor.length > 0) {
+                        const participanteIds = [...new Set(asistenciasInstructor.map(a => a.participante_id))];
+                        query = query.in('id', participanteIds);
+                    } else {
+                        return [];
+                    }
+                } else if (currentUserProfile.role === 'admin' && filterInstructor !== 'todos') {
+                    const { data: asistenciasInstructor } = await supabaseClient
+                        .from('asistencias')
+                        .select('participante_id')
+                        .eq('instructor_id', filterInstructor);
+
+                    if (asistenciasInstructor && asistenciasInstructor.length > 0) {
+                        const participanteIds = [...new Set(asistenciasInstructor.map(a => a.participante_id))];
+                        query = query.in('id', participanteIds);
+                    } else {
+                        return [];
+                    }
+                }
+
+                const { data, error } = await query;
                 if (error) throw error;
+
                 return data || [];
             } catch (error) {
-                console.error('Error al obtener estadísticas:', error);
+                console.error('Error al obtener datos:', error);
                 return [];
             }
         }
 
-        // Función para calcular estadísticas detalladas
-        function calcularEstadisticas(participantes) {
-            const total = participantes.length;
+        // Función para obtener asistencias
+        async function obtenerAsistencias() {
+            try {
+                const filterInstructor = document.getElementById('filter-instructor').value;
 
-            // Estadísticas generales
-            const hombres = participantes.filter(p => p.genero === 'Hombre').length;
-            const mujeres = participantes.filter(p => p.genero === 'Mujer').length;
-            const edadPromedio = total > 0
-                ? (participantes.reduce((sum, p) => sum + p.edad, 0) / total).toFixed(1)
-                : 0;
+                let query = supabaseClient.from('asistencias').select('*');
 
-            // Estadísticas por tipo
-            const deportes = participantes.filter(p => p.tipo_actividad === 'deporte');
-            const actividades = participantes.filter(p => p.tipo_actividad === 'actividad_fisica');
-
-            // Deportes más populares
-            const deportesConteo = {};
-            deportes.forEach(p => {
-                deportesConteo[p.actividad] = (deportesConteo[p.actividad] || 0) + 1;
-            });
-            const deportePopular = Object.entries(deportesConteo)
-                .sort(([, a], [, b]) => b - a)[0];
-
-            // Actividades más populares
-            const actividadesConteo = {};
-            actividades.forEach(p => {
-                actividadesConteo[p.actividad] = (actividadesConteo[p.actividad] || 0) + 1;
-            });
-            const actividadPopular = Object.entries(actividadesConteo)
-                .sort(([, a], [, b]) => b - a)[0];
-
-            return {
-                total: {
-                    count: total,
-                    hombres,
-                    mujeres,
-                    edadPromedio
-                },
-                deportes: {
-                    count: deportes.length,
-                    hombres: deportes.filter(p => p.genero === 'Hombre').length,
-                    mujeres: deportes.filter(p => p.genero === 'Mujer').length,
-                    popular: deportePopular ? {
-                        nombre: deportePopular[0].replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-                        cantidad: deportePopular[1]
-                    } : null
-                },
-                actividades: {
-                    count: actividades.length,
-                    hombres: actividades.filter(p => p.genero === 'Hombre').length,
-                    mujeres: actividades.filter(p => p.genero === 'Mujer').length,
-                    popular: actividadPopular ? {
-                        nombre: actividadPopular[0].replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-                        cantidad: actividadPopular[1]
-                    } : null
+                if (currentUserProfile.role === 'instructor') {
+                    query = query.eq('instructor_id', currentUserProfile.id);
+                } else if (currentUserProfile.role === 'admin' && filterInstructor !== 'todos') {
+                    query = query.eq('instructor_id', filterInstructor);
                 }
-            };
+
+                const { data, error } = await query;
+                if (error) throw error;
+
+                return data || [];
+            } catch (error) {
+                console.error('Error al obtener asistencias:', error);
+                return [];
+            }
         }
 
-        // Función para actualizar la UI con las estadísticas
-        function actualizarUI(stats) {
-            // Remover clase de carga
-            document.querySelectorAll('.loading-stat').forEach(el => {
-                el.classList.remove('loading-stat');
+        // Función para calcular estadísticas por edad
+        function calcularEstadisticasEdad(datos) {
+            const rangos = {
+                '5-12 años': 0,
+                '13-18 años': 0,
+                '19-25 años': 0,
+                '26-35 años': 0,
+                '36-50 años': 0,
+                '51+ años': 0
+            };
+
+            datos.forEach(p => {
+                const edad = p.edad;
+                if (edad >= 5 && edad <= 12) rangos['5-12 años']++;
+                else if (edad >= 13 && edad <= 18) rangos['13-18 años']++;
+                else if (edad >= 19 && edad <= 25) rangos['19-25 años']++;
+                else if (edad >= 26 && edad <= 35) rangos['26-35 años']++;
+                else if (edad >= 36 && edad <= 50) rangos['36-50 años']++;
+                else if (edad >= 51) rangos['51+ años']++;
             });
 
-            // Actualizar totales
-            document.getElementById('total-participantes').textContent = stats.total.count.toLocaleString();
-            document.getElementById('total-hombres').textContent = `${stats.total.hombres} (${stats.total.count > 0 ? Math.round((stats.total.hombres / stats.total.count) * 100) : 0}%)`;
-            document.getElementById('total-mujeres').textContent = `${stats.total.mujeres} (${stats.total.count > 0 ? Math.round((stats.total.mujeres / stats.total.count) * 100) : 0}%)`;
-            document.getElementById('edad-promedio').textContent = `${stats.total.edadPromedio} años`;
+            return rangos;
+        }
 
-            // Actualizar deportes
-            document.getElementById('total-deportes').textContent = stats.deportes.count.toLocaleString();
-            document.getElementById('deportes-hombres').textContent = `${stats.deportes.hombres} (${stats.deportes.count > 0 ? Math.round((stats.deportes.hombres / stats.deportes.count) * 100) : 0}%)`;
-            document.getElementById('deportes-mujeres').textContent = `${stats.deportes.mujeres} (${stats.deportes.count > 0 ? Math.round((stats.deportes.mujeres / stats.deportes.count) * 100) : 0}%)`;
-            document.getElementById('deporte-popular').textContent = stats.deportes.popular
-                ? `${stats.deportes.popular.nombre} (${stats.deportes.popular.cantidad})`
-                : 'N/A';
-
-            // Actualizar actividades físicas
-            document.getElementById('total-actividades').textContent = stats.actividades.count.toLocaleString();
-            document.getElementById('actividades-hombres').textContent = `${stats.actividades.hombres} (${stats.actividades.count > 0 ? Math.round((stats.actividades.hombres / stats.actividades.count) * 100) : 0}%)`;
-            document.getElementById('actividades-mujeres').textContent = `${stats.actividades.mujeres} (${stats.actividades.count > 0 ? Math.round((stats.actividades.mujeres / stats.actividades.count) * 100) : 0}%)`;
-            document.getElementById('actividad-popular').textContent = stats.actividades.popular
-                ? `${stats.actividades.popular.nombre} (${stats.actividades.popular.cantidad})`
-                : 'N/A';
-
-            // Actualizar timestamp
-            const ahora = new Date().toLocaleString('es-ES', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
+        // Función para calcular actividades populares
+        function calcularActividadesPopulares(datos) {
+            const conteo = {};
+            datos.forEach(p => {
+                const actividad = p.actividad.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                conteo[actividad] = (conteo[actividad] || 0) + 1;
             });
-            document.getElementById('ultima-actualizacion').textContent = `Última actualización: ${ahora}`;
+
+            return Object.entries(conteo)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 8);
+        }
+
+        // Función para actualizar gráfico de edades
+        function actualizarGraficoEdades(datos) {
+            const estadisticas = calcularEstadisticasEdad(datos);
+            const ctx = document.getElementById('chart-edades').getContext('2d');
+
+            if (chartEdades) chartEdades.destroy();
+
+            chartEdades = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(estadisticas),
+                    datasets: [{
+                        data: Object.values(estadisticas),
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56',
+                            '#4BC0C0', '#9966FF', '#FF9F40'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 20, usePointStyle: true }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función para actualizar gráfico de género
+        function actualizarGraficoGenero(datos) {
+            const hombres = datos.filter(p => p.genero === 'Hombre').length;
+            const mujeres = datos.filter(p => p.genero === 'Mujer').length;
+            const ctx = document.getElementById('chart-genero').getContext('2d');
+
+            if (chartGenero) chartGenero.destroy();
+
+            chartGenero = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Hombres', 'Mujeres'],
+                    datasets: [{
+                        data: [hombres, mujeres],
+                        backgroundColor: ['#4361ee', '#f72585'],
+                        borderWidth: 3,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 20, usePointStyle: true }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función para actualizar gráfico de actividades
+        function actualizarGraficoActividades(datos) {
+            const actividades = calcularActividadesPopulares(datos);
+            const ctx = document.getElementById('chart-actividades').getContext('2d');
+
+            if (chartActividades) chartActividades.destroy();
+
+            chartActividades = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: actividades.map(([nombre]) => nombre),
+                    datasets: [{
+                        label: 'Participantes',
+                        data: actividades.map(([, cantidad]) => cantidad),
+                        backgroundColor: 'rgba(67, 97, 238, 0.8)',
+                        borderColor: 'rgba(67, 97, 238, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                        x: { ticks: { maxRotation: 45 } }
+                    }
+                }
+            });
+        }
+
+        // Función para actualizar gráfico de asistencias
+        function actualizarGraficoAsistencias(asistencias) {
+            const asistieron = asistencias.filter(a => a.asistio).length;
+            const noAsistieron = asistencias.filter(a => !a.asistio).length;
+            const ctx = document.getElementById('chart-asistencias').getContext('2d');
+
+            if (chartAsistencias) chartAsistencias.destroy();
+
+            chartAsistencias = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Asistieron', 'No Asistieron'],
+                    datasets: [{
+                        data: [asistieron, noAsistieron],
+                        backgroundColor: ['#28a745', '#dc3545'],
+                        borderWidth: 3,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 20, usePointStyle: true }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función para actualizar resumen
+        async function actualizarResumen(datos) {
+            const totalParticipantes = datos.length;
+            const totalDeportes = datos.filter(p => p.tipo_actividad === 'deporte').length;
+            const totalActividades = datos.filter(p => p.tipo_actividad === 'actividad_fisica').length;
+
+            const asistencias = await obtenerAsistencias();
+            const totalAsistencias = asistencias.length;
+
+            document.getElementById('total-participantes').textContent = totalParticipantes;
+            document.getElementById('total-deportes').textContent = totalDeportes;
+            document.getElementById('total-actividades').textContent = totalActividades;
+            document.getElementById('total-asistencias').textContent = totalAsistencias;
+        }
+        // Funciones para descarga de estadísticas
+        // Funciones para descarga de estadísticas
+        window.abrirModalDescarga = function () {
+            document.getElementById('modalDescarga').style.display = 'block';
+        }
+
+        window.cerrarModalDescarga = function () {
+            document.getElementById('modalDescarga').style.display = 'none';
+            document.getElementById('preview-estadisticas').innerHTML = '';
+        }
+
+        window.seleccionarTodosMeses = function () {
+            const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = true);
+        }
+
+        window.limpiarSeleccionMeses = function () {
+            const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+        }
+
+        async function obtenerDatosPorMeses() {
+            const mesesSeleccionados = [];
+            const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => mesesSeleccionados.push(parseInt(cb.value)));
+
+            if (mesesSeleccionados.length === 0) {
+                alert('Por favor, seleccione al menos un mes.');
+                return null;
+            }
+
+            const año = document.getElementById('año-descarga').value;
+
+            try {
+                let queryAsistencias = supabaseClient
+                    .from('asistencias')
+                    .select('*')
+                    .eq('instructor_id', currentUserProfile.id);
+
+                const { data: asistencias, error: errorAsistencias } = await queryAsistencias;
+                if (errorAsistencias) throw errorAsistencias;
+
+                const participanteIds = [...new Set(asistencias.map(a => a.participante_id))];
+                if (participanteIds.length === 0) {
+                    return [];
+                }
+
+                const { data: participantes, error: errorParticipantes } = await supabaseClient
+                    .from('participantes')
+                    .select('*')
+                    .in('id', participanteIds);
+                if (errorParticipantes) throw errorParticipantes;
+
+                const datosFiltrados = asistencias.filter(asistencia => {
+                    let fechaStr = asistencia.fecha || asistencia.fecha_asistencia || asistencia.created_at;
+                    if (!fechaStr) return false;
+
+                    const fecha = new Date(fechaStr);
+                    const mesAsistencia = fecha.getMonth() + 1;
+                    const añoAsistencia = fecha.getFullYear();
+
+                    return mesesSeleccionados.includes(mesAsistencia) && añoAsistencia === parseInt(año);
+                });
+
+                return datosFiltrados;
+            } catch (error) {
+                console.error('Error al obtener datos:', error);
+                alert('Error al obtener los datos');
+                return null;
+            }
+        }
+
+        window.previsualizarEstadisticas = async function () {
+            const datos = await obtenerDatosPorMeses();
+            if (!datos) return;
+
+            const preview = document.getElementById('preview-estadisticas');
+            const totalAsistencias = datos.length;
+            const asistieron = datos.filter(d => d.asistio).length;
+            const noAsistieron = totalAsistencias - asistieron;
+
+            preview.innerHTML = `
+        <h4>📋 Previsualización de Estadísticas</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: bold; color: #007bff;">${totalAsistencias}</div>
+                <div>Total Asistencias</div>
+            </div>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: bold; color: #28a745;">${asistieron}</div>
+                <div>Asistieron</div>
+            </div>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: bold; color: #dc3545;">${noAsistieron}</div>
+                <div>No Asistieron</div>
+            </div>
+        </div>
+    `;
+        }
+
+        window.descargarEstadisticas = async function () {
+            const datos = await obtenerDatosPorMeses();
+            if (!datos || datos.length === 0) {
+                alert('No hay datos para descargar');
+                return;
+            }
+
+            try {
+                const participanteIds = [...new Set(datos.map(a => a.participante_id))];
+                const { data: participantes, error } = await supabaseClient
+                    .from('participantes')
+                    .select('*')
+                    .in('id', participanteIds);
+                if (error) throw error;
+
+                const participantesMap = {};
+                participantes.forEach(p => {
+                    participantesMap[p.id] = p;
+                });
+
+                // CALCULAR ESTADÍSTICAS COMO LOS GRÁFICOS
+                const totalParticipantes = participantes.length;
+                const totalAsistencias = datos.length;
+                const asistieron = datos.filter(d => d.asistio).length;
+                const noAsistieron = totalAsistencias - asistieron;
+
+                const hombres = participantes.filter(p => p.genero === 'Hombre').length;
+                const mujeres = participantes.filter(p => p.genero === 'Mujer').length;
+
+                const deportes = participantes.filter(p => p.tipo_actividad === 'deporte').length;
+                const actividadesFisicas = participantes.filter(p => p.tipo_actividad === 'actividad_fisica').length;
+
+                // ESTADÍSTICAS POR EDAD (como el gráfico)
+                const rangosEdad = {
+                    '5-12 años': 0, '13-18 años': 0, '19-25 años': 0,
+                    '26-35 años': 0, '36-50 años': 0, '51+ años': 0
+                };
+                participantes.forEach(p => {
+                    const edad = p.edad;
+                    if (edad >= 5 && edad <= 12) rangosEdad['5-12 años']++;
+                    else if (edad >= 13 && edad <= 18) rangosEdad['13-18 años']++;
+                    else if (edad >= 19 && edad <= 25) rangosEdad['19-25 años']++;
+                    else if (edad >= 26 && edad <= 35) rangosEdad['26-35 años']++;
+                    else if (edad >= 36 && edad <= 50) rangosEdad['36-50 años']++;
+                    else if (edad >= 51) rangosEdad['51+ años']++;
+                });
+
+                // ACTIVIDADES POPULARES (como el gráfico)
+                const actividadesConteo = {};
+                participantes.forEach(p => {
+                    const actividad = p.actividad.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    actividadesConteo[actividad] = (actividadesConteo[actividad] || 0) + 1;
+                });
+
+                // BARRIOS
+                const barriosConteo = {};
+                participantes.forEach(p => {
+                    barriosConteo[p.barrio] = (barriosConteo[p.barrio] || 0) + 1;
+                });
+
+                // Obtener meses seleccionados
+                const mesesSeleccionados = [];
+                const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]:checked');
+                checkboxes.forEach(cb => {
+                    const meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                    mesesSeleccionados.push(meses[parseInt(cb.value)]);
+                });
+                const año = document.getElementById('año-descarga').value;
+
+
+                let htmlContent = `
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; color: #2c5aa0; margin-bottom: 10px; font-size: 18px; }
+        h2 { color: #2c5aa0; border-bottom: 2px solid #2c5aa0; padding-bottom: 5px; margin-top: 25px; font-size: 14px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 25px; }
+        th { background-color: #2c5aa0; color: white; padding: 8px; text-align: center; font-weight: bold; font-size: 11px; }
+        td { padding: 6px; border: 1px solid #ddd; text-align: center; font-size: 10px; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .resumen th { background-color: #28a745; }
+        .edad th { background-color: #17a2b8; }
+        .genero th { background-color: #ffc107; color: #000; }
+        .actividades th { background-color: #dc3545; }
+        .barrios th { background-color: #6f42c1; }
+        .asistencias th { background-color: #fd7e14; }
+        .detalle th { background-color: #6c757d; }
+        .porcentaje { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>📊 REPORTE ESTADÍSTICO COMPLETO - ${currentUserProfile.full_name || 'INSTRUCTOR'}</h1>
+    <p style="text-align: center; color: #666; margin-bottom: 20px; font-size: 12px;">Período: ${mesesSeleccionados.join(', ')} ${año}</p>
+
+    <h2>📈 RESUMEN GENERAL</h2>
+    <table class="resumen">
+        <thead>
+            <tr><th>CONCEPTO</th><th>CANTIDAD</th><th>PORCENTAJE</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Total Participantes</td><td>${totalParticipantes}</td><td class="porcentaje">100%</td></tr>
+            <tr><td>Total Asistencias Registradas</td><td>${totalAsistencias}</td><td class="porcentaje">-</td></tr>
+            <tr><td>Asistencias Confirmadas</td><td>${asistieron}</td><td class="porcentaje">${totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) : 0}%</td></tr>
+            <tr><td>Asistencias No Confirmadas</td><td>${noAsistieron}</td><td class="porcentaje">${totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) : 0}%</td></tr>
+        </tbody>
+    </table>
+
+    <h2>👥 DISTRIBUCIÓN POR GÉNERO</h2>
+    <table class="genero">
+        <thead>
+            <tr><th>GÉNERO</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Hombres</td><td>${hombres}</td><td class="porcentaje">${totalParticipantes > 0 ? Math.round((hombres / totalParticipantes) * 100) : 0}%</td></tr>
+            <tr><td>Mujeres</td><td>${mujeres}</td><td class="porcentaje">${totalParticipantes > 0 ? Math.round((mujeres / totalParticipantes) * 100) : 0}%</td></tr>
+            <tr style="background-color: #e9ecef; font-weight: bold;"><td>TOTAL</td><td>${totalParticipantes}</td><td class="porcentaje">100%</td></tr>
+        </tbody>
+    </table>
+
+    <h2>🎯 DISTRIBUCIÓN POR TIPO DE ACTIVIDAD</h2>
+    <table class="actividades">
+        <thead>
+            <tr><th>TIPO</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Deportes</td><td>${deportes}</td><td class="porcentaje">${totalParticipantes > 0 ? Math.round((deportes / totalParticipantes) * 100) : 0}%</td></tr>
+            <tr><td>Actividades Físicas</td><td>${actividadesFisicas}</td><td class="porcentaje">${totalParticipantes > 0 ? Math.round((actividadesFisicas / totalParticipantes) * 100) : 0}%</td></tr>
+            <tr style="background-color: #e9ecef; font-weight: bold;"><td>TOTAL</td><td>${totalParticipantes}</td><td class="porcentaje">100%</td></tr>
+        </tbody>
+    </table>
+
+    <h2>📊 DISTRIBUCIÓN POR EDAD</h2>
+    <table class="edad">
+        <thead>
+            <tr><th>RANGO DE EDAD</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
+        </thead>
+        <tbody>`;
+
+                Object.entries(rangosEdad).forEach(([rango, cantidad]) => {
+                    const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) : 0;
+                    htmlContent += `<tr><td>${rango}</td><td>${cantidad}</td><td class="porcentaje">${porcentaje}%</td></tr>`;
+                });
+
+                htmlContent += `
+            <tr style="background-color: #e9ecef; font-weight: bold;"><td>TOTAL</td><td>${totalParticipantes}</td><td class="porcentaje">100%</td></tr>
+        </tbody>
+    </table>
+
+    <h2>🏃‍♂️ ACTIVIDADES MÁS POPULARES</h2>
+    <table class="actividades">
+        <thead>
+            <tr><th>ACTIVIDAD</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
+        </thead>
+        <tbody>`;
+
+                Object.entries(actividadesConteo)
+                    .sort(([, a], [, b]) => b - a)
+                    .forEach(([actividad, cantidad]) => {
+                        const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) : 0;
+                        htmlContent += `<tr><td>${actividad}</td><td>${cantidad}</td><td class="porcentaje">${porcentaje}%</td></tr>`;
+                    });
+
+                htmlContent += `
+        </tbody>
+    </table>
+
+    <h2>🏘️ DISTRIBUCIÓN POR BARRIO</h2>
+    <table class="barrios">
+        <thead>
+            <tr><th>BARRIO</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
+        </thead>
+        <tbody>`;
+
+                Object.entries(barriosConteo)
+                    .sort(([, a], [, b]) => b - a)
+                    .forEach(([barrio, cantidad]) => {
+                        const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) : 0;
+                        htmlContent += `<tr><td>${barrio}</td><td>${cantidad}</td><td class="porcentaje">${porcentaje}%</td></tr>`;
+                    });
+
+                htmlContent += `
+        </tbody>
+    </table>
+
+    <h2>✅ ESTADÍSTICAS DE ASISTENCIA</h2>
+    <table class="asistencias">
+        <thead>
+            <tr><th>ESTADO</th><th>CANTIDAD</th><th>PORCENTAJE</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Asistieron</td><td>${asistieron}</td><td class="porcentaje">${totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) : 0}%</td></tr>
+            <tr><td>No Asistieron</td><td>${noAsistieron}</td><td class="porcentaje">${totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) : 0}%</td></tr>
+            <tr style="background-color: #e9ecef; font-weight: bold;"><td>TOTAL REGISTROS</td><td>${totalAsistencias}</td><td class="porcentaje">100%</td></tr>
+        </tbody>
+    </table>
+</body>
+</html>`;
+
+                // Descargar
+                const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `Estadisticas_Completas_${currentUserProfile.full_name || 'Instructor'}_${mesesSeleccionados.join('-')}_${año}.xls`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+
+                alert('✅ Estadísticas completas descargadas exitosamente');
+                window.cerrarModalDescarga();
+            } catch (error) {
+                console.error('Error al descargar estadísticas:', error);
+                alert(`❌ Error al descargar: ${error.message}`);
+            }
         }
 
         // Función principal para actualizar estadísticas
@@ -961,17 +1609,24 @@
                 refreshBtn.textContent = '🔄 Actualizando...';
                 refreshBtn.disabled = true;
 
-                console.log('Obteniendo estadísticas del dashboard...');
-                const participantes = await obtenerEstadisticas();
-                const stats = calcularEstadisticas(participantes);
+                const datos = await obtenerDatos();
+                const asistencias = await obtenerAsistencias();
 
-                actualizarUI(stats);
+                await actualizarResumen(datos);
+                actualizarGraficoEdades(datos);
+                actualizarGraficoGenero(datos);
+                actualizarGraficoActividades(datos);
+                actualizarGraficoAsistencias(asistencias);
 
-                console.log('Dashboard actualizado exitosamente:', stats);
+                // Actualizar timestamp
+                const ahora = new Date().toLocaleString('es-ES', {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit'
+                });
+                document.getElementById('ultima-actualizacion').textContent = `Última actualización: ${ahora}`;
+
             } catch (error) {
-                console.error('Error al actualizar estadísticas del dashboard:', error);
-
-                // Mostrar error en la UI
+                console.error('Error al actualizar estadísticas:', error);
                 document.getElementById('ultima-actualizacion').textContent = 'Error al actualizar estadísticas';
             } finally {
                 refreshBtn.textContent = originalText;
@@ -981,17 +1636,12 @@
 
         // Función para iniciar actualización automática
         function iniciarActualizacionAutomatica() {
-            // Limpiar intervalo anterior si existe
             if (intervalId) {
                 clearInterval(intervalId);
             }
-
-            // Actualizar cada 30 segundos
             intervalId = setInterval(async () => {
                 await actualizarEstadisticas();
             }, 30000);
-
-            console.log('Actualización automática del dashboard iniciada (cada 30 segundos)');
         }
 
         // Limpiar intervalo cuando se cierra la página
@@ -1001,15 +1651,16 @@
             }
         });
 
-        // Actualizar cuando la página vuelve a estar visible
-        document.addEventListener('visibilitychange', function () {
-            if (!document.hidden) {
-                actualizarEstadisticas();
-            }
-        });
+
 
         // Exponer función globalmente
         window.actualizarEstadisticas = actualizarEstadisticas;
+        // Prevenir cierre accidental del modal
+        document.addEventListener('click', function (e) {
+            if (e.target.id === 'modalDescarga') {
+                window.cerrarModalDescarga();
+            }
+        });
     </script>
 
     <script src="script.js"></script>
