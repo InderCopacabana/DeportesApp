@@ -1451,17 +1451,159 @@
                 const año = document.getElementById('año-descarga').value;
 
 
-                
-                // Descargar
-                const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `Estadisticas_Completas_${currentUserProfile.full_name || 'Instructor'}_${mesesSeleccionados.join('-')}_${año}.xls`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
+                let htmlContent = `
+<html-part>
+<head-part>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; color: #2c5aa0; margin-bottom: 10px; font-size: 18px; }
+        h2 { color: #2c5aa0; border-bottom: 2px solid #2c5aa0; padding-bottom: 5px; margin-top: 25px; font-size: 14px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 25px; }
+        th { background-color: #2c5aa0; color: white; padding: 8px; text-align: center; font-weight: bold; font-size: 11px; }
+        td { padding: 6px; border: 1px solid #ddd; text-align: center; font-size: 10px; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .resumen th { background-color: #28a745; }
+        .edad th { background-color: #17a2b8; }
+        .genero th { background-color: #ffc107; color: #000; }
+        .actividades th { background-color: #dc3545; }
+        .barrios th { background-color: #6f42c1; }
+        .asistencias th { background-color: #fd7e14; }
+        .detalle th { background-color: #6c757d; }
+        .porcentaje { font-weight: bold; }
+    </style>
+</head-part>
+<body-part>
+    <h1>📊 REPORTE ESTADÍSTICO COMPLETO - ${currentUserProfile.full_name || 'INSTRUCTOR'}</h1>
+    <p style="text-align: center; color: #666; margin-bottom: 20px; font-size: 12px;">Período: ${mesesSeleccionados.join(', ')} ${año}</p>
+
+    <h2>📈 RESUMEN GENERAL</h2>
+    <table class="resumen">
+        <thead>
+            <tr><th>CONCEPTO</th><th>CANTIDAD</th><th>PORCENTAJE</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Total Participantes</td><td>${totalParticipantes}</td><td class="porcentaje">100%</td></tr>
+            <tr><td>Total Asistencias Registradas</td><td>${totalAsistencias}</td><td class="porcentaje">-</td></tr>
+            <tr><td>Asistencias Confirmadas</td><td>${asistieron}</td><td class="porcentaje">${totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) : 0}%</td></tr>
+            <tr><td>Asistencias No Confirmadas</td><td>${noAsistieron}</td><td class="porcentaje">${totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) : 0}%</td></tr>
+        </tbody>
+    </table>
+
+    <h2>👥 DISTRIBUCIÓN POR GÉNERO</h2>
+    <table class="genero">
+        <thead>
+            <tr><th>GÉNERO</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Hombres</td><td>${hombres}</td><td class="porcentaje">${totalParticipantes > 0 ? Math.round((hombres / totalParticipantes) * 100) : 0}%</td></tr>
+            <tr><td>Mujeres</td><td>${mujeres}</td><td class="porcentaje">${totalParticipantes > 0 ? Math.round((mujeres / totalParticipantes) * 100) : 0}%</td></tr>
+            <tr style="background-color: #e9ecef; font-weight: bold;"><td>TOTAL</td><td>${totalParticipantes}</td><td class="porcentaje">100%</td></tr>
+        </tbody>
+    </table>
+
+    <h2>🎯 DISTRIBUCIÓN POR TIPO DE ACTIVIDAD</h2>
+    <table class="actividades">
+        <thead>
+            <tr><th>TIPO</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Deportes</td><td>${deportes}</td><td class="porcentaje">${totalParticipantes > 0 ? Math.round((deportes / totalParticipantes) * 100) : 0}%</td></tr>
+            <tr><td>Actividades Físicas</td><td>${actividadesFisicas}</td><td class="porcentaje">${totalParticipantes > 0 ? Math.round((actividadesFisicas / totalParticipantes) * 100) : 0}%</td></tr>
+            <tr style="background-color: #e9ecef; font-weight: bold;"><td>TOTAL</td><td>${totalParticipantes}</td><td class="porcentaje">100%</td></tr>
+        </tbody>
+    </table>
+
+    <h2>📊 DISTRIBUCIÓN POR EDAD</h2>
+    <table class="edad">
+        <thead>
+            <tr><th>RANGO DE EDAD</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
+        </thead>
+        <tbody>`;
+
+Object.entries(rangosEdad).forEach(([rango, cantidad]) => {
+    const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) : 0;
+    htmlContent += `<tr><td>${rango}</td><td>${cantidad}</td><td class="porcentaje">${porcentaje}%</td></tr>`;
+});
+
+htmlContent += `
+            <tr style="background-color: #e9ecef; font-weight: bold;"><td>TOTAL</td><td>${totalParticipantes}</td><td class="porcentaje">100%</td></tr>
+        </tbody>
+    </table>
+
+    <h2>🏃‍♂️ ACTIVIDADES MÁS POPULARES</h2>
+    <table class="actividades">
+        <thead>
+            <tr><th>ACTIVIDAD</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
+        </thead>
+        <tbody>`;
+
+Object.entries(actividadesConteo)
+    .sort(([, a], [, b]) => b - a)
+    .forEach(([actividad, cantidad]) => {
+        const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) : 0;
+        htmlContent += `<tr><td>${actividad}</td><td>${cantidad}</td><td class="porcentaje">${porcentaje}%</td></tr>`;
+    });
+
+htmlContent += `
+        </tbody>
+    </table>
+
+    <h2>🏘️ DISTRIBUCIÓN POR BARRIO</h2>
+    <table class="barrios">
+        <thead>
+            <tr><th>BARRIO</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
+        </thead>
+        <tbody>`;
+
+Object.entries(barriosConteo)
+    .sort(([, a], [, b]) => b - a)
+    .forEach(([barrio, cantidad]) => {
+        const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) : 0;
+        htmlContent += `<tr><td>${barrio}</td><td>${cantidad}</td><td class="porcentaje">${porcentaje}%</td></tr>`;
+    });
+
+htmlContent += `
+        </tbody>
+    </table>
+
+    <h2>✅ ESTADÍSTICAS DE ASISTENCIA</h2>
+    <table class="asistencias">
+        <thead>
+            <tr><th>ESTADO</th><th>CANTIDAD</th><th>PORCENTAJE</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Asistieron</td><td>${asistieron}</td><td class="porcentaje">${totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) : 0}%</td></tr>
+            <tr><td>No Asistieron</td><td>${noAsistieron}</td><td class="porcentaje">${totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) : 0}%</td></tr>
+            <tr style="background-color: #e9ecef; font-weight: bold;"><td>TOTAL REGISTROS</td><td>${totalAsistencias}</td><td class="porcentaje">100%</td></tr>
+        </tbody>
+    </table>
+</body-part>
+</html-part>
+`;
+
+// Reemplazar etiquetas dummy
+htmlContent = htmlContent
+    .replace(/<html-part>/g, '<html>')
+    .replace(/<\/html-part>/g, '</html>')
+    .replace(/<head-part>/g, '<head>')
+    .replace(/<\/head-part>/g, '</head>')
+    .replace(/<body-part>/g, '<body>')
+    .replace(/<\/body-part>/g, '<!-- Code injected by live-server -->');
+
+
+// Descargar como Excel
+const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+const url = window.URL.createObjectURL(blob);
+const link = document.createElement('a');
+link.href = url;
+link.download = `Estadisticas_Completas_${currentUserProfile.full_name || 'Instructor'}_${mesesSeleccionados.join('-')}_${año}.xls`;
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+window.URL.revokeObjectURL(url);
+
+alert('✅ Estadísticas completas descargadas exitosamente');
 
                 alert('✅ Estadísticas completas descargadas exitosamente');
                 window.cerrarModalDescarga();
