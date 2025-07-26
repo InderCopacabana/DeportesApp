@@ -6,13 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - INDER Copacabana</title>
     <link rel="stylesheet" href="estilos.css">
-    <!-- Añadir Supabase JS desde CDN -->
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-
-
-
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <style>
         .dashboard-container {
             padding: 2rem 0;
@@ -520,6 +518,7 @@
                     </button>
                 </div>
             </div>
+            
 
             <!-- REEMPLAZAR TODO EL dashboard-grid CON ESTO -->
             <!-- Controles del Dashboard -->
@@ -1303,55 +1302,70 @@
         }
 
         async function obtenerDatosPorMeses() {
-            const mesesSeleccionados = [];
-            const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]:checked');
-            checkboxes.forEach(cb => mesesSeleccionados.push(parseInt(cb.value)));
+    const mesesSeleccionados = [];
+    const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]:checked');
+    checkboxes.forEach(cb => mesesSeleccionados.push(parseInt(cb.value)));
 
-            if (mesesSeleccionados.length === 0) {
-                alert('Por favor, seleccione al menos un mes.');
-                return null;
+    if (mesesSeleccionados.length === 0) {
+        alert('Por favor, seleccione al menos un mes.');
+        return null;
+    }
+
+    const año = document.getElementById('año-descarga').value;
+    
+    try {
+        let queryAsistencias = supabaseClient.from('asistencias').select('*');
+        
+        // LÓGICA CORREGIDA: Determinar qué instructor usar
+        if (currentUserProfile.role === 'instructor') {
+            // Si es instructor, solo sus datos
+            queryAsistencias = queryAsistencias.eq('instructor_id', currentUserProfile.id);
+        } else if (currentUserProfile.role === 'admin') {
+            // Si es admin, verificar el filtro seleccionado
+            const filterInstructor = document.getElementById('filter-instructor').value;
+            if (filterInstructor !== 'todos') {
+                // Admin seleccionó un instructor específico
+                queryAsistencias = queryAsistencias.eq('instructor_id', filterInstructor);
             }
-
-            const año = document.getElementById('año-descarga').value;
-
-            try {
-                let queryAsistencias = supabaseClient
-                    .from('asistencias')
-                    .select('*')
-                    .eq('instructor_id', currentUserProfile.id);
-
-                const { data: asistencias, error: errorAsistencias } = await queryAsistencias;
-                if (errorAsistencias) throw errorAsistencias;
-
-                const participanteIds = [...new Set(asistencias.map(a => a.participante_id))];
-                if (participanteIds.length === 0) {
-                    return [];
-                }
-
-                const { data: participantes, error: errorParticipantes } = await supabaseClient
-                    .from('participantes')
-                    .select('*')
-                    .in('id', participanteIds);
-                if (errorParticipantes) throw errorParticipantes;
-
-                const datosFiltrados = asistencias.filter(asistencia => {
-                    let fechaStr = asistencia.fecha || asistencia.fecha_asistencia || asistencia.created_at;
-                    if (!fechaStr) return false;
-
-                    const fecha = new Date(fechaStr);
-                    const mesAsistencia = fecha.getMonth() + 1;
-                    const añoAsistencia = fecha.getFullYear();
-
-                    return mesesSeleccionados.includes(mesAsistencia) && añoAsistencia === parseInt(año);
-                });
-
-                return datosFiltrados;
-            } catch (error) {
-                console.error('Error al obtener datos:', error);
-                alert('Error al obtener los datos');
-                return null;
-            }
+            // Si filterInstructor === 'todos', no agregar filtro (obtiene todos los datos)
         }
+
+        const { data: asistencias, error: errorAsistencias } = await queryAsistencias;
+        if (errorAsistencias) throw errorAsistencias;
+
+        if (!asistencias || asistencias.length === 0) {
+            return [];
+        }
+
+        const participanteIds = [...new Set(asistencias.map(a => a.participante_id))];
+        
+        const { data: participantes, error: errorParticipantes } = await supabaseClient
+            .from('participantes')
+            .select('*')
+            .in('id', participanteIds);
+
+        if (errorParticipantes) throw errorParticipantes;
+
+        // Filtrar asistencias por meses y año seleccionados
+        const datosFiltrados = asistencias.filter(asistencia => {
+            let fechaStr = asistencia.fecha || asistencia.fecha_asistencia || asistencia.created_at;
+            if (!fechaStr) return false;
+
+            const fecha = new Date(fechaStr);
+            const mesAsistencia = fecha.getMonth() + 1;
+            const añoAsistencia = fecha.getFullYear();
+
+            return mesesSeleccionados.includes(mesAsistencia) && añoAsistencia === parseInt(año);
+        });
+
+        return datosFiltrados;
+
+    } catch (error) {
+        console.error('Error al obtener datos:', error);
+        alert('Error al obtener los datos');
+        return null;
+    }
+}
 
         window.previsualizarEstadisticas = async function () {
             const datos = await obtenerDatosPorMeses();
@@ -1451,167 +1465,114 @@
                 const año = document.getElementById('año-descarga').value;
 
 
-                let htmlContent = `
-<html-part>
-<head-part>
-    <meta charset="utf-8">
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { text-align: center; color: #2c5aa0; margin-bottom: 10px; font-size: 18px; }
-        h2 { color: #2c5aa0; border-bottom: 2px solid #2c5aa0; padding-bottom: 5px; margin-top: 25px; font-size: 14px; }
-        table { border-collapse: collapse; width: 100%; margin-bottom: 25px; }
-        th { background-color: #2c5aa0; color: white; padding: 8px; text-align: center; font-weight: bold; font-size: 11px; }
-        td { padding: 6px; border: 1px solid #ddd; text-align: center; font-size: 10px; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        .resumen th { background-color: #28a745; }
-        .edad th { background-color: #17a2b8; }
-        .genero th { background-color: #ffc107; color: #000; }
-        .actividades th { background-color: #dc3545; }
-        .barrios th { background-color: #6f42c1; }
-        .asistencias th { background-color: #fd7e14; }
-        .detalle th { background-color: #6c757d; }
-        .porcentaje { font-weight: bold; }
-    </style>
-</head-part>
-<body-part>
-    <h1>📊 REPORTE ESTADÍSTICO COMPLETO - ${currentUserProfile.full_name || 'INSTRUCTOR'}</h1>
-    <p style="text-align: center; color: #666; margin-bottom: 20px; font-size: 12px;">Período: ${mesesSeleccionados.join(', ')} ${año}</p>
+               function exportarEstadisticasAExcel() {
+                
+    const wb = XLSX.utils.book_new(); // Crear libro
 
-    <h2>📈 RESUMEN GENERAL</h2>
-    <table class="resumen">
-        <thead>
-            <tr><th>CONCEPTO</th><th>CANTIDAD</th><th>PORCENTAJE</th></tr>
-        </thead>
-        <tbody>
-            <tr><td>Total Participantes</td><td>${totalParticipantes}</td><td class="porcentaje">100%</td></tr>
-            <tr><td>Total Asistencias Registradas</td><td>${totalAsistencias}</td><td class="porcentaje">-</td></tr>
-            <tr><td>Asistencias Confirmadas</td><td>${asistieron}</td><td class="porcentaje">${totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) : 0}%</td></tr>
-            <tr><td>Asistencias No Confirmadas</td><td>${noAsistieron}</td><td class="porcentaje">${totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) : 0}%</td></tr>
-        </tbody>
-    </table>
+    // Construir todas las filas como si fuera una hoja de Excel
+    const data = [
+        [`📊 REPORTE ESTADÍSTICO COMPLETO - ${obtenerTituloReporte()}`],
+        [`Período: ${mesesSeleccionados.join(', ')} ${año}`],
+        [],
+        ['📈 RESUMEN GENERAL'],
+        ['CONCEPTO', 'CANTIDAD', 'PORCENTAJE'],
+        ['Total Participantes', totalParticipantes, '100%'],
+        ['Total Asistencias Registradas', totalAsistencias, '-'],
+        ['Asistencias Confirmadas', asistieron, totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) + '%' : '0%'],
+        ['Asistencias No Confirmadas', noAsistieron, totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) + '%' : '0%'],
+        [],
+        ['👥 DISTRIBUCIÓN POR GÉNERO'],
+        ['GÉNERO', 'PARTICIPANTES', 'PORCENTAJE'],
+        ['Hombres', hombres, totalParticipantes > 0 ? Math.round((hombres / totalParticipantes) * 100) + '%' : '0%'],
+        ['Mujeres', mujeres, totalParticipantes > 0 ? Math.round((mujeres / totalParticipantes) * 100) + '%' : '0%'],
+        ['TOTAL', totalParticipantes, '100%'],
+        [],
+        ['🎯 DISTRIBUCIÓN POR TIPO DE ACTIVIDAD'],
+        ['TIPO', 'PARTICIPANTES', 'PORCENTAJE'],
+        ['Deportes', deportes, totalParticipantes > 0 ? Math.round((deportes / totalParticipantes) * 100) + '%' : '0%'],
+        ['Actividades Físicas', actividadesFisicas, totalParticipantes > 0 ? Math.round((actividadesFisicas / totalParticipantes) * 100) + '%' : '0%'],
+        ['TOTAL', totalParticipantes, '100%'],
+        [],
+        ['📊 DISTRIBUCIÓN POR EDAD'],
+        ['RANGO DE EDAD', 'PARTICIPANTES', 'PORCENTAJE'],
+    ];
 
-    <h2>👥 DISTRIBUCIÓN POR GÉNERO</h2>
-    <table class="genero">
-        <thead>
-            <tr><th>GÉNERO</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
-        </thead>
-        <tbody>
-            <tr><td>Hombres</td><td>${hombres}</td><td class="porcentaje">${totalParticipantes > 0 ? Math.round((hombres / totalParticipantes) * 100) : 0}%</td></tr>
-            <tr><td>Mujeres</td><td>${mujeres}</td><td class="porcentaje">${totalParticipantes > 0 ? Math.round((mujeres / totalParticipantes) * 100) : 0}%</td></tr>
-            <tr style="background-color: #e9ecef; font-weight: bold;"><td>TOTAL</td><td>${totalParticipantes}</td><td class="porcentaje">100%</td></tr>
-        </tbody>
-    </table>
-
-    <h2>🎯 DISTRIBUCIÓN POR TIPO DE ACTIVIDAD</h2>
-    <table class="actividades">
-        <thead>
-            <tr><th>TIPO</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
-        </thead>
-        <tbody>
-            <tr><td>Deportes</td><td>${deportes}</td><td class="porcentaje">${totalParticipantes > 0 ? Math.round((deportes / totalParticipantes) * 100) : 0}%</td></tr>
-            <tr><td>Actividades Físicas</td><td>${actividadesFisicas}</td><td class="porcentaje">${totalParticipantes > 0 ? Math.round((actividadesFisicas / totalParticipantes) * 100) : 0}%</td></tr>
-            <tr style="background-color: #e9ecef; font-weight: bold;"><td>TOTAL</td><td>${totalParticipantes}</td><td class="porcentaje">100%</td></tr>
-        </tbody>
-    </table>
-
-    <h2>📊 DISTRIBUCIÓN POR EDAD</h2>
-    <table class="edad">
-        <thead>
-            <tr><th>RANGO DE EDAD</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
-        </thead>
-        <tbody>`;
-
-Object.entries(rangosEdad).forEach(([rango, cantidad]) => {
-    const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) : 0;
-    htmlContent += `<tr><td>${rango}</td><td>${cantidad}</td><td class="porcentaje">${porcentaje}%</td></tr>`;
-});
-
-htmlContent += `
-            <tr style="background-color: #e9ecef; font-weight: bold;"><td>TOTAL</td><td>${totalParticipantes}</td><td class="porcentaje">100%</td></tr>
-        </tbody>
-    </table>
-
-    <h2>🏃‍♂️ ACTIVIDADES MÁS POPULARES</h2>
-    <table class="actividades">
-        <thead>
-            <tr><th>ACTIVIDAD</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
-        </thead>
-        <tbody>`;
-
-Object.entries(actividadesConteo)
-    .sort(([, a], [, b]) => b - a)
-    .forEach(([actividad, cantidad]) => {
-        const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) : 0;
-        htmlContent += `<tr><td>${actividad}</td><td>${cantidad}</td><td class="porcentaje">${porcentaje}%</td></tr>`;
+    // Agregar rangos de edad
+    Object.entries(rangosEdad).forEach(([rango, cantidad]) => {
+        const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) + '%' : '0%';
+        data.push([rango, cantidad, porcentaje]);
     });
+    data.push(['TOTAL', totalParticipantes, '100%']);
+    data.push([]);
+    
+    // Actividades más populares
+    data.push(['🏃‍♂️ ACTIVIDADES MÁS POPULARES']);
+    data.push(['ACTIVIDAD', 'PARTICIPANTES', 'PORCENTAJE']);
+    Object.entries(actividadesConteo)
+        .sort(([, a], [, b]) => b - a)
+        .forEach(([actividad, cantidad]) => {
+            const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) + '%' : '0%';
+            data.push([actividad, cantidad, porcentaje]);
+        });
+    data.push([]);
 
-htmlContent += `
-        </tbody>
-    </table>
+    // Barrios
+    data.push(['🏘️ DISTRIBUCIÓN POR BARRIO']);
+    data.push(['BARRIO', 'PARTICIPANTES', 'PORCENTAJE']);
+    Object.entries(barriosConteo)
+        .sort(([, a], [, b]) => b - a)
+        .forEach(([barrio, cantidad]) => {
+            const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) + '%' : '0%';
+            data.push([barrio, cantidad, porcentaje]);
+        });
+    data.push([]);
 
-    <h2>🏘️ DISTRIBUCIÓN POR BARRIO</h2>
-    <table class="barrios">
-        <thead>
-            <tr><th>BARRIO</th><th>PARTICIPANTES</th><th>PORCENTAJE</th></tr>
-        </thead>
-        <tbody>`;
+    // Asistencia
+    data.push(['✅ ESTADÍSTICAS DE ASISTENCIA']);
+    data.push(['ESTADO', 'CANTIDAD', 'PORCENTAJE']);
+    data.push(['Asistieron', asistieron, totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) + '%' : '0%']);
+    data.push(['No Asistieron', noAsistieron, totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) + '%' : '0%']);
+    data.push(['TOTAL REGISTROS', totalAsistencias, '100%']);
 
-Object.entries(barriosConteo)
-    .sort(([, a], [, b]) => b - a)
-    .forEach(([barrio, cantidad]) => {
-        const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) : 0;
-        htmlContent += `<tr><td>${barrio}</td><td>${cantidad}</td><td class="porcentaje">${porcentaje}%</td></tr>`;
-    });
+    
 
-htmlContent += `
-        </tbody>
-    </table>
+    // Crear hoja desde los datos
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, "Reporte");
+    
 
-    <h2>✅ ESTADÍSTICAS DE ASISTENCIA</h2>
-    <table class="asistencias">
-        <thead>
-            <tr><th>ESTADO</th><th>CANTIDAD</th><th>PORCENTAJE</th></tr>
-        </thead>
-        <tbody>
-            <tr><td>Asistieron</td><td>${asistieron}</td><td class="porcentaje">${totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) : 0}%</td></tr>
-            <tr><td>No Asistieron</td><td>${noAsistieron}</td><td class="porcentaje">${totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) : 0}%</td></tr>
-            <tr style="background-color: #e9ecef; font-weight: bold;"><td>TOTAL REGISTROS</td><td>${totalAsistencias}</td><td class="porcentaje">100%</td></tr>
-        </tbody>
-    </table>
-</body-part>
-</html-part>
-`;
+    // Descargar archivo
+    const nombreArchivo = `Estadisticas_Completas_${currentUserProfile.full_name || 'Instructor'}_${mesesSeleccionados.join('-')}_${año}.xlsx`;
+    XLSX.writeFile(wb, nombreArchivo);
 
-// Reemplazar etiquetas dummy
-htmlContent = htmlContent
-    .replace(/<html-part>/g, '<html>')
-    .replace(/<\/html-part>/g, '</html>')
-    .replace(/<head-part>/g, '<head>')
-    .replace(/<\/head-part>/g, '</head>')
-    .replace(/<body-part>/g, '<body>')
-    .replace(/<\/body-part>/g, '<!-- Code injected by live-server -->');
+    alert('✅ Estadísticas completas descargadas exitosamente');
+}
+
+        exportarEstadisticasAExcel();
 
 
-// Descargar como Excel
-const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
-const url = window.URL.createObjectURL(blob);
-const link = document.createElement('a');
-link.href = url;
-link.download = `Estadisticas_Completas_${currentUserProfile.full_name || 'Instructor'}_${mesesSeleccionados.join('-')}_${año}.xls`;
-document.body.appendChild(link);
-link.click();
-document.body.removeChild(link);
-window.URL.revokeObjectURL(url);
-
-alert('✅ Estadísticas completas descargadas exitosamente');
-
-                alert('✅ Estadísticas completas descargadas exitosamente');
+                
                 window.cerrarModalDescarga();
             } catch (error) {
                 console.error('Error al descargar estadísticas:', error);
                 alert(`❌ Error al descargar: ${error.message}`);
             }
         }
+        function obtenerNombreArchivo() {
+    if (currentUserProfile.role === 'instructor') {
+        return currentUserProfile.full_name || 'Instructor';
+    } else if (currentUserProfile.role === 'admin') {
+        const filterInstructor = document.getElementById('filter-instructor').value;
+        if (filterInstructor === 'todos') {
+            return 'Reporte_General';
+        } else {
+            const selectorInstructor = document.getElementById('filter-instructor');
+            const instructorSeleccionado = selectorInstructor.options[selectorInstructor.selectedIndex].text;
+            return instructorSeleccionado.replace(/\s+/g, '_');
+        }
+    }
+    return 'Admin';
+}
 
         // Función principal para actualizar estadísticas
         async function actualizarEstadisticas() {
@@ -1647,6 +1608,23 @@ alert('✅ Estadísticas completas descargadas exitosamente');
             }
         }
 
+        function obtenerTituloReporte() {
+    if (currentUserProfile.role === 'instructor') {
+        return currentUserProfile.full_name || 'INSTRUCTOR';
+    } else if (currentUserProfile.role === 'admin') {
+        const filterInstructor = document.getElementById('filter-instructor').value;
+        if (filterInstructor === 'todos') {
+            return 'REPORTE GENERAL - TODOS LOS INSTRUCTORES';
+        } else {
+            // Obtener el nombre del instructor seleccionado
+            const selectorInstructor = document.getElementById('filter-instructor');
+            const instructorSeleccionado = selectorInstructor.options[selectorInstructor.selectedIndex].text;
+            return `INSTRUCTOR: ${instructorSeleccionado}`;
+        }
+    }
+    return 'ADMINISTRADOR';
+}
+
         // Función para iniciar actualización automática
         function iniciarActualizacionAutomatica() {
             if (intervalId) {
@@ -1677,6 +1655,7 @@ alert('✅ Estadísticas completas descargadas exitosamente');
     </script>
 
     <script src="script.js"></script>
+    
 </body>
 
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Gestión de Participantes - INDER Copacabana</title>
@@ -32,6 +33,7 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       margin-bottom: 2rem;
     }
+
     table,
     th,
     td {
@@ -39,78 +41,97 @@
       border-collapse: collapse;
       padding: 10px;
     }
+
     table {
       width: 100%;
       margin-bottom: 1rem;
       background-color: white;
     }
+
     th {
       background-color: var(--color-primary);
       color: white;
       font-weight: 600;
       text-align: left;
     }
+
     tr:nth-child(even) {
       background-color: #f8f9fa;
     }
+
     tr.selected {
       background-color: #e3f2fd !important;
     }
-    input, select {
+
+    input,
+    select {
       width: 100%;
       padding: 8px;
       border: 1px solid #ddd;
       border-radius: 4px;
       box-sizing: border-box;
     }
-    input:focus, select:focus {
+
+    input:focus,
+    select:focus {
       outline: 2px solid var(--color-primary-light);
       border-color: var(--color-primary);
     }
+
     .button-group {
       display: flex;
       gap: 1rem;
       margin-top: 1rem;
       flex-wrap: wrap;
     }
+
     .results-container {
       background-color: white;
       border-radius: 10px;
       padding: 2rem;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
+
     .back-link {
       display: inline-block;
       margin-bottom: 1rem;
     }
+
     .checkbox-column {
       width: 40px;
       text-align: center;
     }
+
     .edit-mode {
       background-color: #fff3cd !important;
       border: 2px solid #ffc107 !important;
     }
+
     .action-buttons {
       display: flex;
       gap: 0.5rem;
       margin-top: 1rem;
       justify-content: center;
     }
+
     .btn-edit {
       background-color: #28a745;
       color: white;
     }
+
     .btn-edit:hover {
       background-color: #218838;
     }
+
     .btn-delete {
       background-color: #dc3545;
       color: white;
     }
+
     .btn-delete:hover {
       background-color: #c82333;
     }
+
     /* Estilos para el modal de evidencias */
     .modal {
       display: none;
@@ -120,9 +141,10 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0,0,0,0.5);
+      background-color: rgba(0, 0, 0, 0.5);
       animation: fadeIn 0.3s ease;
     }
+
     .modal-content {
       background-color: white;
       margin: 2% auto;
@@ -135,14 +157,29 @@
       position: relative;
       animation: slideIn 0.3s ease;
     }
+
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
+
     @keyframes slideIn {
-      from { transform: translateY(-50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
+
     .close {
       color: #aaa;
       float: right;
@@ -153,9 +190,11 @@
       right: 1rem;
       top: 1rem;
     }
+
     .close:hover {
       color: #000;
     }
+
     .upload-area {
       border: 2px dashed #ddd;
       border-radius: 8px;
@@ -165,50 +204,60 @@
       transition: all 0.3s ease;
       cursor: pointer;
     }
+
     .upload-area:hover {
       border-color: var(--color-primary);
       background-color: #f8f9ff;
     }
+
     .upload-area.dragover {
       border-color: var(--color-primary);
       background-color: #e3f2fd;
     }
+
     .evidence-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 1.5rem;
       margin-top: 2rem;
     }
+
     .evidence-card {
       background: white;
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+
     .evidence-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
+
     .evidence-image {
       width: 100%;
       height: 200px;
       object-fit: cover;
       cursor: pointer;
     }
+
     .evidence-info {
       padding: 1rem;
     }
+
     .evidence-instructor {
       font-weight: bold;
       color: var(--color-primary);
       margin-bottom: 0.5rem;
     }
+
     .evidence-datetime {
       color: #666;
       font-size: 0.9rem;
       margin-bottom: 0.5rem;
     }
+
     .evidence-location {
       color: #888;
       font-size: 0.8rem;
@@ -218,11 +267,13 @@
       margin-bottom: 0.5rem;
       line-height: 1.3;
     }
+
     .evidence-coordinates {
       color: #999;
       font-size: 0.7rem;
       font-style: italic;
     }
+
     .btn-evidence {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
@@ -236,10 +287,12 @@
       align-items: center;
       gap: 0.5rem;
     }
+
     .btn-evidence:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     }
+
     .loading-spinner {
       border: 3px solid #f3f3f3;
       border-top: 3px solid var(--color-primary);
@@ -249,10 +302,17 @@
       animation: spin 1s linear infinite;
       margin: 0 auto;
     }
+
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
+
     .evidence-stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -262,18 +322,22 @@
       background: #f8f9fa;
       border-radius: 8px;
     }
+
     .stat-item {
       text-align: center;
     }
+
     .stat-number {
       font-size: 2rem;
       font-weight: bold;
       color: var(--color-primary);
     }
+
     .stat-label {
       font-size: 0.9rem;
       color: #666;
     }
+
     .filter-controls {
       display: flex;
       gap: 1rem;
@@ -281,6 +345,7 @@
       flex-wrap: wrap;
       align-items: center;
     }
+
     .filter-controls select,
     .filter-controls input {
       padding: 0.5rem;
@@ -289,6 +354,7 @@
       width: auto;
       min-width: 150px;
     }
+
     .image-modal {
       display: none;
       position: fixed;
@@ -297,8 +363,9 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0,0,0,0.9);
+      background-color: rgba(0, 0, 0, 0.9);
     }
+
     .image-modal-content {
       position: absolute;
       top: 50%;
@@ -307,11 +374,13 @@
       max-width: 90%;
       max-height: 90%;
     }
+
     .image-modal img {
       width: 100%;
       height: auto;
       border-radius: 8px;
     }
+
     .btn-delete-evidence {
       background-color: #dc3545;
       color: white;
@@ -322,9 +391,11 @@
       font-size: 0.8rem;
       margin-top: 0.5rem;
     }
+
     .btn-delete-evidence:hover {
       background-color: #c82333;
     }
+
     .location-info {
       background-color: #f8f9fa;
       border-radius: 6px;
@@ -332,17 +403,20 @@
       margin-top: 1rem;
       border-left: 4px solid var(--color-primary);
     }
+
     .location-address {
       font-weight: 600;
       color: #333;
       margin-bottom: 0.25rem;
     }
+
     .location-coords {
       font-size: 0.8rem;
       color: #666;
     }
   </style>
 </head>
+
 <body>
   <!-- Encabezado con navegación -->
   <header>
@@ -375,14 +449,16 @@
     </div>
 
     <div class="container">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
         <a href="Dashboard.html" class="back-link btn btn-outline">
           <span class="arrow-left">←</span> Volver
         </a>
-        
-        <button onclick="abrirModalAsistencia()" class="btn-evidence" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-  📋 Tomar Asistencia
-</button>
+
+        <button onclick="abrirModalAsistencia()" class="btn-evidence"
+          style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+          📋 Tomar Asistencia
+        </button>
         <!-- Botón de Evidencias -->
         <button onclick="abrirModalEvidencias()" class="btn-evidence">
           📸 Evidencias Fotográficas
@@ -395,16 +471,17 @@
           <table id="tablaFormulario">
             <thead>
               <tr>
+                <th>Documento</th>
                 <th>Nombre</th>
                 <th>Edad</th>
                 <th>Género</th>
                 <th>Actividad</th>
-                <th>Tipo de Actividad</th>
                 <th>Barrio</th>
               </tr>
             </thead>
             <tbody>
               <tr>
+                <td><input type="text" name="documento_identidad" placeholder="CC/ID" required></td>
                 <td><input type="text" name="nombre" placeholder="Nombre completo" required></td>
                 <td><input type="number" name="edad" placeholder="Edad" min="5" max="99" required></td>
                 <td>
@@ -444,44 +521,82 @@
                     </optgroup>
                   </select>
                 </td>
+
                 <td>
-                  <select name="tipo_actividad" required>
-                    <option value="">Seleccionar...</option>
-                    <option value="deporte">Deporte</option>
-                    <option value="actividad_fisica">Actividad Física</option>
+                  <select name="barrio" required>
+                    <option value="">Barrio/Vereda...</option>
+
+                    <option value="La Veta">La Veta</option>
+                    <option value="Zarzal La Luz">Zarzal La Luz</option>
+                    <option value="Zarzal Curazao">Zarzal Curazao</option>
+                    <option value="Ancon">Ancon</option>
+                    <option value="El Noral">El Noral</option>
+                    <option value="El Salado">El Salado</option>
+                    <option value="Sabaneta">Sabaneta</option>
+                    <option value="Quebrada Arriba">Quebrada Arriba</option>
+                    <option value="Alvarado">Alvarado</option>
+                    <option value="Montañita">Montañita</option>
+                    <option value="Peñolcito">Peñolcito</option>
+                    <option value="Cabuyal">Cabuyal</option>
+                    <option value="Granizal">Granizal</option>
+                    <option value="El Convento">El Convento</option>
+                    <option value="Fontidueño">Fontidueño</option>
+                    <option value="Cristo Rey">Cristo Rey</option>
+                    <option value="Simon Bolivar">Simon Bolivar</option>
+                    <option value="Obrero">Obrero</option>
+                    <option value="Yarumito">Yarumito</option>
+                    <option value="Las Vegas">Las Vegas</option>
+                    <option value="Tobon Quintero">Tobon Quintero</option>
+                    <option value="La Asunción">La Asunción</option>
+                    <option value="La Azulita">La Azulita</option>
+                    <option value="El Porvenir">El Porvenir</option>
+                    <option value="Villanueva">Villanueva</option>
+                    <option value="El Recreo">El Recreo</option>
+                    <option value="El Remanso">El Remanso</option>
+                    <option value="Pedregal">Pedregal</option>
+                    <option value="La Misericordia">La Misericordia</option>
+                    <option value="Machado">Machado</option>
+                    <option value="San Juan">San Juan</option>
+                    <option value="Maria">Maria</option>
+                    <option value="Tablazo-Canoas">Tablazo-Canoas</option>
+                    <option value="El Mojon">El Mojon</option>
+                    <option value="Fatima">Fatima</option>
+                    <option value="Pedrera">Pedrera</option>
+                    <option value="San Francisco">San Francisco</option>
+                    <option value="Miraflores">Miraflores</option>
+                    </optgroup>
                   </select>
                 </td>
-                <td><input type="text" name="barrio" placeholder="Barrio" required></td>
+
               </tr>
             </tbody>
           </table>
           <div class="button-group">
             <button type="submit" class="btn btn-primary" id="btn-guardar">Guardar</button>
-            <button type="button" onclick="cancelarEdicion()" class="btn btn-outline" id="btn-cancelar" style="display: none;">Cancelar</button>
+            <button type="button" onclick="cancelarEdicion()" class="btn btn-outline" id="btn-cancelar"
+              style="display: none;">Cancelar</button>
           </div>
         </form>
       </div>
 
       <div class="results-container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
           <h3>Participantes Registrados:</h3>
           <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
             <!-- Barra de búsqueda -->
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <input 
-                type="text" 
-                id="search-participante" 
-                placeholder="🔍 Buscar participante..." 
+              <input type="text" id="search-participante" placeholder="🔍 Buscar participante..."
                 style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; min-width: 200px;"
-                onkeyup="filtrarParticipantes()"
-              >
+                onkeyup="filtrarParticipantes()">
               <button onclick="limpiarBusqueda()" class="btn btn-outline" style="padding: 0.5rem;">✖️</button>
             </div>
             <!-- Botones de acción -->
             <div class="action-buttons">
               <button onclick="editarSeleccionados()" class="btn btn-edit" id="btn-editar">✏️ Editar</button>
               <button onclick="eliminarSeleccionados()" class="btn btn-delete" id="btn-eliminar">🗑️ Eliminar</button>
-              <button onclick="seleccionarTodos()" class="btn btn-outline" id="btn-seleccionar">☑️ Seleccionar Todos</button>
+              <button onclick="seleccionarTodos()" class="btn btn-outline" id="btn-seleccionar">☑️ Seleccionar
+                Todos</button>
             </div>
           </div>
         </div>
@@ -490,13 +605,13 @@
     </div>
   </main>
 
-  
+
   <!-- Modal de Evidencias -->
   <div id="modalEvidencias" class="modal">
     <div class="modal-content">
       <span class="close" onclick="cerrarModalEvidencias()">&times;</span>
       <h2>📸 Evidencias Fotográficas</h2>
-      
+
       <!-- Estadísticas de evidencias -->
       <div class="evidence-stats" id="evidenceStats">
         <div class="stat-item">
@@ -519,8 +634,9 @@
         <h3>Subir Nueva Evidencia</h3>
         <p>Haz clic aquí o arrastra una imagen para subirla</p>
         <p style="font-size: 0.8rem; color: #666;">Se capturará automáticamente la ubicación y hora</p>
-        <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="subirEvidencia(this.files[0])">
-        
+        <input type="file" id="fileInput" accept="image/*" style="display: none;"
+          onchange="subirEvidencia(this.files[0])">
+
         <!-- Información de ubicación mejorada -->
         <div class="location-info" id="locationInfo" style="display: none;">
           <div class="location-address" id="ubicacion-evidencia">📍 Obteniendo ubicación...</div>
@@ -555,96 +671,100 @@
   </div>
 
   <!-- Modal de Asistencia -->
-<div id="modalAsistencia" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="cerrarModalAsistencia()">&times;</span>
-    <h2>📋 Tomar Asistencia</h2>
-    
-    <!-- Formulario de asistencia -->
-    <div class="form-container" style="margin-bottom: 2rem;">
-      <form id="formAsistencia">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-          <div>
-            <label for="fecha-clase">📅 Fecha de Clase:</label>
-            <input type="date" id="fecha-clase" required>
+  <div id="modalAsistencia" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="cerrarModalAsistencia()">&times;</span>
+      <h2>📋 Tomar Asistencia</h2>
+
+      <!-- Formulario de asistencia -->
+      <div class="form-container" style="margin-bottom: 2rem;">
+        <form id="formAsistencia">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <label for="fecha-clase">📅 Fecha de Clase:</label>
+              <input type="date" id="fecha-clase" required>
+            </div>
+            <div>
+              <label for="hora-clase">🕐 Hora de Clase:</label>
+              <input type="time" id="hora-clase" required>
+            </div>
           </div>
-          <div>
-            <label for="hora-clase">🕐 Hora de Clase:</label>
-            <input type="time" id="hora-clase" required>
+
+          <div style="margin-bottom: 1rem;">
+            <label for="actividad-asistencia">🏃 Actividad/Deporte:</label>
+            <select id="actividad-asistencia" required>
+              <option value="">Seleccionar actividad...</option>
+              <optgroup label="Deportes">
+                <option value="futbol">Fútbol</option>
+                <option value="futbol_de_salon">Fútbol de Salón</option>
+                <option value="futbol_sala">Fútbol sala</option>
+                <option value="ajedrez">Ajedrez</option>
+                <option value="baloncesto">Baloncesto</option>
+                <option value="balonmano">Balonmano</option>
+                <option value="natacion">Natación</option>
+                <option value="atletismo">Atletismo</option>
+                <option value="patinaje">Patinaje</option>
+                <option value="rugby">Rugby</option>
+                <option value="tenis">Tenis</option>
+                <option value="voleibol">Voleibol</option>
+              </optgroup>
+              <optgroup label="Actividades Físicas">
+                <option value="bmx">BMX</option>
+                <option value="boxeo">Boxeo</option>
+                <option value="descubre_tu_talento">Descubre tú Talento</option>
+                <option value="gimnasia">Gimnasia</option>
+                <option value="jiu_jitsu">Jiu Jitsu</option>
+                <option value="gimnasio">Gimnasio</option>
+                <option value="levantamiento_de_pesas">Levantamiento de Pesas</option>
+                <option value="tiro_con_arco">Tiro con Arco</option>
+                <option value="taekwondo">Taekwondo</option>
+              </optgroup>
+            </select>
           </div>
+
+          <div style="margin-bottom: 1rem;">
+            <label for="buscar-participante">👤 Buscar Participante:</label>
+            <input type="text" id="buscar-participante" placeholder="Escriba el nombre del participante..."
+              autocomplete="off">
+            <div id="sugerencias-participantes"
+              style="display: none; border: 1px solid #ddd; border-top: none; max-height: 200px; overflow-y: auto; background: white; position: relative; z-index: 1000;">
+            </div>
+          </div>
+
+          <div id="info-participante"
+            style="display: none; background: #f8f9fa; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+            <h4>Información del Participante:</h4>
+            <div id="datos-participante"></div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+            <label style="font-weight: bold;">¿Asistió a la clase?</label>
+            <label style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="radio" name="asistio" value="true" checked> ✅ Sí
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="radio" name="asistio" value="false"> ❌ No
+            </label>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <label for="observaciones">📝 Observaciones (opcional):</label>
+            <textarea id="observaciones" rows="3" placeholder="Comentarios adicionales..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary">💾 Guardar Asistencia</button>
+        </form>
+      </div>
+
+      <!-- Lista de asistencias del día -->
+      <div class="results-container">
+        <h3>📊 Asistencias de Hoy</h3>
+        <div id="lista-asistencias-hoy">
+          <p style="text-align: center; color: #666;">Cargando asistencias...</p>
         </div>
-        
-        <div style="margin-bottom: 1rem;">
-          <label for="actividad-asistencia">🏃 Actividad/Deporte:</label>
-          <select id="actividad-asistencia" required>
-            <option value="">Seleccionar actividad...</option>
-            <optgroup label="Deportes">
-              <option value="futbol">Fútbol</option>
-              <option value="futbol_de_salon">Fútbol de Salón</option>
-              <option value="futbol_sala">Fútbol sala</option>
-              <option value="ajedrez">Ajedrez</option>
-              <option value="baloncesto">Baloncesto</option>
-              <option value="balonmano">Balonmano</option>
-              <option value="natacion">Natación</option>
-              <option value="atletismo">Atletismo</option>
-              <option value="patinaje">Patinaje</option>
-              <option value="rugby">Rugby</option>
-              <option value="tenis">Tenis</option>
-              <option value="voleibol">Voleibol</option>
-            </optgroup>
-            <optgroup label="Actividades Físicas">
-              <option value="bmx">BMX</option>
-              <option value="boxeo">Boxeo</option>
-              <option value="descubre_tu_talento">Descubre tú Talento</option>
-              <option value="gimnasia">Gimnasia</option>
-              <option value="jiu_jitsu">Jiu Jitsu</option>
-              <option value="gimnasio">Gimnasio</option>
-              <option value="levantamiento_de_pesas">Levantamiento de Pesas</option>
-              <option value="tiro_con_arco">Tiro con Arco</option>
-              <option value="taekwondo">Taekwondo</option>
-            </optgroup>
-          </select>
-        </div>
-        
-        <div style="margin-bottom: 1rem;">
-          <label for="buscar-participante">👤 Buscar Participante:</label>
-          <input type="text" id="buscar-participante" placeholder="Escriba el nombre del participante..." autocomplete="off">
-          <div id="sugerencias-participantes" style="display: none; border: 1px solid #ddd; border-top: none; max-height: 200px; overflow-y: auto; background: white; position: relative; z-index: 1000;"></div>
-        </div>
-        
-        <div id="info-participante" style="display: none; background: #f8f9fa; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-          <h4>Información del Participante:</h4>
-          <div id="datos-participante"></div>
-        </div>
-        
-        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
-          <label style="font-weight: bold;">¿Asistió a la clase?</label>
-          <label style="display: flex; align-items: center; gap: 0.5rem;">
-            <input type="radio" name="asistio" value="true" checked> ✅ Sí
-          </label>
-          <label style="display: flex; align-items: center; gap: 0.5rem;">
-            <input type="radio" name="asistio" value="false"> ❌ No
-          </label>
-        </div>
-        
-        <div style="margin-bottom: 1rem;">
-          <label for="observaciones">📝 Observaciones (opcional):</label>
-          <textarea id="observaciones" rows="3" placeholder="Comentarios adicionales..."></textarea>
-        </div>
-        
-        <button type="submit" class="btn btn-primary">💾 Guardar Asistencia</button>
-      </form>
-    </div>
-    
-    <!-- Lista de asistencias del día -->
-    <div class="results-container">
-      <h3>📊 Asistencias de Hoy</h3>
-      <div id="lista-asistencias-hoy">
-        <p style="text-align: center; color: #666;">Cargando asistencias...</p>
       </div>
     </div>
   </div>
-</div>
 
   <!-- Pie de página -->
   <footer>
@@ -654,358 +774,358 @@
   </footer>
 
   <script type="module">
-  import { supabaseClient, getUserProfile } from './supabase-config.js';
+    import { supabaseClient, getUserProfile } from './supabase-config.js';
 
-  // Variables globales
-  let participantesGuardados = [];
-  let modoEdicion = false;
-  let participanteEditando = null;
-  let evidenciasData = [];
-  let userProfile = null;
+    // Variables globales
+    let participantesGuardados = [];
+    let modoEdicion = false;
+    let participanteEditando = null;
+    let evidenciasData = [];
+    let userProfile = null;
 
-  // Inicializar perfil de usuario
-  async function inicializarPerfil() {
-    userProfile = await getUserProfile();
-    console.log('Perfil de usuario:', userProfile);
-  }
+    // Inicializar perfil de usuario
+    async function inicializarPerfil() {
+      userProfile = await getUserProfile();
+      console.log('Perfil de usuario:', userProfile);
+    }
 
-  // Función mejorada para obtener dirección desde coordenadas
-  async function obtenerDireccion(latitud, longitud) {
-    try {
+    // Función mejorada para obtener dirección desde coordenadas
+    async function obtenerDireccion(latitud, longitud) {
+      try {
         console.log(`Obteniendo dirección para: ${latitud}, ${longitud}`);
-        
+
         // Usar API de geocodificación inversa (OpenStreetMap Nominatim - gratuita)
         const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitud}&lon=${longitud}&addressdetails=1&accept-language=es&zoom=18`
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitud}&lon=${longitud}&addressdetails=1&accept-language=es&zoom=18`
         );
-        
+
         if (!response.ok) {
-            throw new Error('Error en la respuesta de la API');
+          throw new Error('Error en la respuesta de la API');
         }
-        
+
         const data = await response.json();
         console.log('Datos de ubicación:', data);
-        
+
         // Formatear la dirección en formato colombiano
         let direccion = '';
-        
+
         if (data.address) {
-            const addr = data.address;
-            
-            // Construir dirección en formato colombiano
-            const calle = addr.road || addr.street || '';
-            const numero = addr.house_number || '';
-            const barrio = addr.neighbourhood || addr.suburb || addr.quarter || '';
-            const ciudad = addr.city || addr.town || addr.municipality || 'Copacabana';
-            const departamento = addr.state || 'Antioquia';
-            
-            // Formato: Calle # Número, Barrio
-            if (calle) {
-                if (numero) {
-                    // Formato colombiano: Calle 111 # 49-25
-                    direccion = `${calle} # ${numero}`;
-                } else {
-                    direccion = calle;
-                }
-                
-                if (barrio && barrio !== calle) {
-                    direccion += `, ${barrio}`;
-                }
-                
-                // Agregar ciudad si es diferente a Copacabana
-                if (ciudad && ciudad.toLowerCase() !== 'copacabana') {
-                    direccion += `, ${ciudad}`;
-                }
-            } else if (barrio) {
-                // Si no hay calle, usar el barrio
-                direccion = barrio;
-                if (ciudad && ciudad.toLowerCase() !== 'copacabana') {
-                    direccion += `, ${ciudad}`;
-                }
+          const addr = data.address;
+
+          // Construir dirección en formato colombiano
+          const calle = addr.road || addr.street || '';
+          const numero = addr.house_number || '';
+          const barrio = addr.neighbourhood || addr.suburb || addr.quarter || '';
+          const ciudad = addr.city || addr.town || addr.municipality || 'Copacabana';
+          const departamento = addr.state || 'Antioquia';
+
+          // Formato: Calle # Número, Barrio
+          if (calle) {
+            if (numero) {
+              // Formato colombiano: Calle 111 # 49-25
+              direccion = `${calle} # ${numero}`;
             } else {
-                // Usar el display_name como fallback
-                direccion = data.display_name || `Coordenadas: ${latitud}, ${longitud}`;
+              direccion = calle;
             }
+
+            if (barrio && barrio !== calle) {
+              direccion += `, ${barrio}`;
+            }
+
+            // Agregar ciudad si es diferente a Copacabana
+            if (ciudad && ciudad.toLowerCase() !== 'copacabana') {
+              direccion += `, ${ciudad}`;
+            }
+          } else if (barrio) {
+            // Si no hay calle, usar el barrio
+            direccion = barrio;
+            if (ciudad && ciudad.toLowerCase() !== 'copacabana') {
+              direccion += `, ${ciudad}`;
+            }
+          } else {
+            // Usar el display_name como fallback
+            direccion = data.display_name || `Coordenadas: ${latitud}, ${longitud}`;
+          }
         }
-        
+
         // Si no se pudo formatear bien, usar display_name
         if (!direccion || direccion.length < 5) {
-            direccion = data.display_name || `Lat: ${latitud}, Lng: ${longitud}`;
+          direccion = data.display_name || `Lat: ${latitud}, Lng: ${longitud}`;
         }
-        
+
         // Limpiar la dirección (remover información redundante)
         direccion = direccion
-            .replace(/,\s*Colombia/gi, '')
-            .replace(/,\s*Antioquia,\s*Copacabana/gi, ', Copacabana')
-            .replace(/,\s*Copacabana,\s*Copacabana/gi, ', Copacabana')
-            .trim();
-        
+          .replace(/,\s*Colombia/gi, '')
+          .replace(/,\s*Antioquia,\s*Copacabana/gi, ', Copacabana')
+          .replace(/,\s*Copacabana,\s*Copacabana/gi, ', Copacabana')
+          .trim();
+
         return direccion;
-        
-    } catch (error) {
+
+      } catch (error) {
         console.error('Error al obtener dirección:', error);
         return `Coordenadas: ${latitud.toFixed(6)}, ${longitud.toFixed(6)}`;
-    }
-  }
-
-  // Función para crear tabla de evidencias si no existe
-  async function crearTablaEvidencias() {
-    try {
-      // Verificar si la tabla existe consultándola
-      const { data, error } = await supabaseClient
-        .from('evidencias')
-        .select('id')
-        .limit(1);
-        
-      if (error && error.message.includes('does not exist')) {
-        console.log('La tabla evidencias no existe. Debe ser creada manualmente en Supabase.');
-        alert('⚠️ La tabla de evidencias no existe. Contacte al administrador del sistema.');
       }
-    } catch (error) {
-      console.log('Tabla de evidencias verificada');
     }
-  }
 
- // Función mejorada para obtener ubicación
-async function obtenerUbicacion() {
-  return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
+    // Función para crear tabla de evidencias si no existe
+    async function crearTablaEvidencias() {
+      try {
+        // Verificar si la tabla existe consultándola
+        const { data, error } = await supabaseClient
+          .from('evidencias')
+          .select('id')
+          .limit(1);
+
+        if (error && error.message.includes('does not exist')) {
+          console.log('La tabla evidencias no existe. Debe ser creada manualmente en Supabase.');
+          alert('⚠️ La tabla de evidencias no existe. Contacte al administrador del sistema.');
+        }
+      } catch (error) {
+        console.log('Tabla de evidencias verificada');
+      }
+    }
+
+    // Función mejorada para obtener ubicación
+    async function obtenerUbicacion() {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
           reject(new Error('Geolocalización no soportada'));
           return;
-      }
+        }
 
-      // Mostrar información de ubicación - VERIFICAR QUE EXISTAN LOS ELEMENTOS
-      const locationInfo = document.getElementById('locationInfo');
-      const ubicacionElement = document.getElementById('ubicacion-evidencia');
-      const coordenadasElement = document.getElementById('coordenadas-evidencia');
-      
-      // Solo mostrar información si los elementos existen
-      if (locationInfo && ubicacionElement && coordenadasElement) {
+        // Mostrar información de ubicación - VERIFICAR QUE EXISTAN LOS ELEMENTOS
+        const locationInfo = document.getElementById('locationInfo');
+        const ubicacionElement = document.getElementById('ubicacion-evidencia');
+        const coordenadasElement = document.getElementById('coordenadas-evidencia');
+
+        // Solo mostrar información si los elementos existen
+        if (locationInfo && ubicacionElement && coordenadasElement) {
           locationInfo.style.display = 'block';
           ubicacionElement.textContent = '🔄 Obteniendo ubicación...';
           coordenadasElement.textContent = '';
-      }
+        }
 
-      navigator.geolocation.getCurrentPosition(
+        navigator.geolocation.getCurrentPosition(
           async (position) => {
-              const latitud = position.coords.latitude;
-              const longitud = position.coords.longitude;
-              const precision = position.coords.accuracy;
-              
-              console.log('Ubicación obtenida:', { latitud, longitud, precision });
-              
-              // Mostrar coordenadas solo si los elementos existen
-              if (coordenadasElement) {
-                  coordenadasElement.textContent = `Coordenadas: ${latitud.toFixed(6)}, ${longitud.toFixed(6)} (±${Math.round(precision)}m)`;
-              }
-              
-              // Obtener la dirección
-              if (ubicacionElement) {
-                  ubicacionElement.textContent = '🔄 Obteniendo dirección...';
-              }
-              const direccion = await obtenerDireccion(latitud, longitud);
-              
-              // Mostrar la dirección
-              if (ubicacionElement) {
-                  ubicacionElement.textContent = `📍 ${direccion}`;
-              }
-              
-              resolve({
-                  latitud: latitud,
-                  longitud: longitud,
-                  direccion: direccion,
-                  precision: precision
-              });
+            const latitud = position.coords.latitude;
+            const longitud = position.coords.longitude;
+            const precision = position.coords.accuracy;
+
+            console.log('Ubicación obtenida:', { latitud, longitud, precision });
+
+            // Mostrar coordenadas solo si los elementos existen
+            if (coordenadasElement) {
+              coordenadasElement.textContent = `Coordenadas: ${latitud.toFixed(6)}, ${longitud.toFixed(6)} (±${Math.round(precision)}m)`;
+            }
+
+            // Obtener la dirección
+            if (ubicacionElement) {
+              ubicacionElement.textContent = '🔄 Obteniendo dirección...';
+            }
+            const direccion = await obtenerDireccion(latitud, longitud);
+
+            // Mostrar la dirección
+            if (ubicacionElement) {
+              ubicacionElement.textContent = `📍 ${direccion}`;
+            }
+
+            resolve({
+              latitud: latitud,
+              longitud: longitud,
+              direccion: direccion,
+              precision: precision
+            });
           },
           (error) => {
-              console.error('Error de geolocalización:', error);
-              
-              // Solo mostrar error si los elementos existen
-              if (ubicacionElement) {
-                  ubicacionElement.textContent = '❌ No se pudo obtener la ubicación';
-              }
-              if (coordenadasElement) {
-                  coordenadasElement.textContent = '';
-              }
-              
-              let mensaje = 'Error desconocido';
-              switch(error.code) {
-                  case error.PERMISSION_DENIED:
-                      mensaje = 'Permiso de ubicación denegado';
-                      break;
-                  case error.POSITION_UNAVAILABLE:
-                      mensaje = 'Ubicación no disponible';
-                      break;
-                  case error.TIMEOUT:
-                      mensaje = 'Tiempo de espera agotado';
-                      break;
-              }
-              
-              reject(new Error(mensaje));
+            console.error('Error de geolocalización:', error);
+
+            // Solo mostrar error si los elementos existen
+            if (ubicacionElement) {
+              ubicacionElement.textContent = '❌ No se pudo obtener la ubicación';
+            }
+            if (coordenadasElement) {
+              coordenadasElement.textContent = '';
+            }
+
+            let mensaje = 'Error desconocido';
+            switch (error.code) {
+              case error.PERMISSION_DENIED:
+                mensaje = 'Permiso de ubicación denegado';
+                break;
+              case error.POSITION_UNAVAILABLE:
+                mensaje = 'Ubicación no disponible';
+                break;
+              case error.TIMEOUT:
+                mensaje = 'Tiempo de espera agotado';
+                break;
+            }
+
+            reject(new Error(mensaje));
           },
           {
-              enableHighAccuracy: true,
-              timeout: 15000,
-              maximumAge: 60000
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 60000
           }
-      );
-  });
-}
-
-  // Función mejorada para subir evidencia
-  async function subirEvidencia(file) {
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      alert('Por favor, seleccione solo archivos de imagen.');
-      return;
+        );
+      });
     }
 
-    if (file.size > 5242880) { // 5MB
-      alert('El archivo es demasiado grande. Máximo 5MB.');
-      return;
-    }
+    // Función mejorada para subir evidencia
+    async function subirEvidencia(file) {
+      if (!file) return;
 
-    const uploadArea = document.getElementById('uploadArea');
-    const originalContent = uploadArea.innerHTML;
-    
-    try {
-      // Mostrar estado de carga
-      uploadArea.innerHTML = `
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor, seleccione solo archivos de imagen.');
+        return;
+      }
+
+      if (file.size > 5242880) { // 5MB
+        alert('El archivo es demasiado grande. Máximo 5MB.');
+        return;
+      }
+
+      const uploadArea = document.getElementById('uploadArea');
+      const originalContent = uploadArea.innerHTML;
+
+      try {
+        // Mostrar estado de carga
+        uploadArea.innerHTML = `
         <div class="loading-spinner"></div>
         <p>Subiendo evidencia...</p>
         <p style="font-size: 0.8rem;">Obteniendo ubicación y guardando imagen...</p>
       `;
 
-      // Obtener ubicación
-      const ubicacion = await obtenerUbicacion();
-      
-      // Generar nombre único para el archivo
-      const timestamp = new Date().toISOString();
-      const fileName = `evidencia_${userProfile.id}_${Date.now()}.${file.name.split('.').pop()}`;
-      
-      // Subir archivo a Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabaseClient.storage
-        .from('evidencias')
-        .upload(fileName, file);
+        // Obtener ubicación
+        const ubicacion = await obtenerUbicacion();
 
-      if (uploadError) throw uploadError;
+        // Generar nombre único para el archivo
+        const timestamp = new Date().toISOString();
+        const fileName = `evidencia_${userProfile.id}_${Date.now()}.${file.name.split('.').pop()}`;
 
-      // Obtener URL pública del archivo
-      const { data: urlData } = supabaseClient.storage
-        .from('evidencias')
-        .getPublicUrl(fileName);
+        // Subir archivo a Supabase Storage
+        const { data: uploadData, error: uploadError } = await supabaseClient.storage
+          .from('evidencias')
+          .upload(fileName, file);
 
-      console.log('URL generada:', urlData.publicUrl);
+        if (uploadError) throw uploadError;
 
-      // Guardar información en la base de datos CON LA DIRECCIÓN
-      const evidenciaData = {
-        instructor_id: userProfile.id,
-        instructor_nombre: userProfile.full_name || userProfile.username,
-        archivo_nombre: fileName,
-        archivo_url: urlData.publicUrl,
-        fecha_subida: timestamp,
-        latitud: ubicacion.latitud || null,
-        longitud: ubicacion.longitud || null,
-        direccion: ubicacion.direccion || null, // ¡IMPORTANTE: Guardar la dirección!
-        ubicacion_error: ubicacion.error || null
-      };
+        // Obtener URL pública del archivo
+        const { data: urlData } = supabaseClient.storage
+          .from('evidencias')
+          .getPublicUrl(fileName);
 
-      const { data: dbData, error: dbError } = await supabaseClient
-        .from('evidencias')
-        .insert([evidenciaData]);
+        console.log('URL generada:', urlData.publicUrl);
 
-      if (dbError) throw dbError;
+        // Guardar información en la base de datos CON LA DIRECCIÓN
+        const evidenciaData = {
+          instructor_id: userProfile.id,
+          instructor_nombre: userProfile.full_name || userProfile.username,
+          archivo_nombre: fileName,
+          archivo_url: urlData.publicUrl,
+          fecha_subida: timestamp,
+          latitud: ubicacion.latitud || null,
+          longitud: ubicacion.longitud || null,
+          direccion: ubicacion.direccion || null, // ¡IMPORTANTE: Guardar la dirección!
+          ubicacion_error: ubicacion.error || null
+        };
 
-      alert('✅ Evidencia subida exitosamente');
-      
-      // Recargar evidencias
-      await cargarEvidencias();
-      
-    } catch (error) {
-      console.error('Error subiendo evidencia:', error);
-      alert(`❌ Error al subir evidencia: ${error.message}`);
-    } finally {
-      // Restaurar contenido original
-      uploadArea.innerHTML = originalContent;
-      document.getElementById('fileInput').value = '';
-      document.getElementById('locationInfo').style.display = 'none';
-    }
-  }
+        const { data: dbData, error: dbError } = await supabaseClient
+          .from('evidencias')
+          .insert([evidenciaData]);
 
-  // Función para cargar evidencias
-  async function cargarEvidencias() {
-    try {
-      let query = supabaseClient
-        .from('evidencias')
-        .select('*')
-        .order('fecha_subida', { ascending: false });
+        if (dbError) throw dbError;
 
-      // Si es instructor, solo mostrar sus evidencias
-      if (userProfile.role === 'instructor') {
-        query = query.eq('instructor_id', userProfile.id);
+        alert('✅ Evidencia subida exitosamente');
+
+        // Recargar evidencias
+        await cargarEvidencias();
+
+      } catch (error) {
+        console.error('Error subiendo evidencia:', error);
+        alert(`❌ Error al subir evidencia: ${error.message}`);
+      } finally {
+        // Restaurar contenido original
+        uploadArea.innerHTML = originalContent;
+        document.getElementById('fileInput').value = '';
+        document.getElementById('locationInfo').style.display = 'none';
       }
+    }
 
-      const { data, error } = await query;
-      if (error) throw error;
+    // Función para cargar evidencias
+    async function cargarEvidencias() {
+      try {
+        let query = supabaseClient
+          .from('evidencias')
+          .select('*')
+          .order('fecha_subida', { ascending: false });
 
-      evidenciasData = data || [];
-      mostrarEvidencias(evidenciasData);
-      actualizarEstadisticasEvidencias(evidenciasData);
-      cargarFiltroInstructores(evidenciasData);
-    } catch (error) {
-      console.error('Error cargando evidencias:', error);
-      document.getElementById('evidenceGrid').innerHTML = `
+        // Si es instructor, solo mostrar sus evidencias
+        if (userProfile.role === 'instructor') {
+          query = query.eq('instructor_id', userProfile.id);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        evidenciasData = data || [];
+        mostrarEvidencias(evidenciasData);
+        actualizarEstadisticasEvidencias(evidenciasData);
+        cargarFiltroInstructores(evidenciasData);
+      } catch (error) {
+        console.error('Error cargando evidencias:', error);
+        document.getElementById('evidenceGrid').innerHTML = `
         <div style="text-align: center; padding: 2rem; color: #dc3545;">
           <h4>Error al cargar evidencias</h4>
           <p>${error.message}</p>
         </div>
       `;
+      }
     }
-  }
 
-  // Función mejorada para mostrar evidencias en el grid
-  function mostrarEvidencias(evidencias) {
-    const grid = document.getElementById('evidenceGrid');
-    
-    if (!evidencias || evidencias.length === 0) {
-      grid.innerHTML = `
+    // Función mejorada para mostrar evidencias en el grid
+    function mostrarEvidencias(evidencias) {
+      const grid = document.getElementById('evidenceGrid');
+
+      if (!evidencias || evidencias.length === 0) {
+        grid.innerHTML = `
         <div style="text-align: center; padding: 2rem; color: #666; grid-column: 1 / -1;">
           <div style="font-size: 3rem; margin-bottom: 1rem;">📷</div>
           <h4>No hay evidencias</h4>
           <p>Sube tu primera evidencia fotográfica</p>
         </div>
       `;
-      return;
-    }
-
-    let html = '';
-    evidencias.forEach(evidencia => {
-      const fecha = new Date(evidencia.fecha_subida);
-      const fechaFormateada = fecha.toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-
-      // Mostrar dirección si está disponible, sino mostrar coordenadas
-      let ubicacionTexto = '📍 Ubicación no disponible';
-      let coordenadasTexto = '';
-
-      if (evidencia.direccion) {
-        // Mostrar la dirección formateada
-        ubicacionTexto = `📍 ${evidencia.direccion}`;
-        if (evidencia.latitud && evidencia.longitud) {
-          coordenadasTexto = `${evidencia.latitud.toFixed(6)}, ${evidencia.longitud.toFixed(6)}`;
-        }
-      } else if (evidencia.latitud && evidencia.longitud) {
-        // Fallback a coordenadas si no hay dirección
-        ubicacionTexto = `📍 ${evidencia.latitud.toFixed(6)}, ${evidencia.longitud.toFixed(6)}`;
+        return;
       }
 
-      html += `
+      let html = '';
+      evidencias.forEach(evidencia => {
+        const fecha = new Date(evidencia.fecha_subida);
+        const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        // Mostrar dirección si está disponible, sino mostrar coordenadas
+        let ubicacionTexto = '📍 Ubicación no disponible';
+        let coordenadasTexto = '';
+
+        if (evidencia.direccion) {
+          // Mostrar la dirección formateada
+          ubicacionTexto = `📍 ${evidencia.direccion}`;
+          if (evidencia.latitud && evidencia.longitud) {
+            coordenadasTexto = `${evidencia.latitud.toFixed(6)}, ${evidencia.longitud.toFixed(6)}`;
+          }
+        } else if (evidencia.latitud && evidencia.longitud) {
+          // Fallback a coordenadas si no hay dirección
+          ubicacionTexto = `📍 ${evidencia.latitud.toFixed(6)}, ${evidencia.longitud.toFixed(6)}`;
+        }
+
+        html += `
         <div class="evidence-card">
           <img 
             src="${evidencia.archivo_url}"
@@ -1019,246 +1139,246 @@ async function obtenerUbicacion() {
             <div class="evidence-datetime">🕒 ${fechaFormateada}</div>
             <div class="evidence-location">${ubicacionTexto}</div>
             ${coordenadasTexto ? `<div class="evidence-coordinates">${coordenadasTexto}</div>` : ''}
-            ${userProfile.role === 'admin' || evidencia.instructor_id === userProfile.id ? 
-              `<button onclick="eliminarEvidencia('${evidencia.id}')" class="btn-delete-evidence">🗑️ Eliminar</button>`
-              : ''
-            }
+            ${userProfile.role === 'admin' || evidencia.instructor_id === userProfile.id ?
+            `<button onclick="eliminarEvidencia('${evidencia.id}')" class="btn-delete-evidence">🗑️ Eliminar</button>`
+            : ''
+          }
           </div>
         </div>
       `;
-    });
-
-    grid.innerHTML = html;
-  }
-
-  // Función para actualizar estadísticas de evidencias
-  function actualizarEstadisticasEvidencias(evidencias) {
-    const total = evidencias.length;
-    
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const evidenciasHoy = evidencias.filter(e => {
-      const fechaEvidencia = new Date(e.fecha_subida);
-      fechaEvidencia.setHours(0, 0, 0, 0);
-      return fechaEvidencia.getTime() === hoy.getTime();
-    }).length;
-
-    const inicioSemana = new Date();
-    inicioSemana.setDate(inicioSemana.getDate() - inicioSemana.getDay());
-    inicioSemana.setHours(0, 0, 0, 0);
-    const evidenciasSemana = evidencias.filter(e => 
-      new Date(e.fecha_subida) >= inicioSemana
-    ).length;
-
-    document.getElementById('totalEvidencias').textContent = total;
-    document.getElementById('evidenciasHoy').textContent = evidenciasHoy;
-    document.getElementById('evidenciasSemana').textContent = evidenciasSemana;
-  }
-
-  // Función para cargar filtro de instructores
-  function cargarFiltroInstructores(evidencias) {
-    const select = document.getElementById('filterinstructor');
-    const instructores = [...new Set(evidencias.map(e => e.instructor_nombre))];
-    
-    let options = '<option value="">Todos los instructores</option>';
-    instructores.forEach(instructor => {
-      options += `<option value="${instructor}">${instructor}</option>`;
-    });
-    
-    select.innerHTML = options;
-    
-    // Ocultar filtro si es instructor (solo ve sus propias evidencias)
-    if (userProfile.role === 'instructor') {
-      select.style.display = 'none';
-    }
-  }
-
-  // Función para filtrar evidencias
-  function filtrarEvidencias() {
-    const instructorFiltro = document.getElementById('filterinstructor').value;
-    const fechaFiltro = document.getElementById('filterFecha').value;
-    
-    let evidenciasFiltradas = [...evidenciasData];
-    
-    if (instructorFiltro) {
-      evidenciasFiltradas = evidenciasFiltradas.filter(e => 
-        e.instructor_nombre === instructorFiltro
-      );
-    }
-    
-    if (fechaFiltro) {
-      const fechaSeleccionada = new Date(fechaFiltro);
-      evidenciasFiltradas = evidenciasFiltradas.filter(e => {
-        const fechaEvidencia = new Date(e.fecha_subida);
-        return fechaEvidencia.toDateString() === fechaSeleccionada.toDateString();
       });
-    }
-    
-    mostrarEvidencias(evidenciasFiltradas);
-  }
 
-  // Función para limpiar filtros
-  function limpiarFiltros() {
-    document.getElementById('filterinstructor').value = '';
-    document.getElementById('filterFecha').value = '';
-    mostrarEvidencias(evidenciasData);
-  }
-
-  // Función para eliminar evidencia
-  async function eliminarEvidencia(evidenciaId) {
-    if (!confirm('¿Está seguro de que desea eliminar esta evidencia?')) {
-      return;
+      grid.innerHTML = html;
     }
 
-    try {
-      // Obtener información de la evidencia
-      const evidencia = evidenciasData.find(e => e.id === evidenciaId);
-      if (!evidencia) throw new Error('Evidencia no encontrada');
+    // Función para actualizar estadísticas de evidencias
+    function actualizarEstadisticasEvidencias(evidencias) {
+      const total = evidencias.length;
 
-      // Eliminar archivo del storage
-      const { error: storageError } = await supabaseClient.storage
-        .from('evidencias')
-        .remove([evidencia.archivo_nombre]);
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      const evidenciasHoy = evidencias.filter(e => {
+        const fechaEvidencia = new Date(e.fecha_subida);
+        fechaEvidencia.setHours(0, 0, 0, 0);
+        return fechaEvidencia.getTime() === hoy.getTime();
+      }).length;
 
-      if (storageError) {
-        console.warn('Error eliminando archivo del storage:', storageError);
+      const inicioSemana = new Date();
+      inicioSemana.setDate(inicioSemana.getDate() - inicioSemana.getDay());
+      inicioSemana.setHours(0, 0, 0, 0);
+      const evidenciasSemana = evidencias.filter(e =>
+        new Date(e.fecha_subida) >= inicioSemana
+      ).length;
+
+      document.getElementById('totalEvidencias').textContent = total;
+      document.getElementById('evidenciasHoy').textContent = evidenciasHoy;
+      document.getElementById('evidenciasSemana').textContent = evidenciasSemana;
+    }
+
+    // Función para cargar filtro de instructores
+    function cargarFiltroInstructores(evidencias) {
+      const select = document.getElementById('filterinstructor');
+      const instructores = [...new Set(evidencias.map(e => e.instructor_nombre))];
+
+      let options = '<option value="">Todos los instructores</option>';
+      instructores.forEach(instructor => {
+        options += `<option value="${instructor}">${instructor}</option>`;
+      });
+
+      select.innerHTML = options;
+
+      // Ocultar filtro si es instructor (solo ve sus propias evidencias)
+      if (userProfile.role === 'instructor') {
+        select.style.display = 'none';
+      }
+    }
+
+    // Función para filtrar evidencias
+    function filtrarEvidencias() {
+      const instructorFiltro = document.getElementById('filterinstructor').value;
+      const fechaFiltro = document.getElementById('filterFecha').value;
+
+      let evidenciasFiltradas = [...evidenciasData];
+
+      if (instructorFiltro) {
+        evidenciasFiltradas = evidenciasFiltradas.filter(e =>
+          e.instructor_nombre === instructorFiltro
+        );
       }
 
-      // Eliminar registro de la base de datos
-      const { error: dbError } = await supabaseClient
-        .from('evidencias')
-        .delete()
-        .eq('id', evidenciaId);
+      if (fechaFiltro) {
+        const fechaSeleccionada = new Date(fechaFiltro);
+        evidenciasFiltradas = evidenciasFiltradas.filter(e => {
+          const fechaEvidencia = new Date(e.fecha_subida);
+          return fechaEvidencia.toDateString() === fechaSeleccionada.toDateString();
+        });
+      }
 
-      if (dbError) throw dbError;
-
-      alert('✅ Evidencia eliminada exitosamente');
-      await cargarEvidencias();
-    } catch (error) {
-      console.error('Error eliminando evidencia:', error);
-      alert(`❌ Error al eliminar evidencia: ${error.message}`);
+      mostrarEvidencias(evidenciasFiltradas);
     }
-  }
 
-  // Funciones para modales
-  window.abrirModalEvidencias = async function() {
-    await inicializarPerfil();
-    
-    await crearTablaEvidencias();
-    document.getElementById('modalEvidencias').style.display = 'block';
-    await cargarEvidencias();
-  }
+    // Función para limpiar filtros
+    function limpiarFiltros() {
+      document.getElementById('filterinstructor').value = '';
+      document.getElementById('filterFecha').value = '';
+      mostrarEvidencias(evidenciasData);
+    }
 
-  window.cerrarModalEvidencias = function() {
-    document.getElementById('modalEvidencias').style.display = 'none';
-  }
+    // Función para eliminar evidencia
+    async function eliminarEvidencia(evidenciaId) {
+      if (!confirm('¿Está seguro de que desea eliminar esta evidencia?')) {
+        return;
+      }
 
-  window.abrirImagenModal = function(url) {
-    document.getElementById('modalImage').src = url;
-    document.getElementById('imageModal').style.display = 'block';
-  }
+      try {
+        // Obtener información de la evidencia
+        const evidencia = evidenciasData.find(e => e.id === evidenciaId);
+        if (!evidencia) throw new Error('Evidencia no encontrada');
 
-  window.cerrarImagenModal = function() {
-    document.getElementById('imageModal').style.display = 'none';
-  }
+        // Eliminar archivo del storage
+        const { error: storageError } = await supabaseClient.storage
+          .from('evidencias')
+          .remove([evidencia.archivo_nombre]);
 
-  // Exponer funciones globalmente
-  window.subirEvidencia = subirEvidencia;
-  window.eliminarEvidencia = eliminarEvidencia;
-  window.filtrarEvidencias = filtrarEvidencias;
-  window.limpiarFiltros = limpiarFiltros;
-
-  // Configurar drag and drop
-  document.addEventListener('DOMContentLoaded', function() {
-    const uploadArea = document.getElementById('uploadArea');
-    
-    if (uploadArea) {
-      uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.classList.add('dragover');
-      });
-
-      uploadArea.addEventListener('dragleave', () => {
-        uploadArea.classList.remove('dragover');
-      });
-
-      uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea.classList.remove('dragover');
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-          subirEvidencia(files[0]);
+        if (storageError) {
+          console.warn('Error eliminando archivo del storage:', storageError);
         }
-      });
+
+        // Eliminar registro de la base de datos
+        const { error: dbError } = await supabaseClient
+          .from('evidencias')
+          .delete()
+          .eq('id', evidenciaId);
+
+        if (dbError) throw dbError;
+
+        alert('✅ Evidencia eliminada exitosamente');
+        await cargarEvidencias();
+      } catch (error) {
+        console.error('Error eliminando evidencia:', error);
+        alert(`❌ Error al eliminar evidencia: ${error.message}`);
+      }
     }
-  });
 
-  // Cerrar modales con Escape
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      cerrarModalEvidencias();
-      cerrarImagenModal();
+    // Funciones para modales
+    window.abrirModalEvidencias = async function () {
+      await inicializarPerfil();
+
+      await crearTablaEvidencias();
+      document.getElementById('modalEvidencias').style.display = 'block';
+      await cargarEvidencias();
     }
-  });
 
-  // Variables globales para asistencia
-let participanteSeleccionado = null;
-let asistenciasHoy = [];
-
-// Función para abrir modal de asistencia
-window.abrirModalAsistencia = async function() {
-  await inicializarPerfil();
-  
-  // Establecer fecha y hora actual
-  const ahora = new Date();
-  document.getElementById('fecha-clase').value = ahora.toISOString().split('T')[0];
-  document.getElementById('hora-clase').value = ahora.toTimeString().slice(0, 5);
-  
-  document.getElementById('modalAsistencia').style.display = 'block';
-  await cargarAsistenciasHoy();
-}
-
-// Función para cerrar modal de asistencia
-window.cerrarModalAsistencia = function() {
-  document.getElementById('modalAsistencia').style.display = 'none';
-  limpiarFormularioAsistencia();
-}
-
-// Función para buscar participantes
-document.addEventListener('DOMContentLoaded', function() {
-  const buscarInput = document.getElementById('buscar-participante');
-  if (buscarInput) {
-    buscarInput.addEventListener('input', buscarParticipantes);
-  }
-});
-
-async function buscarParticipantes() {
-  const termino = document.getElementById('buscar-participante').value.trim();
-  const sugerenciasDiv = document.getElementById('sugerencias-participantes');
-  
-  if (termino.length < 2) {
-    sugerenciasDiv.style.display = 'none';
-    return;
-  }
-  
-  try {
-    const { data, error } = await supabaseClient
-      .from('participantes')
-      .select('*')
-      .ilike('nombre', `%${termino}%`)
-      .limit(10);
-    
-    if (error) throw error;
-    
-    if (data.length === 0) {
-      sugerenciasDiv.innerHTML = '<div style="padding: 0.5rem; color: #666;">No se encontraron participantes</div>';
-      sugerenciasDiv.style.display = 'block';
-      return;
+    window.cerrarModalEvidencias = function () {
+      document.getElementById('modalEvidencias').style.display = 'none';
     }
-    
-    let html = '';
-    data.forEach(participante => {
-      html += `
+
+    window.abrirImagenModal = function (url) {
+      document.getElementById('modalImage').src = url;
+      document.getElementById('imageModal').style.display = 'block';
+    }
+
+    window.cerrarImagenModal = function () {
+      document.getElementById('imageModal').style.display = 'none';
+    }
+
+    // Exponer funciones globalmente
+    window.subirEvidencia = subirEvidencia;
+    window.eliminarEvidencia = eliminarEvidencia;
+    window.filtrarEvidencias = filtrarEvidencias;
+    window.limpiarFiltros = limpiarFiltros;
+
+    // Configurar drag and drop
+    document.addEventListener('DOMContentLoaded', function () {
+      const uploadArea = document.getElementById('uploadArea');
+
+      if (uploadArea) {
+        uploadArea.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+          uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+          e.preventDefault();
+          uploadArea.classList.remove('dragover');
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            subirEvidencia(files[0]);
+          }
+        });
+      }
+    });
+
+    // Cerrar modales con Escape
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        cerrarModalEvidencias();
+        cerrarImagenModal();
+      }
+    });
+
+    // Variables globales para asistencia
+    let participanteSeleccionado = null;
+    let asistenciasHoy = [];
+
+    // Función para abrir modal de asistencia
+    window.abrirModalAsistencia = async function () {
+      await inicializarPerfil();
+
+      // Establecer fecha y hora actual
+      const ahora = new Date();
+      document.getElementById('fecha-clase').value = ahora.toISOString().split('T')[0];
+      document.getElementById('hora-clase').value = ahora.toTimeString().slice(0, 5);
+
+      document.getElementById('modalAsistencia').style.display = 'block';
+      await cargarAsistenciasHoy();
+    }
+
+    // Función para cerrar modal de asistencia
+    window.cerrarModalAsistencia = function () {
+      document.getElementById('modalAsistencia').style.display = 'none';
+      limpiarFormularioAsistencia();
+    }
+
+    // Función para buscar participantes
+    document.addEventListener('DOMContentLoaded', function () {
+      const buscarInput = document.getElementById('buscar-participante');
+      if (buscarInput) {
+        buscarInput.addEventListener('input', buscarParticipantes);
+      }
+    });
+
+    async function buscarParticipantes() {
+      const termino = document.getElementById('buscar-participante').value.trim();
+      const sugerenciasDiv = document.getElementById('sugerencias-participantes');
+
+      if (termino.length < 2) {
+        sugerenciasDiv.style.display = 'none';
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('participantes')
+          .select('*')
+          .ilike('nombre', `%${termino}%`)
+          .limit(10);
+
+        if (error) throw error;
+
+        if (data.length === 0) {
+          sugerenciasDiv.innerHTML = '<div style="padding: 0.5rem; color: #666;">No se encontraron participantes</div>';
+          sugerenciasDiv.style.display = 'block';
+          return;
+        }
+
+        let html = '';
+        data.forEach(participante => {
+          html += `
         <div onclick="seleccionarParticipante('${participante.id}')" 
              style="padding: 0.5rem; cursor: pointer; border-bottom: 1px solid #eee; hover: background-color: #f5f5f5;"
              onmouseover="this.style.backgroundColor='#f5f5f5'"
@@ -1267,148 +1387,149 @@ async function buscarParticipantes() {
           <small>${participante.edad} años - ${participante.genero} - ${participante.actividad}</small>
         </div>
       `;
-    });
-    
-    sugerenciasDiv.innerHTML = html;
-    sugerenciasDiv.style.display = 'block';
-    
-  } catch (error) {
-    console.error('Error buscando participantes:', error);
-  }
-}
+        });
 
-// Función para seleccionar participante
-window.seleccionarParticipante = async function(participanteId) {
-  try {
-    const { data, error } = await supabaseClient
-      .from('participantes')
-      .select('*')
-      .eq('id', participanteId)
-      .single();
-    
-    if (error) throw error;
-    
-    participanteSeleccionado = data;
-    
-    // Mostrar información del participante
-    document.getElementById('buscar-participante').value = data.nombre;
-    document.getElementById('sugerencias-participantes').style.display = 'none';
-    
-    const infoDiv = document.getElementById('info-participante');
-    const datosDiv = document.getElementById('datos-participante');
-    
-    datosDiv.innerHTML = `
+        sugerenciasDiv.innerHTML = html;
+        sugerenciasDiv.style.display = 'block';
+
+      } catch (error) {
+        console.error('Error buscando participantes:', error);
+      }
+    }
+
+    // Función para seleccionar participante
+    window.seleccionarParticipante = async function (participanteId) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('participantes')
+          .select('*')
+          .eq('id', participanteId)
+          .single();
+
+        if (error) throw error;
+
+        participanteSeleccionado = data;
+
+        // Mostrar información del participante
+        document.getElementById('buscar-participante').value = data.nombre;
+        document.getElementById('sugerencias-participantes').style.display = 'none';
+
+        const infoDiv = document.getElementById('info-participante');
+        const datosDiv = document.getElementById('datos-participante');
+
+        datosDiv.innerHTML = `
+    <p><strong>documento_identidad:</strong> ${data.documento_identidad}</p>
       <p><strong>Nombre:</strong> ${data.nombre}</p>
       <p><strong>Edad:</strong> ${data.edad} años</p>
       <p><strong>Género:</strong> ${data.genero}</p>
       <p><strong>Actividad Principal:</strong> ${data.actividad}</p>
       <p><strong>Barrio:</strong> ${data.barrio}</p>
     `;
-    
-    infoDiv.style.display = 'block';
-    
-  } catch (error) {
-    console.error('Error seleccionando participante:', error);
-    alert('Error al cargar información del participante');
-  }
-}
 
-// Función para manejar el formulario de asistencia
-document.addEventListener('DOMContentLoaded', function() {
-  const formAsistencia = document.getElementById('formAsistencia');
-  if (formAsistencia) {
-    formAsistencia.addEventListener('submit', guardarAsistencia);
-  }
-});
+        infoDiv.style.display = 'block';
 
-async function guardarAsistencia(e) {
-  e.preventDefault();
-  
-  if (!participanteSeleccionado) {
-    alert('Por favor, seleccione un participante');
-    return;
-  }
-  
-  const fechaClase = document.getElementById('fecha-clase').value;
-  const horaClase = document.getElementById('hora-clase').value;
-  const actividad = document.getElementById('actividad-asistencia').value;
-  const asistio = document.querySelector('input[name="asistio"]:checked').value === 'true';
-  const observaciones = document.getElementById('observaciones').value.trim();
-  
-  if (!fechaClase || !horaClase || !actividad) {
-    alert('Por favor, complete todos los campos obligatorios');
-    return;
-  }
-  
-  try {
-    const asistenciaData = {
-      participante_id: participanteSeleccionado.id,
-      instructor_id: userProfile.id,
-      fecha_clase: fechaClase,
-      hora_clase: horaClase,
-      actividad: actividad,
-      asistio: asistio,
-      observaciones: observaciones || null
-    };
-    
-    const { data, error } = await supabaseClient
-      .from('asistencias')
-      .insert([asistenciaData]);
-    
-    if (error) throw error;
-    
-    alert('✅ Asistencia guardada exitosamente');
-    limpiarFormularioAsistencia();
-    await cargarAsistenciasHoy();
-    
-  } catch (error) {
-    console.error('Error guardando asistencia:', error);
-    alert(`❌ Error al guardar asistencia: ${error.message}`);
-  }
-}
+      } catch (error) {
+        console.error('Error seleccionando participante:', error);
+        alert('Error al cargar información del participante');
+      }
+    }
 
-// Función para cargar asistencias del día
-async function cargarAsistenciasHoy() {
-  try {
-    const fechaHoy = new Date().toISOString().split('T')[0];
-    
-    let query = supabaseClient
-      .from('asistencias')
-      .select(`
+    // Función para manejar el formulario de asistencia
+    document.addEventListener('DOMContentLoaded', function () {
+      const formAsistencia = document.getElementById('formAsistencia');
+      if (formAsistencia) {
+        formAsistencia.addEventListener('submit', guardarAsistencia);
+      }
+    });
+
+    async function guardarAsistencia(e) {
+      e.preventDefault();
+
+      if (!participanteSeleccionado) {
+        alert('Por favor, seleccione un participante');
+        return;
+      }
+
+      const fechaClase = document.getElementById('fecha-clase').value;
+      const horaClase = document.getElementById('hora-clase').value;
+      const actividad = document.getElementById('actividad-asistencia').value;
+      const asistio = document.querySelector('input[name="asistio"]:checked').value === 'true';
+      const observaciones = document.getElementById('observaciones').value.trim();
+
+      if (!fechaClase || !horaClase || !actividad) {
+        alert('Por favor, complete todos los campos obligatorios');
+        return;
+      }
+
+      try {
+        const asistenciaData = {
+          participante_id: participanteSeleccionado.id,
+          instructor_id: userProfile.id,
+          fecha_clase: fechaClase,
+          hora_clase: horaClase,
+          actividad: actividad,
+          asistio: asistio,
+          observaciones: observaciones || null
+        };
+
+        const { data, error } = await supabaseClient
+          .from('asistencias')
+          .insert([asistenciaData]);
+
+        if (error) throw error;
+
+        alert('✅ Asistencia guardada exitosamente');
+        limpiarFormularioAsistencia();
+        await cargarAsistenciasHoy();
+
+      } catch (error) {
+        console.error('Error guardando asistencia:', error);
+        alert(`❌ Error al guardar asistencia: ${error.message}`);
+      }
+    }
+
+    // Función para cargar asistencias del día
+    async function cargarAsistenciasHoy() {
+      try {
+        const fechaHoy = new Date().toISOString().split('T')[0];
+
+        let query = supabaseClient
+          .from('asistencias')
+          .select(`
         *,
         participantes (nombre, edad, genero)
       `)
-      .eq('fecha_clase', fechaHoy)
-      .order('hora_clase', { ascending: false });
-    
-    // Si es instructor, solo mostrar sus asistencias
-    if (userProfile.role === 'instructor') {
-      query = query.eq('instructor_id', userProfile.id);
-    }
-    
-    const { data, error } = await query;
-    if (error) throw error;
-    
-    asistenciasHoy = data || [];
-    mostrarAsistenciasHoy(asistenciasHoy);
-    
-  } catch (error) {
-    console.error('Error cargando asistencias:', error);
-    document.getElementById('lista-asistencias-hoy').innerHTML = 
-      '<p style="color: #dc3545;">Error al cargar asistencias</p>';
-  }
-}
+          .eq('fecha_clase', fechaHoy)
+          .order('hora_clase', { ascending: false });
 
-// Función para mostrar asistencias del día
-function mostrarAsistenciasHoy(asistencias) {
-  const container = document.getElementById('lista-asistencias-hoy');
-  
-  if (!asistencias || asistencias.length === 0) {
-    container.innerHTML = '<p style="text-align: center; color: #666;">No hay asistencias registradas hoy</p>';
-    return;
-  }
-  
-  let html = `
+        // Si es instructor, solo mostrar sus asistencias
+        if (userProfile.role === 'instructor') {
+          query = query.eq('instructor_id', userProfile.id);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        asistenciasHoy = data || [];
+        mostrarAsistenciasHoy(asistenciasHoy);
+
+      } catch (error) {
+        console.error('Error cargando asistencias:', error);
+        document.getElementById('lista-asistencias-hoy').innerHTML =
+          '<p style="color: #dc3545;">Error al cargar asistencias</p>';
+      }
+    }
+
+    // Función para mostrar asistencias del día
+    function mostrarAsistenciasHoy(asistencias) {
+      const container = document.getElementById('lista-asistencias-hoy');
+
+      if (!asistencias || asistencias.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666;">No hay asistencias registradas hoy</p>';
+        return;
+      }
+
+      let html = `
     <table style="width: 100%; margin-top: 1rem;">
       <thead>
         <tr>
@@ -1421,12 +1542,12 @@ function mostrarAsistenciasHoy(asistencias) {
       </thead>
       <tbody>
   `;
-  
-  asistencias.forEach(asistencia => {
-    const hora = asistencia.hora_clase.slice(0, 5);
-    const participante = asistencia.participantes;
-    
-    html += `
+
+      asistencias.forEach(asistencia => {
+        const hora = asistencia.hora_clase.slice(0, 5);
+        const participante = asistencia.participantes;
+
+        html += `
       <tr>
         <td>${hora}</td>
         <td>${participante.nombre}<br><small>${participante.edad} años - ${participante.genero}</small></td>
@@ -1435,174 +1556,174 @@ function mostrarAsistenciasHoy(asistencias) {
         <td>${asistencia.observaciones || '-'}</td>
       </tr>
     `;
-  });
-  
-  html += '</tbody></table>';
-  container.innerHTML = html;
-}
+      });
 
-// Función para limpiar formulario de asistencia
-function limpiarFormularioAsistencia() {
-  document.getElementById('buscar-participante').value = '';
-  document.getElementById('observaciones').value = '';
-  document.getElementById('info-participante').style.display = 'none';
-  document.getElementById('sugerencias-participantes').style.display = 'none';
-  document.querySelector('input[name="asistio"][value="true"]').checked = true;
-  participanteSeleccionado = null;
-}
-
-// Cerrar sugerencias al hacer clic fuera
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('#buscar-participante') && !e.target.closest('#sugerencias-participantes')) {
-    document.getElementById('sugerencias-participantes').style.display = 'none';
-  }
-});
-  
-  // Función para guardar datos en Supabase
-  async function guardarEnSupabase(participante) {
-    try {
-      const { data, error } = await supabaseClient
-        .from('participantes')
-        .insert([participante]);
-
-      if (error) throw error;
-      
-      console.log('Participante guardado exitosamente:', data);
-      return { success: true, data };
-    } catch (error) {
-      console.error('Error al guardar en Supabase:', error);
-      return { success: false, error: error.message };
+      html += '</tbody></table>';
+      container.innerHTML = html;
     }
-  }
 
-  // Función para actualizar participante en Supabase
-  async function actualizarEnSupabase(id, participante) {
-    try {
-      const { data, error } = await supabaseClient
-        .from('participantes')
-        .update(participante)
-        .eq('id', id);
-
-      if (error) throw error;
-      
-      console.log('Participante actualizado exitosamente:', data);
-      return { success: true, data };
-    } catch (error) {
-      console.error('Error al actualizar en Supabase:', error);
-      return { success: false, error: error.message };
+    // Función para limpiar formulario de asistencia
+    function limpiarFormularioAsistencia() {
+      document.getElementById('buscar-participante').value = '';
+      document.getElementById('observaciones').value = '';
+      document.getElementById('info-participante').style.display = 'none';
+      document.getElementById('sugerencias-participantes').style.display = 'none';
+      document.querySelector('input[name="asistio"][value="true"]').checked = true;
+      participanteSeleccionado = null;
     }
-  }
 
-  // Función para eliminar participantes de Supabase
-  async function eliminarDeSupabase(ids) {
-    try {
-      const { data, error } = await supabaseClient
-        .from('participantes')
-        .delete()
-        .in('id', ids);
+    // Cerrar sugerencias al hacer clic fuera
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('#buscar-participante') && !e.target.closest('#sugerencias-participantes')) {
+        document.getElementById('sugerencias-participantes').style.display = 'none';
+      }
+    });
 
-      if (error) throw error;
-      
-      console.log('Participantes eliminados exitosamente:', data);
-      return { success: true, data };
-    } catch (error) {
-      console.error('Error al eliminar de Supabase:', error);
-      return { success: false, error: error.message };
+    // Función para guardar datos en Supabase
+    async function guardarEnSupabase(participante) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('participantes')
+          .insert([participante]);
+
+        if (error) throw error;
+
+        console.log('Participante guardado exitosamente:', data);
+        return { success: true, data };
+      } catch (error) {
+        console.error('Error al guardar en Supabase:', error);
+        return { success: false, error: error.message };
+      }
     }
-  }
 
-  // Función para cargar participantes desde Supabase
-  async function cargarParticipantes() {
-    try {
-      const { data, error } = await supabaseClient
-        .from('participantes')
-        .select('*')
-        .order('fecha_registro', { ascending: false });
+    // Función para actualizar participante en Supabase
+    async function actualizarEnSupabase(id, participante) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('participantes')
+          .update(participante)
+          .eq('id', id);
 
-      if (error) throw error;
-      
-      participantesGuardados = data || [];
-      mostrarTabla(participantesGuardados);
-      return data;
-    } catch (error) {
-      console.error('Error al cargar participantes:', error);
-      return [];
+        if (error) throw error;
+
+        console.log('Participante actualizado exitosamente:', data);
+        return { success: true, data };
+      } catch (error) {
+        console.error('Error al actualizar en Supabase:', error);
+        return { success: false, error: error.message };
+      }
     }
-  }
 
-  // Manejo del formulario
-  document.getElementById('formExcel').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    
-    const submitButton = e.target.querySelector('button[type="submit"]');
-    const originalText = submitButton.textContent;
-    
-    // Mostrar estado de carga
-    submitButton.textContent = modoEdicion ? 'Actualizando...' : 'Guardando...';
-    submitButton.disabled = true;
+    // Función para eliminar participantes de Supabase
+    async function eliminarDeSupabase(ids) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('participantes')
+          .delete()
+          .in('id', ids);
 
-    const fila = document.querySelector('#tablaFormulario tbody tr');
-    const nombre = fila.querySelector('[name="nombre"]').value.trim();
-    const edad = parseInt(fila.querySelector('[name="edad"]').value);
-    const genero = fila.querySelector('[name="genero"]').value;
-    const actividad = fila.querySelector('[name="actividad"]').value;
-    const tipo_actividad = fila.querySelector('[name="tipo_actividad"]').value;
-    const barrio = fila.querySelector('[name="barrio"]').value.trim();
+        if (error) throw error;
 
-    // Validar que todos los campos estén completos
-    if (!nombre || !edad || !genero || !actividad || !tipo_actividad || !barrio) {
-      alert('Por favor, complete todos los campos.');
+        console.log('Participantes eliminados exitosamente:', data);
+        return { success: true, data };
+      } catch (error) {
+        console.error('Error al eliminar de Supabase:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // Función para cargar participantes desde Supabase
+    async function cargarParticipantes() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('participantes')
+          .select('*')
+          .order('fecha_registro', { ascending: false });
+
+        if (error) throw error;
+
+        participantesGuardados = data || [];
+        mostrarTabla(participantesGuardados);
+        return data;
+      } catch (error) {
+        console.error('Error al cargar participantes:', error);
+        return [];
+      }
+    }
+
+    // Manejo del formulario
+    document.getElementById('formExcel').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const submitButton = e.target.querySelector('button[type="submit"]');
+      const originalText = submitButton.textContent;
+
+      // Mostrar estado de carga
+      submitButton.textContent = modoEdicion ? 'Actualizando...' : 'Guardando...';
+      submitButton.disabled = true;
+
+      const fila = document.querySelector('#tablaFormulario tbody tr');
+      const documento_identidad = fila.querySelector('[name="documento_identidad"]').value;
+      const nombre = fila.querySelector('[name="nombre"]').value.trim();
+      const edad = parseInt(fila.querySelector('[name="edad"]').value);
+      const genero = fila.querySelector('[name="genero"]').value;
+      const actividad = fila.querySelector('[name="actividad"]').value;
+      const barrio = fila.querySelector('[name="barrio"]').value.trim();
+
+      // Validar que todos los campos estén completos
+      if (!documento_identidad || !nombre || !edad || !genero || !actividad || !barrio) {
+        alert('Por favor, complete todos los campos.');
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
+        return;
+      }
+
+      const participante = {
+        documento_identidad,
+        nombre,
+        edad,
+        genero,
+        actividad,
+        barrio
+      };
+
+      let resultado;
+      if (modoEdicion && participanteEditando) {
+        // Actualizar participante existente
+        resultado = await actualizarEnSupabase(participanteEditando.id, participante);
+      } else {
+        // Guardar nuevo participante
+        resultado = await guardarEnSupabase(participante);
+      }
+
+      if (resultado.success) {
+        alert(`✅ Participante ${modoEdicion ? 'actualizado' : 'guardado'} exitosamente.`);
+
+        // Limpiar formulario y salir del modo edición
+        limpiarFormulario();
+        cancelarEdicion();
+
+        // Recargar la tabla con datos actualizados
+        await cargarParticipantes();
+      } else {
+        alert(`❌ Error al ${modoEdicion ? 'actualizar' : 'guardar'}: ${resultado.error}`);
+      }
+
+      // Restaurar botón
       submitButton.textContent = originalText;
       submitButton.disabled = false;
-      return;
-    }
+    });
 
-    const participante = {
-      nombre,
-      edad,
-      genero,
-      actividad,
-      tipo_actividad,
-      barrio
-    };
+    // Función para mostrar tabla de resultados con checkboxes
+    function mostrarTabla(data) {
+      const container = document.getElementById('tablaResultado');
 
-    let resultado;
-    if (modoEdicion && participanteEditando) {
-      // Actualizar participante existente
-      resultado = await actualizarEnSupabase(participanteEditando.id, participante);
-    } else {
-      // Guardar nuevo participante
-      resultado = await guardarEnSupabase(participante);
-    }
-    
-    if (resultado.success) {
-      alert(`✅ Participante ${modoEdicion ? 'actualizado' : 'guardado'} exitosamente.`);
-      
-      // Limpiar formulario y salir del modo edición
-      limpiarFormulario();
-      cancelarEdicion();
-      
-      // Recargar la tabla con datos actualizados
-      await cargarParticipantes();
-    } else {
-      alert(`❌ Error al ${modoEdicion ? 'actualizar' : 'guardar'}: ${resultado.error}`);
-    }
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 2rem;">No hay participantes registrados</p>';
+        return;
+      }
 
-    // Restaurar botón
-    submitButton.textContent = originalText;
-    submitButton.disabled = false;
-  });
-
-  // Función para mostrar tabla de resultados con checkboxes
-  function mostrarTabla(data) {
-    const container = document.getElementById('tablaResultado');
-    
-    if (!data || data.length === 0) {
-      container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 2rem;">No hay participantes registrados</p>';
-      return;
-    }
-
-    let html = `
+      let html = `
       <div style="overflow-x: auto;">
         <table style="width: 100%; min-width: 900px;">
           <thead>
@@ -1610,51 +1731,51 @@ document.addEventListener('click', function(e) {
               <th class="checkbox-column">
                 <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
               </th>
+              <th>Documento</th>
               <th>Nombre</th>
               <th>Edad</th>
               <th>Género</th>
-              <th>Actividad</th>
-              <th>Tipo</th>
+              <th>Actividad</th>              
               <th>Barrio</th>
               <th>Fecha Registro</th>
             </tr>
           </thead>
           <tbody>
     `;
-    
-    data.forEach(participante => {
-      const fecha = new Date(participante.fecha_registro).toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-      
-      html += `
+
+      data.forEach(participante => {
+        const fecha = new Date(participante.fecha_registro).toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        html += `
         <tr data-id="${participante.id}">
           <td class="checkbox-column">
             <input type="checkbox" class="row-checkbox" value="${participante.id}">
           </td>
+          <td>${participante.documento_identidad}</td>
           <td>${participante.nombre}</td>
           <td>${participante.edad}</td>
           <td>${participante.genero}</td>
-          <td>${participante.actividad}</td>
-          <td>${participante.tipo_actividad}</td>
+          <td>${participante.actividad}</td>          
           <td>${participante.barrio}</td>
           <td>${fecha}</td>
         </tr>
       `;
-    });
-    
-    html += '</tbody></table></div>';
-    
-    // Agregar estadísticas
-    const totalParticipantes = data.length;
-    const hombres = data.filter(p => p.genero === 'Hombre').length;
-    const mujeres = data.filter(p => p.genero === 'Mujer').length;
-    
-    html += `
+      });
+
+      html += '</tbody></table></div>';
+
+      // Agregar estadísticas
+      const totalParticipantes = data.length;
+      const hombres = data.filter(p => p.genero === 'Hombre').length;
+      const mujeres = data.filter(p => p.genero === 'Mujer').length;
+
+      html += `
       <div style="margin-top: 1.5rem; padding: 1rem; background-color: #f8f9fa; border-radius: 8px;">
         <h4 style="margin-bottom: 1rem; color: var(--color-primary);">📊 Estadísticas</h4>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
@@ -1664,182 +1785,181 @@ document.addEventListener('click', function(e) {
           </div>
           <div style="text-align: center;">
             <div style="font-size: 2rem; font-weight: bold; color: var(--color-male);">${hombres}</div>
-            <div style="color: #6c757d;">Hombres (${totalParticipantes > 0 ? Math.round((hombres/totalParticipantes)*100) : 0}%)</div>
+            <div style="color: #6c757d;">Hombres (${totalParticipantes > 0 ? Math.round((hombres / totalParticipantes) * 100) : 0}%)</div>
           </div>
           <div style="text-align: center;">
             <div style="font-size: 2rem; font-weight: bold; color: var(--color-female);">${mujeres}</div>
-            <div style="color: #6c757d;">Mujeres (${totalParticipantes > 0 ? Math.round((mujeres/totalParticipantes)*100) : 0}%)</div>
+            <div style="color: #6c757d;">Mujeres (${totalParticipantes > 0 ? Math.round((mujeres / totalParticipantes) * 100) : 0}%)</div>
           </div>
         </div>
       </div>
     `;
-    
-    container.innerHTML = html;
-  }
 
-  // Función para seleccionar/deseleccionar todos
-  window.toggleSelectAll = function() {
-    const selectAll = document.getElementById('select-all');
-    const checkboxes = document.querySelectorAll('.row-checkbox');
-    
-    checkboxes.forEach(checkbox => {
-      checkbox.checked = selectAll.checked;
-    });
-  }
-
-  // Función para seleccionar todos
-  window.seleccionarTodos = function() {
-    const selectAll = document.getElementById('select-all');
-    if (selectAll) {
-      selectAll.checked = !selectAll.checked;
-      toggleSelectAll();
-    }
-  }
-
-  // Función para editar participantes seleccionados
-  window.editarSeleccionados = function() {
-    const seleccionados = document.querySelectorAll('.row-checkbox:checked');
-    
-    if (seleccionados.length === 0) {
-      alert('Por favor, seleccione al menos un participante para editar.');
-      return;
-    }
-    
-    if (seleccionados.length > 1) {
-      alert('Por favor, seleccione solo un participante para editar.');
-      return;
+      container.innerHTML = html;
     }
 
-    const id = seleccionados[0].value;
-    const participante = participantesGuardados.find(p => p.id === id);
-    
-    if (participante) {
-      cargarParticipanteEnFormulario(participante);
-    }
-  }
+    // Función para seleccionar/deseleccionar todos
+    window.toggleSelectAll = function () {
+      const selectAll = document.getElementById('select-all');
+      const checkboxes = document.querySelectorAll('.row-checkbox');
 
-  // Función para cargar participante en el formulario para edición
-  function cargarParticipanteEnFormulario(participante) {
-    const fila = document.querySelector('#tablaFormulario tbody tr');
-    
-    fila.querySelector('[name="nombre"]').value = participante.nombre;
-    fila.querySelector('[name="edad"]').value = participante.edad;
-    fila.querySelector('[name="genero"]').value = participante.genero;
-    fila.querySelector('[name="actividad"]').value = participante.actividad;
-    fila.querySelector('[name="tipo_actividad"]').value = participante.tipo_actividad;
-    fila.querySelector('[name="barrio"]').value = participante.barrio;
-
-    // Activar modo edición
-    modoEdicion = true;
-    participanteEditando = participante;
-    
-    // Cambiar UI
-    document.getElementById('form-title').textContent = 'Editar Participante';
-    document.getElementById('btn-guardar').textContent = 'Actualizar';
-    document.getElementById('btn-cancelar').style.display = 'inline-block';
-    
-    // Scroll al formulario
-    document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
-  }
-
-  // Función para cancelar edición
-  window.cancelarEdicion = function() {
-    modoEdicion = false;
-    participanteEditando = null;
-    
-    // Restaurar UI
-    document.getElementById('form-title').textContent = 'Agregar Nuevo Participante';
-    document.getElementById('btn-guardar').textContent = 'Guardar';
-    document.getElementById('btn-cancelar').style.display = 'none';
-    
-    limpiarFormulario();
-  }
-
-  // Función para eliminar participantes seleccionados
-  window.eliminarSeleccionados = async function() {
-    const seleccionados = document.querySelectorAll('.row-checkbox:checked');
-    
-    if (seleccionados.length === 0) {
-      alert('Por favor, seleccione al menos un participante para eliminar.');
-      return;
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+      });
     }
 
-    const confirmacion = confirm(`¿Está seguro de que desea eliminar ${seleccionados.length} participante(s)? Esta acción no se puede deshacer.`);
-    
-    if (!confirmacion) return;
-
-    const ids = Array.from(seleccionados).map(checkbox => checkbox.value);
-    
-    const resultado = await eliminarDeSupabase(ids);
-    
-    if (resultado.success) {
-      alert(`✅ ${ids.length} participante(s) eliminado(s) exitosamente.`);
-      await cargarParticipantes();
-    } else {
-      alert(`❌ Error al eliminar: ${resultado.error}`);
+    // Función para seleccionar todos
+    window.seleccionarTodos = function () {
+      const selectAll = document.getElementById('select-all');
+      if (selectAll) {
+        selectAll.checked = !selectAll.checked;
+        toggleSelectAll();
+      }
     }
-  }
 
-  // Función para limpiar formulario
-  function limpiarFormulario() {
-    document.querySelectorAll('#tablaFormulario input, #tablaFormulario select').forEach(input => {
-      input.value = '';
-    });
-  }
+    // Función para editar participantes seleccionados
+    window.editarSeleccionados = function () {
+      const seleccionados = document.querySelectorAll('.row-checkbox:checked');
 
-  // Función para filtrar participantes por nombre
-  function filtrarParticipantes() {
-    const searchTerm = document.getElementById('search-participante').value.toLowerCase().trim();
-    const tabla = document.querySelector('#tablaResultado table');
-    
-    if (!tabla) return;
-    
-    const filas = tabla.querySelectorAll('tbody tr');
-    let participantesVisibles = 0;
-    
-    filas.forEach(fila => {
-      const nombreCell = fila.querySelector('td:nth-child(2)'); // Segunda columna (nombre)
-      
-      if (nombreCell) {
-        const nombre = nombreCell.textContent.toLowerCase();
-        const coincide = nombre.includes(searchTerm);
-        
-        fila.style.display = coincide ? '' : 'none';
-        
-        if (coincide) {
-          participantesVisibles++;
-          
-          // Resaltar texto coincidente
-          if (searchTerm.length > 0) {
-            const textoOriginal = nombreCell.textContent;
-            const regex = new RegExp(`(${searchTerm})`, 'gi');
-            nombreCell.innerHTML = textoOriginal.replace(regex, '<mark style="background-color: yellow; padding: 0.1rem;">$1</mark>');
-          } else {
-            nombreCell.innerHTML = nombreCell.textContent; // Restaurar texto original
+      if (seleccionados.length === 0) {
+        alert('Por favor, seleccione al menos un participante para editar.');
+        return;
+      }
+
+      if (seleccionados.length > 1) {
+        alert('Por favor, seleccione solo un participante para editar.');
+        return;
+      }
+
+      const id = seleccionados[0].value;
+      const participante = participantesGuardados.find(p => p.id === id);
+
+      if (participante) {
+        cargarParticipanteEnFormulario(participante);
+      }
+    }
+
+    // Función para cargar participante en el formulario para edición
+    function cargarParticipanteEnFormulario(participante) {
+      const fila = document.querySelector('#tablaFormulario tbody tr');
+      fila.querySelector('[name="documento_identidad"]').value = participante.documento_identidad;
+      fila.querySelector('[name="nombre"]').value = participante.nombre;
+      fila.querySelector('[name="edad"]').value = participante.edad;
+      fila.querySelector('[name="genero"]').value = participante.genero;
+      fila.querySelector('[name="actividad"]').value = participante.actividad;
+      fila.querySelector('[name="barrio"]').value = participante.barrio;
+
+      // Activar modo edición
+      modoEdicion = true;
+      participanteEditando = participante;
+
+      // Cambiar UI
+      document.getElementById('form-title').textContent = 'Editar Participante';
+      document.getElementById('btn-guardar').textContent = 'Actualizar';
+      document.getElementById('btn-cancelar').style.display = 'inline-block';
+
+      // Scroll al formulario
+      document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Función para cancelar edición
+    window.cancelarEdicion = function () {
+      modoEdicion = false;
+      participanteEditando = null;
+
+      // Restaurar UI
+      document.getElementById('form-title').textContent = 'Agregar Nuevo Participante';
+      document.getElementById('btn-guardar').textContent = 'Guardar';
+      document.getElementById('btn-cancelar').style.display = 'none';
+
+      limpiarFormulario();
+    }
+
+    // Función para eliminar participantes seleccionados
+    window.eliminarSeleccionados = async function () {
+      const seleccionados = document.querySelectorAll('.row-checkbox:checked');
+
+      if (seleccionados.length === 0) {
+        alert('Por favor, seleccione al menos un participante para eliminar.');
+        return;
+      }
+
+      const confirmacion = confirm(`¿Está seguro de que desea eliminar ${seleccionados.length} participante(s)? Esta acción no se puede deshacer.`);
+
+      if (!confirmacion) return;
+
+      const ids = Array.from(seleccionados).map(checkbox => checkbox.value);
+
+      const resultado = await eliminarDeSupabase(ids);
+
+      if (resultado.success) {
+        alert(`✅ ${ids.length} participante(s) eliminado(s) exitosamente.`);
+        await cargarParticipantes();
+      } else {
+        alert(`❌ Error al eliminar: ${resultado.error}`);
+      }
+    }
+
+    // Función para limpiar formulario
+    function limpiarFormulario() {
+      document.querySelectorAll('#tablaFormulario input, #tablaFormulario select').forEach(input => {
+        input.value = '';
+      });
+    }
+
+    // Función para filtrar participantes por nombre
+    function filtrarParticipantes() {
+      const searchTerm = document.getElementById('search-participante').value.toLowerCase().trim();
+      const tabla = document.querySelector('#tablaResultado table');
+
+      if (!tabla) return;
+
+      const filas = tabla.querySelectorAll('tbody tr');
+      let participantesVisibles = 0;
+
+      filas.forEach(fila => {
+        const nombreCell = fila.querySelector('td:nth-child(2)'); // Segunda columna (nombre)
+
+        if (nombreCell) {
+          const nombre = nombreCell.textContent.toLowerCase();
+          const coincide = nombre.includes(searchTerm);
+
+          fila.style.display = coincide ? '' : 'none';
+
+          if (coincide) {
+            participantesVisibles++;
+
+            // Resaltar texto coincidente
+            if (searchTerm.length > 0) {
+              const textoOriginal = nombreCell.textContent;
+              const regex = new RegExp(`(${searchTerm})`, 'gi');
+              nombreCell.innerHTML = textoOriginal.replace(regex, '<mark style="background-color: yellow; padding: 0.1rem;">$1</mark>');
+            } else {
+              nombreCell.innerHTML = nombreCell.textContent; // Restaurar texto original
+            }
           }
         }
-      }
-    });
-    
-    // Mostrar mensaje si no hay resultados
-    mostrarMensajeBusqueda(participantesVisibles, searchTerm);
-  }
+      });
 
-  // Función para mostrar mensaje de búsqueda
-  function mostrarMensajeBusqueda(participantesVisibles, searchTerm) {
-    const container = document.getElementById('tablaResultado');
-    let mensajeExistente = document.getElementById('mensaje-busqueda');
-    
-    // Remover mensaje anterior si existe
-    if (mensajeExistente) {
-      mensajeExistente.remove();
+      // Mostrar mensaje si no hay resultados
+      mostrarMensajeBusqueda(participantesVisibles, searchTerm);
     }
-    
-    // Mostrar mensaje solo si hay término de búsqueda y no hay resultados
-    if (searchTerm.length > 0 && participantesVisibles === 0) {
-      const mensaje = document.createElement('div');
-      mensaje.id = 'mensaje-busqueda';
-      mensaje.style.cssText = `
+
+    // Función para mostrar mensaje de búsqueda
+    function mostrarMensajeBusqueda(participantesVisibles, searchTerm) {
+      const container = document.getElementById('tablaResultado');
+      let mensajeExistente = document.getElementById('mensaje-busqueda');
+
+      // Remover mensaje anterior si existe
+      if (mensajeExistente) {
+        mensajeExistente.remove();
+      }
+
+      // Mostrar mensaje solo si hay término de búsqueda y no hay resultados
+      if (searchTerm.length > 0 && participantesVisibles === 0) {
+        const mensaje = document.createElement('div');
+        mensaje.id = 'mensaje-busqueda';
+        mensaje.style.cssText = `
         text-align: center; 
         padding: 2rem; 
         color: #666; 
@@ -1848,18 +1968,18 @@ document.addEventListener('click', function(e) {
         margin-top: 1rem;
         border: 2px dashed #ddd;
       `;
-      mensaje.innerHTML = `
+        mensaje.innerHTML = `
         <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
         <h4 style="margin-bottom: 0.5rem; color: #333;">No se encontraron participantes</h4>
         <p>No hay participantes que coincidan con "<strong>${searchTerm}</strong>"</p>
         <button onclick="limpiarBusqueda()" class="btn btn-outline" style="margin-top: 1rem;">Limpiar búsqueda</button>
       `;
-      container.appendChild(mensaje);
-    } else if (searchTerm.length > 0 && participantesVisibles > 0) {
-      // Mostrar contador de resultados
-      const mensaje = document.createElement('div');
-      mensaje.id = 'mensaje-busqueda';
-      mensaje.style.cssText = `
+        container.appendChild(mensaje);
+      } else if (searchTerm.length > 0 && participantesVisibles > 0) {
+        // Mostrar contador de resultados
+        const mensaje = document.createElement('div');
+        mensaje.id = 'mensaje-busqueda';
+        mensaje.style.cssText = `
         text-align: center; 
         padding: 0.5rem; 
         color: #28a745; 
@@ -1868,71 +1988,72 @@ document.addEventListener('click', function(e) {
         margin-bottom: 1rem;
         border: 1px solid #c3e6cb;
       `;
-      mensaje.innerHTML = `📋 Se encontraron <strong>${participantesVisibles}</strong> participante(s) con "${searchTerm}"`;
-      container.insertBefore(mensaje, container.firstChild);
-    }
-  }
-
-  // Función para limpiar búsqueda
-  function limpiarBusqueda() {
-    const searchInput = document.getElementById('search-participante');
-    searchInput.value = '';
-    
-    // Mostrar todas las filas
-    const tabla = document.querySelector('#tablaResultado table');
-    if (tabla) {
-      const filas = tabla.querySelectorAll('tbody tr');
-      filas.forEach(fila => {
-        fila.style.display = '';
-        
-        // Restaurar texto original sin resaltado
-        const nombreCell = fila.querySelector('td:nth-child(2)');
-        if (nombreCell) {
-          nombreCell.innerHTML = nombreCell.textContent;
-        }
-      });
-    }
-    
-    // Remover mensaje de búsqueda
-    const mensajeExistente = document.getElementById('mensaje-busqueda');
-    if (mensajeExistente) {
-      mensajeExistente.remove();
-    }
-    
-    // Enfocar el input de búsqueda
-    searchInput.focus();
-  }
-
-  // Exponer funciones globalmente
-  window.filtrarParticipantes = filtrarParticipantes;
-  window.limpiarBusqueda = limpiarBusqueda;
-
-  // Cargar datos al iniciar la página
-  document.addEventListener('DOMContentLoaded', async function() {
-    console.log('Cargando participantes desde Supabase...');
-    await cargarParticipantes();
-  });
-
-  // Agregar atajo de teclado para búsqueda rápida
-  document.addEventListener('keydown', function(e) {
-    // Ctrl/Cmd + F para enfocar la búsqueda
-    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-      e.preventDefault();
-      const searchInput = document.getElementById('search-participante');
-      if (searchInput) {
-        searchInput.focus();
-        searchInput.select();
+        mensaje.innerHTML = `📋 Se encontraron <strong>${participantesVisibles}</strong> participante(s) con "${searchTerm}"`;
+        container.insertBefore(mensaje, container.firstChild);
       }
     }
-    
-    // Escape para limpiar búsqueda
-    if (e.key === 'Escape') {
-      limpiarBusqueda();
+
+    // Función para limpiar búsqueda
+    function limpiarBusqueda() {
+      const searchInput = document.getElementById('search-participante');
+      searchInput.value = '';
+
+      // Mostrar todas las filas
+      const tabla = document.querySelector('#tablaResultado table');
+      if (tabla) {
+        const filas = tabla.querySelectorAll('tbody tr');
+        filas.forEach(fila => {
+          fila.style.display = '';
+
+          // Restaurar texto original sin resaltado
+          const nombreCell = fila.querySelector('td:nth-child(2)');
+          if (nombreCell) {
+            nombreCell.innerHTML = nombreCell.textContent;
+          }
+        });
+      }
+
+      // Remover mensaje de búsqueda
+      const mensajeExistente = document.getElementById('mensaje-busqueda');
+      if (mensajeExistente) {
+        mensajeExistente.remove();
+      }
+
+      // Enfocar el input de búsqueda
+      searchInput.focus();
     }
-  });
 
-</script>
+    // Exponer funciones globalmente
+    window.filtrarParticipantes = filtrarParticipantes;
+    window.limpiarBusqueda = limpiarBusqueda;
 
-<script src="script.js"></script>
+    // Cargar datos al iniciar la página
+    document.addEventListener('DOMContentLoaded', async function () {
+      console.log('Cargando participantes desde Supabase...');
+      await cargarParticipantes();
+    });
+
+    // Agregar atajo de teclado para búsqueda rápida
+    document.addEventListener('keydown', function (e) {
+      // Ctrl/Cmd + F para enfocar la búsqueda
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        const searchInput = document.getElementById('search-participante');
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+
+      // Escape para limpiar búsqueda
+      if (e.key === 'Escape') {
+        limpiarBusqueda();
+      }
+    });
+
+  </script>
+
+  <script src="script.js"></script>
 </body>
+
 </html>
