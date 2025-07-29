@@ -227,12 +227,13 @@
                     <li class="active"><a href="diagrama.html">Estadísticas</a></li>
                 </ul>
             </nav>
-            <a href="inicio_de_sesion.html" class="btn btn-secondary">Iniciar Sesión</a>
-            <button id="menu-toggle" class="menu-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
+            <div id="auth-navigation">
+                <a href="inicio_de_sesion.html" class="btn btn-secondary" id="login-btn">Iniciar Sesión</a>
+                <div id="user-menu" style="display: none;">
+                    <span id="user-name-header">Usuario</span>
+                    <a href="Dashboard.html" class="btn btn-primary" id="dashboard-btn">Dashboard</a>
+                    <button id="logout-btn" class="btn btn-secondary">Cerrar Sesión</button>
+                </div>
         </div>
     </header>
 
@@ -789,5 +790,53 @@
 </script>
 
     <script src="script.js"></script>
+
+     <script type="module">
+   import { supabaseClient, isAuthenticated, getUserProfile, signOut } from './supabase-config.js';
+
+
+    let userProfile = null;
+
+    async function updateNavigation() {
+      try {
+        const isAuth = await isAuthenticated();
+        const loginBtn = document.getElementById('login-btn');
+        const userMenu = document.getElementById('user-menu');
+        const userNameHeader = document.getElementById('user-name-header');
+
+        if (isAuth) {
+          userProfile = await getUserProfile();
+
+          if (userProfile) {
+            loginBtn.style.display = 'none';
+            userMenu.style.display = 'flex';
+            userMenu.style.alignItems = 'center';
+            userMenu.style.gap = '1rem';
+
+            userNameHeader.textContent = userProfile.full_name || userProfile.username || 'Usuario';
+
+            document.getElementById('logout-btn').addEventListener('click', async function () {
+              try {
+                await signOut();
+                window.location.reload();
+              } catch (error) {
+                console.error('Error al cerrar sesión:', error);
+              }
+            });
+          }
+        } else {
+          loginBtn.style.display = 'inline-block';
+          userMenu.style.display = 'none';
+        }
+      } catch (error) {
+        console.error('Error al actualizar navegación:', error);
+        document.getElementById('login-btn').style.display = 'inline-block';
+        document.getElementById('user-menu').style.display = 'none';
+      }
+    }
+
+    updateNavigation();
+  </script>
+
 </body>
 </html>
