@@ -366,35 +366,51 @@
     let chartEdades, chartGenero, chartActividades, chartTipos;
 
     // Función para obtener datos filtrados - AHORA PÚBLICO
-    async function obtenerDatos() {
-        try {
-            const filterTipo = document.getElementById('filter-tipo').value;
-            const filterGenero = document.getElementById('filter-genero').value;
+   async function obtenerDatos() {
+    try {
+        const filterTipo = document.getElementById('filter-tipo').value;
+        const filterGenero = document.getElementById('filter-genero').value;
 
-            let query = supabaseClient.from('participantes').select('*');
+        // Obtener todos los datos sin filtrar por tipo_actividad, ya que no existe como tal en la base de datos
+        let query = supabaseClient.from('participantes').select('*');
 
-            if (filterTipo !== 'todos') {
-                query = query.eq('tipo_actividad', filterTipo);
-            }
+        // Aplicar filtro por género si corresponde
+        if (filterGenero !== 'todos') {
+            query = query.eq('genero', filterGenero);
+        }
 
-            if (filterGenero !== 'todos') {
-                query = query.eq('genero', filterGenero);
-            }
+        const { data, error } = await query;
 
-            const { data, error } = await query;
-
-            if (error) {
-                console.error('Error al obtener datos:', error);
-                return [];
-            }
-            
-            console.log('Datos obtenidos:', data?.length || 0, 'participantes');
-            return data || [];
-        } catch (error) {
+        if (error) {
             console.error('Error al obtener datos:', error);
             return [];
         }
+
+        let datosFiltrados = data || [];
+
+        // Aplicar filtro por tipo de actividad (deporte o actividad física)
+        if (filterTipo !== 'todos') {
+            const deportes = ['futbol', 'futbol_de_salon', 'futbol sala', 'ajedrez', 'baloncesto', 'balonmano', 'natacion', 'atletismo', 'patinaje', 'rugby', 'tenis', 'voleibol'];
+
+            if (filterTipo === 'deporte') {
+                datosFiltrados = datosFiltrados.filter(p =>
+                    deportes.includes(p.actividad?.toLowerCase())
+                );
+            } else if (filterTipo === 'actividad_fisica') {
+                datosFiltrados = datosFiltrados.filter(p =>
+                    !deportes.includes(p.actividad?.toLowerCase())
+                );
+            }
+        }
+
+        console.log('Datos filtrados:', datosFiltrados.length, 'participantes');
+        return datosFiltrados;
+    } catch (error) {
+        console.error('Error al obtener datos:', error);
+        return [];
     }
+}
+
 
     // Función para calcular estadísticas por edad
     function calcularEstadisticasEdad(datos) {

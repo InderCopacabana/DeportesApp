@@ -722,35 +722,17 @@
             </select>
           </div>
 
-          <div style="margin-bottom: 1rem;">
-            <label for="buscar-participante">👤 Buscar Participante:</label>
-            <input type="text" id="buscar-participante" placeholder="Escriba el nombre del participante..."
-              autocomplete="off">
-            <div id="sugerencias-participantes"
-              style="display: none; border: 1px solid #ddd; border-top: none; max-height: 200px; overflow-y: auto; background: white; position: relative; z-index: 1000;">
-            </div>
-          </div>
+          <!-- NUEVA: Lista de participantes del deporte -->
+<div style="margin-bottom: 1rem;">
+  <label>👥 Participantes de <span id="deporte-instructor"></span>:</label>
+  <div id="lista-participantes-deporte" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; padding: 1rem;">
+    <p style="text-align: center; color: #666;">Cargando participantes...</p>
+  </div>
+</div>
 
-          <div id="info-participante"
-            style="display: none; background: #f8f9fa; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-            <h4>Información del Participante:</h4>
-            <div id="datos-participante"></div>
-          </div>
+          
 
-          <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
-            <label style="font-weight: bold;">¿Asistió a la clase?</label>
-            <label style="display: flex; align-items: center; gap: 0.5rem;">
-              <input type="radio" name="asistio" value="true" checked> ✅ Sí
-            </label>
-            <label style="display: flex; align-items: center; gap: 0.5rem;">
-              <input type="radio" name="asistio" value="false"> ❌ No
-            </label>
-          </div>
-
-          <div style="margin-bottom: 1rem;">
-            <label for="observaciones">📝 Observaciones (opcional):</label>
-            <textarea id="observaciones" rows="3" placeholder="Comentarios adicionales..."></textarea>
-          </div>
+          
 
           <button type="submit" class="btn btn-primary">💾 Guardar Asistencia</button>
         </form>
@@ -788,6 +770,23 @@
       userProfile = await getUserProfile();
       console.log('Perfil de usuario:', userProfile);
     }
+
+    // NUEVA: Variable global para rastrear cambios
+let participantesModificados = new Set();
+
+// NUEVA: Función para marcar participante como modificado
+window.marcarCambioParticipante = function(participanteId) {
+  participantesModificados.add(participanteId);
+  
+  // Resaltar visualmente la fila modificada
+  const fila = document.getElementById(`fila-participante-${participanteId}`);
+  if (fila) {
+    fila.style.backgroundColor = '#fff3cd'; // Amarillo claro
+    fila.style.border = '2px solid #ffc107';
+  }
+  
+  console.log('Participantes modificados:', Array.from(participantesModificados));
+}
 
     // Función mejorada para obtener dirección desde coordenadas
     async function obtenerDireccion(latitud, longitud) {
@@ -867,6 +866,7 @@
         return `Coordenadas: ${latitud.toFixed(6)}, ${longitud.toFixed(6)}`;
       }
     }
+    
 
     // Función para crear tabla de evidencias si no existe
     async function crearTablaEvidencias() {
@@ -1083,6 +1083,147 @@
       `;
       }
     }
+    async function configurarDeporteInstructor() {
+  // El username del instructor indica su deporte
+  const deporteInstructor = userProfile.username?.toLowerCase(); // ← en minúsculas para evitar errores
+
+  // Mostrar el deporte en otro lugar si quieres
+  document.getElementById('deporte-instructor').textContent = deporteInstructor.toUpperCase();
+
+  // Configurar el select de actividad
+  const selectActividad = document.getElementById('actividad-asistencia');
+
+  // Limpiar y agregar opción única del deporte
+  selectActividad.innerHTML = ''; // limpia todo
+  const opcion = document.createElement('option');
+  opcion.value = deporteInstructor;
+  opcion.textContent = deporteInstructor.charAt(0).toUpperCase() + deporteInstructor.slice(1); // capitaliza
+  selectActividad.appendChild(opcion);
+
+  // Desactivar el select y estilos
+  selectActividad.disabled = true;
+  selectActividad.style.backgroundColor = '#f8f9fa';
+  selectActividad.style.color = '#6c757d';
+}
+
+async function cargarParticipantesDeporte() {
+  try {
+    const deporteInstructor = userProfile.username;
+    
+    // Obtener participantes del mismo deporte
+    const { data: participantes, error } = await supabaseClient
+      .from('participantes')
+      .select('*')
+      .ilike('actividad', deporteInstructor)
+      .order('nombre');
+    console.log("UserProfile completo:", userProfile);
+console.log("Username del instructor:", userProfile?.username);
+
+    if (error) throw error;
+    
+    const container = document.getElementById('lista-participantes-deporte');
+    
+    if (!participantes || participantes.length === 0) {
+      container.innerHTML = `
+        <p style="text-align: center; color: #666;">
+          No hay participantes registrados para ${deporteInstructor}
+        </p>
+      `;
+      return;
+    }
+    
+    // Crear tabla con checkboxes
+    let html = `
+  <table style="width: 100%; border-collapse: collapse;">
+    <thead>
+      <tr style="background-color: #f8f9fa;">
+        <th style="padding: 0.5rem; text-align: left; border: 1px solid #ddd;">Participante</th>
+        <th style="padding: 0.5rem; text-align: center; border: 1px solid #ddd; width: 80px;">Asistió</th>
+        <th style="padding: 0.5rem; text-align: center; border: 1px solid #ddd; width: 80px;">No Asistió</th>
+        <th style="padding: 0.5rem; text-align: left; border: 1px solid #ddd; width: 200px;">Observaciones</th>
+      </tr>
+    </thead>
+    <tbody>
+`;
+    
+    // NUEVO: Verificar asistencias existentes del día
+const ahoraUTC = new Date();
+const bogotaOffset = -5 * 60; // -5 horas en minutos
+const ahoraBogota = new Date(ahoraUTC.getTime() + bogotaOffset * 60000);
+const fechaHoy = ahoraBogota.toISOString().split('T')[0];  // → yyyy-mm-dd
+
+
+const { data: asistenciasExistentes } = await supabaseClient
+  .from('asistencias')
+  .select('participante_id, asistio, id, observaciones')
+  .eq('instructor_id', userProfile.id)
+  .eq('fecha_clase', fechaHoy);
+
+// Crear mapa de asistencias existentes
+const mapaAsistencias = {};
+
+if (asistenciasExistentes) {
+  asistenciasExistentes.forEach(asistencia => {
+    mapaAsistencias[asistencia.participante_id] = {
+      asistio: asistencia.asistio,
+      id: asistencia.id,
+      observaciones: asistencia.observaciones  // ← AGREGAR observaciones
+    };
+  });
+}
+
+participantes.forEach(participante => {
+  // Verificar si ya tiene asistencia registrada
+  const asistenciaExistente = mapaAsistencias[participante.id];
+  const yaAsistio = asistenciaExistente ? asistenciaExistente.asistio : false;
+  const yaNoAsistio = asistenciaExistente ? !asistenciaExistente.asistio : true;
+  // Obtener observación existente si la hay
+const observacionExistente = asistenciaExistente ? (asistenciaExistente.observaciones || '') : '';
+
+html += `
+  <tr id="fila-participante-${participante.id}">
+    <td style="padding: 0.5rem; border: 1px solid #ddd;">
+      <strong>${participante.nombre}</strong><br>
+      <small>${participante.edad} años - ${participante.genero} - ${participante.barrio}</small>
+      ${asistenciaExistente ? '<br><span style="color: #28a745; font-size: 0.8rem;">✓ Ya registrado</span>' : ''}
+    </td>
+    <td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">
+      <input type="radio" name="asistencia_${participante.id}" value="true" 
+             data-participante-id="${participante.id}"
+             data-asistencia-id="${asistenciaExistente ? asistenciaExistente.id : ''}"
+             ${yaAsistio ? 'checked' : ''}
+             onchange="marcarCambioParticipante('${participante.id}')">
+    </td>
+    <td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">
+      <input type="radio" name="asistencia_${participante.id}" value="false" 
+             data-participante-id="${participante.id}"
+             data-asistencia-id="${asistenciaExistente ? asistenciaExistente.id : ''}"
+             ${yaNoAsistio ? 'checked' : ''}
+             onchange="marcarCambioParticipante('${participante.id}')">
+    </td>
+    <td style="padding: 0.5rem; border: 1px solid #ddd;">
+      <textarea 
+        id="observacion_${participante.id}" 
+        data-participante-id="${participante.id}"
+        placeholder="Observaciones..."
+        style="width: 100%; min-height: 60px; border: 1px solid #ddd; border-radius: 4px; padding: 0.25rem; font-size: 0.8rem; resize: vertical;"
+        onchange="marcarCambioParticipante('${participante.id}')"
+      >${observacionExistente}</textarea>
+    </td>
+  </tr>
+`;
+});
+    
+    html += '</tbody></table>';
+    container.innerHTML = html;
+    
+  } catch (error) {
+    console.error('Error cargando participantes:', error);
+    document.getElementById('lista-participantes-deporte').innerHTML = `
+      <p style="color: #dc3545;">Error al cargar participantes: ${error.message}</p>
+    `;
+  }
+}
 
     // Función mejorada para mostrar evidencias en el grid
     function mostrarEvidencias(evidencias) {
@@ -1327,16 +1468,22 @@
 
     // Función para abrir modal de asistencia
     window.abrirModalAsistencia = async function () {
-      await inicializarPerfil();
-
-      // Establecer fecha y hora actual
-      const ahora = new Date();
-      document.getElementById('fecha-clase').value = ahora.toISOString().split('T')[0];
-      document.getElementById('hora-clase').value = ahora.toTimeString().slice(0, 5);
-
-      document.getElementById('modalAsistencia').style.display = 'block';
-      await cargarAsistenciasHoy();
-    }
+  await inicializarPerfil();
+  
+  // Establecer fecha y hora actual
+  const ahora = new Date();
+  document.getElementById('fecha-clase').value = ahora.toISOString().split('T')[0];
+  document.getElementById('hora-clase').value = ahora.toTimeString().slice(0, 5);
+  
+  // NUEVO: Configurar deporte del instructor
+  await configurarDeporteInstructor();
+  
+  // NUEVO: Cargar participantes del deporte
+  await cargarParticipantesDeporte();
+  
+  document.getElementById('modalAsistencia').style.display = 'block';
+  await cargarAsistenciasHoy();
+}
 
     // Función para cerrar modal de asistencia
     window.cerrarModalAsistencia = function () {
@@ -1443,55 +1590,104 @@
     });
 
     async function guardarAsistencia(e) {
-      e.preventDefault();
+  e.preventDefault();
+  
+  const fechaClase = document.getElementById('fecha-clase').value;
+  const horaClase = document.getElementById('hora-clase').value;
+  const actividad = document.getElementById('actividad-asistencia').value;
+  
+  
+  if (!fechaClase || !horaClase || !actividad) {
+    alert('Por favor, complete todos los campos obligatorios');
+    return;
+  }
+  
+  // NUEVO: Solo procesar participantes modificados o nuevos
+  const radiosAsistencia = document.querySelectorAll('input[type="radio"]:checked[data-participante-id]');
+  
+  if (radiosAsistencia.length === 0) {
+    alert('No hay participantes para registrar asistencia');
+    return;
+  }
+  
+  try {
+    const operaciones = [];
+    let participantesProcesados = 0;
+    
+    // NUEVO: Procesar solo los que han cambiado o son nuevos
+    for (const radio of radiosAsistencia) {
+      const participanteId = radio.getAttribute('data-participante-id');
+      const asistenciaId = radio.getAttribute('data-asistencia-id');
+      const asistio = radio.value === 'true';
+      const observacionInput = document.getElementById(`observacion_${participanteId}`);
 
-      if (!participanteSeleccionado) {
-        alert('Por favor, seleccione un participante');
-        return;
-      }
+  const observacionIndividual = observacionInput ? observacionInput.value.trim() : '';
 
-      const fechaClase = document.getElementById('fecha-clase').value;
-      const horaClase = document.getElementById('hora-clase').value;
-      const actividad = document.getElementById('actividad-asistencia').value;
-      const asistio = document.querySelector('input[name="asistio"]:checked').value === 'true';
-      const observaciones = document.getElementById('observaciones').value.trim();
-
-      if (!fechaClase || !horaClase || !actividad) {
-        alert('Por favor, complete todos los campos obligatorios');
-        return;
-      }
-
-      try {
+      // Solo procesar si es nuevo o ha sido modificado
+      if (!asistenciaId || participantesModificados.has(participanteId)) {
         const asistenciaData = {
-          participante_id: participanteSeleccionado.id,
+          participante_id: participanteId,
           instructor_id: userProfile.id,
           fecha_clase: fechaClase,
           hora_clase: horaClase,
           actividad: actividad,
           asistio: asistio,
-          observaciones: observaciones || null
+          observaciones: observacionIndividual
         };
-
-        const { data, error } = await supabaseClient
-          .from('asistencias')
-          .insert([asistenciaData]);
-
-        if (error) throw error;
-
-        alert('✅ Asistencia guardada exitosamente');
-        limpiarFormularioAsistencia();
-        await cargarAsistenciasHoy();
-
-      } catch (error) {
-        console.error('Error guardando asistencia:', error);
-        alert(`❌ Error al guardar asistencia: ${error.message}`);
+        
+        if (asistenciaId) {
+          // ACTUALIZAR registro existente
+          const { error } = await supabaseClient
+            .from('asistencias')
+            .update(asistenciaData)
+            .eq('id', asistenciaId);
+          
+          if (error) throw error;
+          console.log(`Asistencia actualizada para participante ${participanteId}`);
+        } else {
+          // INSERTAR nuevo registro
+          const { error } = await supabaseClient
+            .from('asistencias')
+            .insert([asistenciaData]);
+          
+          if (error) throw error;
+          console.log(`Nueva asistencia creada para participante ${participanteId}`);
+        }
+        
+        participantesProcesados++;
       }
     }
+    
+    if (participantesProcesados > 0) {
+      alert(`✅ Asistencia guardada/actualizada para ${participantesProcesados} participante(s)`);
+      
+      // NUEVO: Limpiar marcadores de cambio
+      participantesModificados.clear();
+      
+      // Remover resaltado visual
+      document.querySelectorAll('[id^="fila-participante-"]').forEach(fila => {
+        fila.style.backgroundColor = '';
+        fila.style.border = '';
+      });
+      
+      // Recargar asistencias y lista de participantes
+      await cargarAsistenciasHoy();
+      await cargarParticipantesDeporte(); // Actualizar la lista con los nuevos estados
+    } else {
+      alert('ℹ️ No hay cambios para guardar');
+    }
+    
+  } catch (error) {
+    console.error('Error guardando asistencia:', error);
+    alert(`❌ Error al guardar asistencia: ${error.message}`);
+  }
+}
 
     // Función para cargar asistencias del día
     async function cargarAsistenciasHoy() {
       try {
-        const fechaHoy = new Date().toISOString().split('T')[0];
+        const fechaHoy = new Date().toLocaleDateString('en-CA');
+
 
         let query = supabaseClient
           .from('asistencias')
@@ -1564,20 +1760,20 @@
 
     // Función para limpiar formulario de asistencia
     function limpiarFormularioAsistencia() {
-      document.getElementById('buscar-participante').value = '';
-      document.getElementById('observaciones').value = '';
-      document.getElementById('info-participante').style.display = 'none';
-      document.getElementById('sugerencias-participantes').style.display = 'none';
-      document.querySelector('input[name="asistio"][value="true"]').checked = true;
-      participanteSeleccionado = null;
-    }
+  // NUEVO: Limpiar marcadores de cambio
+  participantesModificados.clear();
+  
+  // NUEVO: Remover resaltado visual
+  document.querySelectorAll('[id^="fila-participante-"]').forEach(fila => {
+    fila.style.backgroundColor = '';
+    fila.style.border = '';
+  });
+  
+  // NO limpiar los radios ni las observaciones - mantener el estado actual
+  console.log('Formulario limpiado, manteniendo estados de asistencia y observaciones');
+}
 
-    // Cerrar sugerencias al hacer clic fuera
-    document.addEventListener('click', function (e) {
-      if (!e.target.closest('#buscar-participante') && !e.target.closest('#sugerencias-participantes')) {
-        document.getElementById('sugerencias-participantes').style.display = 'none';
-      }
-    });
+    
 
     // Función para guardar datos en Supabase
     async function guardarEnSupabase(participante) {
@@ -1744,13 +1940,15 @@
     `;
 
       data.forEach(participante => {
-        const fecha = new Date(participante.fecha_registro).toLocaleDateString('es-ES', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
+        const fecha = new Date(participante.fecha_registro).toLocaleString('es-CO', {
+  timeZone: 'America/Bogota',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit'
+});
+
 
         html += `
         <tr data-id="${participante.id}">
