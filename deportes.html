@@ -631,7 +631,7 @@
                 const { data, error } = await supabaseClient
                     .from('participantes')
                     .select('actividad, genero')
-                    .eq('tipo_actividad', 'deporte');
+                    .select('actividad, genero');
 
                 if (error) throw error;
 

@@ -366,6 +366,21 @@
     // Variables globales para los gráficos
     let chartEdades, chartGenero, chartActividades, chartTipos;
 
+    const deportesListado = [
+  'futbol',
+  'futbol_de_salon',
+  'futbol sala',
+  'ajedrez',
+  'baloncesto',
+  'balonmano',
+  'natacion',
+  'atletismo',
+  'patinaje',
+  'rugby',
+  'tenis',
+  'voleibol'
+];
+
     // Función para obtener datos filtrados - AHORA PÚBLICO
    async function obtenerDatos() {
     try {
@@ -605,10 +620,12 @@
         });
     }
 
+    
     // Función para actualizar gráfico de tipos
     function actualizarGraficoTipos(datos) {
-        const deportes = datos.filter(p => p.tipo_actividad === 'deporte').length;
-        const actividades = datos.filter(p => p.tipo_actividad === 'actividad_fisica').length;
+        const deportesArray = ['futbol', 'futbol_de_salon', 'futbol sala', 'ajedrez', 'baloncesto', 'balonmano', 'natacion', 'atletismo', 'patinaje', 'rugby', 'tenis', 'voleibol'];
+const deportes = datos.filter(p => deportesArray.includes(p.actividad?.toLowerCase())).length;
+const actividades = datos.filter(p => !deportesArray.includes(p.actividad?.toLowerCase())).length;
         const ctx = document.getElementById('chart-tipos').getContext('2d');
 
         if (chartTipos) chartTipos.destroy();
@@ -667,7 +684,8 @@
                     hombres: 0,
                     mujeres: 0,
                     edades: [],
-                    tipo: p.tipo_actividad
+                    tipo: deportesListado.includes(actividad?.toLowerCase()) ? 'deporte' : 'actividad_fisica'
+
                 };
             }
             
@@ -710,8 +728,9 @@
     // Función para actualizar resumen de estadísticas
     function actualizarResumen(datos) {
         const totalParticipantes = datos.length;
-        const totalDeportes = datos.filter(p => p.tipo_actividad === 'deporte').length;
-        const totalActividades = datos.filter(p => p.tipo_actividad === 'actividad_fisica').length;
+        const deportesArray = ['futbol', 'futbol_de_salon', 'futbol sala', 'ajedrez', 'baloncesto', 'balonmano', 'natacion', 'atletismo', 'patinaje', 'rugby', 'tenis', 'voleibol'];
+const totalDeportes = datos.filter(p => deportesArray.includes(p.actividad?.toLowerCase())).length;
+const totalActividades = datos.filter(p => !deportesArray.includes(p.actividad?.toLowerCase())).length;
         const promedioEdad = datos.length > 0 
             ? (datos.reduce((sum, p) => sum + p.edad, 0) / datos.length).toFixed(1)
             : 0;
