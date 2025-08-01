@@ -1182,6 +1182,228 @@
     background-color: #ccc;
     cursor: not-allowed;
 }
+/* Estilos responsivos para tabla de participantes */
+/* Estilos responsivos para tablas */
+@media (max-width: 768px) {
+  /* Tabla del formulario de agregar participante */
+  #tablaFormulario {
+    border: 0;
+  }
+
+  #tablaFormulario thead {
+    border: none;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+
+  #tablaFormulario tr {
+    border-bottom: 3px solid #ddd;
+    display: block;
+    margin-bottom: 0.625em;
+    background-color: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  #tablaFormulario td {
+    border-bottom: 1px solid #ddd;
+    display: block;
+    font-size: 0.9em;
+    text-align: left;
+    padding: 0.5rem 0;
+    position: relative;
+    padding-left: 0;
+  }
+
+  #tablaFormulario td:before {
+    content: attr(data-label) ": ";
+    font-weight: bold;
+    color: var(--color-primary);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  #tablaFormulario td:last-child {
+    border-bottom: 0;
+  }
+
+  #tablaFormulario input,
+  #tablaFormulario select {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+
+  /* Tabla de resultados responsiva */
+  #tablaResultado table {
+    border: 0;
+  }
+
+  #tablaResultado table thead {
+    border: none;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+
+  #tablaResultado table tr {
+    border-bottom: 3px solid #ddd;
+    display: block;
+    margin-bottom: 0.625em;
+    background-color: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  #tablaResultado table td {
+    border-bottom: 1px solid #ddd;
+    display: block;
+    font-size: 0.9em;
+    text-align: right;
+    padding: 0.5rem 0;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  #tablaResultado table td:before {
+    content: attr(data-label) ": ";
+    position: absolute;
+    left: 6px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: bold;
+    color: var(--color-primary);
+    display: block;
+  }
+
+  #tablaResultado table td:last-child {
+    border-bottom: 0;
+  }
+
+  /* Checkbox especial para móvil */
+  #tablaResultado .checkbox-column {
+    text-align: left;
+    padding-left: 0 !important;
+  }
+
+  #tablaResultado .checkbox-column:before {
+    content: "Seleccionar: ";
+    position: static;
+    width: auto;
+    font-weight: bold;
+    color: var(--color-primary);
+  }
+}
+@media (max-width: 768px) {
+/* Optimización tabla de asistencia para móvil */
+#lista-participantes-deporte {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#lista-participantes-deporte table {
+  min-width: 100%;
+  font-size: 0.8rem;
+}
+
+#lista-participantes-deporte th {
+  padding: 0.3rem 0.2rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+#lista-participantes-deporte td {
+  padding: 0.3rem 0.2rem;
+  vertical-align: top;
+}
+
+/* Ajustar anchos de columnas para móvil */
+#lista-participantes-deporte th:nth-child(1),
+#lista-participantes-deporte td:nth-child(1) {
+  width: 45%;
+  min-width: 120px;
+}
+
+#lista-participantes-deporte th:nth-child(2),
+#lista-participantes-deporte td:nth-child(2),
+#lista-participantes-deporte th:nth-child(3),
+#lista-participantes-deporte td:nth-child(3) {
+  width: 15%;
+  min-width: 50px;
+  text-align: center;
+}
+
+#lista-participantes-deporte th:nth-child(4),
+#lista-participantes-deporte td:nth-child(4) {
+  width: 25%;
+  min-width: 100px;
+}
+
+#lista-participantes-deporte textarea {
+  min-height: 40px;
+  font-size: 0.75rem;
+  padding: 0.25rem;
+}
+
+#lista-participantes-deporte small {
+  font-size: 0.65rem;
+  line-height: 1.2;
+}
+
+}
+#lista-asistencias-hoy {
+    width: 100%;
+  }
+
+  #lista-asistencias-hoy table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* 👈 Esto hace que las columnas se ajusten */
+  }
+
+  #lista-asistencias-hoy th,
+  #lista-asistencias-hoy td {
+    padding: 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.9rem;
+    word-wrap: break-word; /* 👈 Esto ayuda a cortar textos largos */
+  }
+
+  #lista-asistencias-hoy th {
+    background-color: #142850;
+    color: #fff;
+  }
+
+  @media (max-width: 600px) {
+    #lista-asistencias-hoy th,
+    #lista-asistencias-hoy td {
+      font-size: 0.75rem;
+      padding: 0.3rem;
+    }
+  }
+
+
+
+
+
+
+
+
+
 
 
 
