@@ -1083,22 +1083,31 @@
       margin: 0;
       margin-bottom: var(--spacing-sm);
     }
+    
   
     .dropdown-content {
-      position: static;
-      box-shadow: none;
-      display: none;
-      width: 100%;
-      transform: none;
-      opacity: 1;
-    }
-  
-    .dropdown.active .dropdown-content {
-      display: block;
-    }
+  position: static;
+  box-shadow: none;
+  display: none !important; /* ← Forzar oculto por defecto */
+  width: 100%;
+  transform: none;
+  opacity: 1;
+  background-color: var(--color-light-medium);
+  border-radius: 6px;
+  margin-top: 0.5rem;
+}
+
+.dropdown.active .dropdown-content {
+  display: block !important; /* ← Solo mostrar cuando tenga clase active */
+}
+
+/* ← NUEVO: Desactivar hover en móvil */
+.dropdown:hover .dropdown-content {
+  display: none !important;
+}
   
     .menu-toggle {
-      display: block;
+      display: block !important;
     }
   
     .cards-container {
@@ -1137,19 +1146,22 @@
   }
 
   .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: white;
-    min-width: 160px;
-    z-index: 1;
-    max-height: 200px; /* hace scroll si hay muchos elementos */
-    overflow-y: auto;
-    border: 1px solid #ccc;
-  }
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 999; /* suficiente para estar encima del nav, pero no encima del menú móvil */
+  background-color: white;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
 
-  .dropdown:hover .dropdown-content {
-    display: block;
-  }
+  .dropdown.active .dropdown-content {
+  display: block;
+}
+  
 
   .dropdown-content a {
     padding: 10px;
@@ -1395,6 +1407,8 @@
       padding: 0.3rem;
     }
   }
+ 
+
 
 
 

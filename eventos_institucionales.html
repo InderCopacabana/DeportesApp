@@ -132,7 +132,7 @@
     <main>
         <div class="page-header">
             <div class="container">
-                <h1>Actividad Física</h1>
+                <h1>Eventos Institucionales</h1>
                 <p>Lista completa de deportes disponibles con estadísticas de participación en tiempo real</p>
                 <div style="text-align: center; margin-top: 1rem;">
                     <button onclick="actualizarEstadisticas()" class="btn btn-outline" id="btn-actualizar">
@@ -145,140 +145,15 @@
 
         <section class="container">
             <div class="cards-container">
-                 <!-- Gimnasio Municipal -->
-                <div id="gimnasio_municipal" class="card" data-actividad="gimnasio_municipal">
+                 <!-- EVENTOS INSTITUCIONALES -->
+                <!-- Vacaciones Recreativas -->
+                <div id="vacaciones_recreativas" class="card" data-actividad="vacaciones_recreativas">
                     <div class="card-image">
-                        <img src="imagenes/futbol-02.jpg" alt="Fútbol">
+                        <img src="imagenes/ajedrez-02.jpg" alt="ajedrez">
                     </div>
                     <div class="card-content">
-                        <h3 class="card-title">Gimnasio Municipal</h3>
-                        <p class="card-description">Deporte de equipo jugado entre dos conjuntos de 11 jugadores.</p>
-                        <div class="stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Total Participantes:</span>
-                                <span class="stat-value" data-stat="total">Cargando...</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Hombres:</span>
-                                <span class="stat-value" data-stat="hombres">Cargando...</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Mujeres:</span>
-                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
-                            </div>
-                        </div>
-                        <div class="gender-chart">
-                            <div class="gender-bar">
-                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
-                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
-                            </div>
-                            <div class="chart-legend">
-                                <div class="legend-item">
-                                    <div class="legend-color male"></div>
-                                    <span>Hombres</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color female"></div>
-                                    <span>Mujeres</span>
-                                </div>
-                            </div>
-                        </div>
-                      
-                    </div>
-                </div>
-
-                 <!-- Descubre tu Talento -->
-                <div id="descubre_tu_talento" class="card" data-actividad="descubre_tu_talento">
-                    <div class="card-image">
-                        <img src="imagenes/futbol-02.jpg" alt="Fútbol">
-                    </div>
-                    <div class="card-content">
-                        <h3 class="card-title">Descubre tu Talento</h3>
-                        <p class="card-description">Deporte de equipo jugado entre dos conjuntos de 11 jugadores.</p>
-                        <div class="stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Total Participantes:</span>
-                                <span class="stat-value" data-stat="total">Cargando...</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Hombres:</span>
-                                <span class="stat-value" data-stat="hombres">Cargando...</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Mujeres:</span>
-                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
-                            </div>
-                        </div>
-                        <div class="gender-chart">
-                            <div class="gender-bar">
-                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
-                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
-                            </div>
-                            <div class="chart-legend">
-                                <div class="legend-item">
-                                    <div class="legend-color male"></div>
-                                    <span>Hombres</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color female"></div>
-                                    <span>Mujeres</span>
-                                </div>
-                            </div>
-                        </div>
-                      
-                    </div>
-                </div>
-
-                 <!-- Nadadores Activos -->
-                <div id="nadadores_activos" class="card" data-actividad="nadadores_activos">
-                    <div class="card-image">
-                        <img src="imagenes/futbol-02.jpg" alt="Fútbol">
-                    </div>
-                    <div class="card-content">
-                        <h3 class="card-title">Nadadores Activos</h3>
-                        <p class="card-description">Deporte de equipo jugado entre dos conjuntos de 11 jugadores.</p>
-                        <div class="stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Total Participantes:</span>
-                                <span class="stat-value" data-stat="total">Cargando...</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Hombres:</span>
-                                <span class="stat-value" data-stat="hombres">Cargando...</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Mujeres:</span>
-                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
-                            </div>
-                        </div>
-                        <div class="gender-chart">
-                            <div class="gender-bar">
-                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
-                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
-                            </div>
-                            <div class="chart-legend">
-                                <div class="legend-item">
-                                    <div class="legend-color male"></div>
-                                    <span>Hombres</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color female"></div>
-                                    <span>Mujeres</span>
-                                </div>
-                            </div>
-                        </div>
-                      
-                    </div>
-                </div>
-
-                 <!-- Yoga -->
-                <div id="yoga" class="card" data-actividad="yoga">
-                    <div class="card-image">
-                        <img src="imagenes/futbol-02.jpg" alt="Fútbol">
-                    </div>
-                    <div class="card-content">
-                        <h3 class="card-title">Yoga</h3>
-                        <p class="card-description">Deporte de equipo jugado entre dos conjuntos de 11 jugadores.</p>
+                        <h3 class="card-title">Vacaciones Recreativas</h3>
+                        <p class="card-description">Juego de estrategia entre dos personas, donde se desarrolla el pensamiento lógico, la concentración y la toma de decisiones.</p>
                         <div class="stats">
                             <div class="stat-item">
                                 <span class="stat-label">Total Participantes:</span>
@@ -314,8 +189,51 @@
                 </div>
 
 
-                       
+
+                
+
+                <!-- Celebracion del deporte y cúltura -->
+                <div id="celebracion_deporte_cultura" class="card" data-actividad="celebracion_deporte_cultura">
+                    <div class="card-image">
+                        <img src="imagenes/baloncesto-02.jpg" alt="Baloncesto">
                     </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Celebracion del Deporte y Cúltura</h3>
+                        <p class="card-description">Deporte en equipo que promueve la coordinación, agilidad y trabajo en grupo, donde dos equipos intentan encestar el balón en el aro contrario.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+   </div>
                 </div>
             </div>
         </section>
@@ -438,8 +356,8 @@
       const estadisticas = await obtenerEstadisticasActividades();
 
       const actividades = [
-        'gimnasio_municipal', 'descubre_tu_talento',
-        'nadadores_activos', 'yoga'
+        'vacaciones_recreativas', 'celebracion_deporte_cultura'
+        
       ];
 
       actividades.forEach(actividad => {
@@ -489,4 +407,10 @@
 
 </body>
 </html>
- 
+
+
+
+
+
+
+                 

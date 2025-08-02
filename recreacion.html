@@ -132,7 +132,7 @@
     <main>
         <div class="page-header">
             <div class="container">
-                <h1>Actividad Física</h1>
+                <h1>Recreación</h1>
                 <p>Lista completa de deportes disponibles con estadísticas de participación en tiempo real</p>
                 <div style="text-align: center; margin-top: 1rem;">
                     <button onclick="actualizarEstadisticas()" class="btn btn-outline" id="btn-actualizar">
@@ -145,14 +145,15 @@
 
         <section class="container">
             <div class="cards-container">
-                 <!-- Gimnasio Municipal -->
-                <div id="gimnasio_municipal" class="card" data-actividad="gimnasio_municipal">
+
+                <!-- Rumba Aeróbica  -->
+                <div id="rumba_aerobica" class="card" data-actividad="rumba_aerobica">
                     <div class="card-image">
-                        <img src="imagenes/futbol-02.jpg" alt="Fútbol">
+                        <img src="imagenes/futbol-de-salon-02.jpg" alt="Fútbol de Salón">
                     </div>
                     <div class="card-content">
-                        <h3 class="card-title">Gimnasio Municipal</h3>
-                        <p class="card-description">Deporte de equipo jugado entre dos conjuntos de 11 jugadores.</p>
+                        <h3 class="card-title">Rumba Aeróbica</h3>
+                        <p class="card-description">Variante del fútbol que se juega bajo techo o en cancha pequeña, con 5 jugadores por equipo. Requiere velocidad, técnica y trabajo en equipo.</p>
                         <div class="stats">
                             <div class="stat-item">
                                 <span class="stat-label">Total Participantes:</span>
@@ -187,14 +188,17 @@
                     </div>
                 </div>
 
-                 <!-- Descubre tu Talento -->
-                <div id="descubre_tu_talento" class="card" data-actividad="descubre_tu_talento">
+                
+
+                
+                <!-- Hidroaerobicos -->
+                <div id="hidroaerobicos" class="card" data-actividad="hidroaerobicos">
                     <div class="card-image">
-                        <img src="imagenes/futbol-02.jpg" alt="Fútbol">
+                        <img src="imagenes/futbol-sala-02.jpg" alt="Fútbol de sala">
                     </div>
                     <div class="card-content">
-                        <h3 class="card-title">Descubre tu Talento</h3>
-                        <p class="card-description">Deporte de equipo jugado entre dos conjuntos de 11 jugadores.</p>
+                        <h3 class="card-title">Hidroaeróbicos</h3>
+                        <p class="card-description">Deporte rápido y técnico que se juega en cancha cerrada, con 5 jugadores por equipo. Promueve la agilidad, el control del balón y el trabajo en equipo.</p>
                         <div class="stats">
                             <div class="stat-item">
                                 <span class="stat-label">Total Participantes:</span>
@@ -229,93 +233,7 @@
                     </div>
                 </div>
 
-                 <!-- Nadadores Activos -->
-                <div id="nadadores_activos" class="card" data-actividad="nadadores_activos">
-                    <div class="card-image">
-                        <img src="imagenes/futbol-02.jpg" alt="Fútbol">
-                    </div>
-                    <div class="card-content">
-                        <h3 class="card-title">Nadadores Activos</h3>
-                        <p class="card-description">Deporte de equipo jugado entre dos conjuntos de 11 jugadores.</p>
-                        <div class="stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Total Participantes:</span>
-                                <span class="stat-value" data-stat="total">Cargando...</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Hombres:</span>
-                                <span class="stat-value" data-stat="hombres">Cargando...</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Mujeres:</span>
-                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
-                            </div>
-                        </div>
-                        <div class="gender-chart">
-                            <div class="gender-bar">
-                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
-                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
-                            </div>
-                            <div class="chart-legend">
-                                <div class="legend-item">
-                                    <div class="legend-color male"></div>
-                                    <span>Hombres</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color female"></div>
-                                    <span>Mujeres</span>
-                                </div>
-                            </div>
-                        </div>
-                      
-                    </div>
-                </div>
-
-                 <!-- Yoga -->
-                <div id="yoga" class="card" data-actividad="yoga">
-                    <div class="card-image">
-                        <img src="imagenes/futbol-02.jpg" alt="Fútbol">
-                    </div>
-                    <div class="card-content">
-                        <h3 class="card-title">Yoga</h3>
-                        <p class="card-description">Deporte de equipo jugado entre dos conjuntos de 11 jugadores.</p>
-                        <div class="stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Total Participantes:</span>
-                                <span class="stat-value" data-stat="total">Cargando...</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Hombres:</span>
-                                <span class="stat-value" data-stat="hombres">Cargando...</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Mujeres:</span>
-                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
-                            </div>
-                        </div>
-                        <div class="gender-chart">
-                            <div class="gender-bar">
-                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
-                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
-                            </div>
-                            <div class="chart-legend">
-                                <div class="legend-item">
-                                    <div class="legend-color male"></div>
-                                    <span>Hombres</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color female"></div>
-                                    <span>Mujeres</span>
-                                </div>
-                            </div>
-                        </div>
-                      
-                    </div>
-                </div>
-
-
-                       
-                    </div>
+                           </div>
                 </div>
             </div>
         </section>
@@ -438,8 +356,7 @@
       const estadisticas = await obtenerEstadisticasActividades();
 
       const actividades = [
-        'gimnasio_municipal', 'descubre_tu_talento',
-        'nadadores_activos', 'yoga'
+        'rumba_aerobica', 'hidroaerobicos'
       ];
 
       actividades.forEach(actividad => {
@@ -489,4 +406,3 @@
 
 </body>
 </html>
- 

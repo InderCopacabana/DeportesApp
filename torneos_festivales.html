@@ -132,7 +132,7 @@
     <main>
         <div class="page-header">
             <div class="container">
-                <h1>Actividad Física</h1>
+                <h1>Torneos y Festivales</h1>
                 <p>Lista completa de deportes disponibles con estadísticas de participación en tiempo real</p>
                 <div style="text-align: center; margin-top: 1rem;">
                     <button onclick="actualizarEstadisticas()" class="btn btn-outline" id="btn-actualizar">
@@ -145,14 +145,15 @@
 
         <section class="container">
             <div class="cards-container">
-                 <!-- Gimnasio Municipal -->
-                <div id="gimnasio_municipal" class="card" data-actividad="gimnasio_municipal">
+                 <!-- TORNEOS Y FESTIVALES INSTITUCIONALES -->
+                <!-- Master -->
+                <div id="master" class="card" data-actividad="master">
                     <div class="card-image">
-                        <img src="imagenes/futbol-02.jpg" alt="Fútbol">
+                        <img src="imagenes/balonmano-02.jpg" alt="balonmano">
                     </div>
                     <div class="card-content">
-                        <h3 class="card-title">Gimnasio Municipal</h3>
-                        <p class="card-description">Deporte de equipo jugado entre dos conjuntos de 11 jugadores.</p>
+                        <h3 class="card-title">Master</h3>
+                        <p class="card-description">Deporte rápido y dinámico donde dos equipos compiten por marcar goles lanzando el balón con la mano en la portería rival.</p>
                         <div class="stats">
                             <div class="stat-item">
                                 <span class="stat-label">Total Participantes:</span>
@@ -187,14 +188,15 @@
                     </div>
                 </div>
 
-                 <!-- Descubre tu Talento -->
-                <div id="descubre_tu_talento" class="card" data-actividad="descubre_tu_talento">
+
+                <!-- Open -->
+                <div id="open" class="card" data-actividad="open">
                     <div class="card-image">
-                        <img src="imagenes/futbol-02.jpg" alt="Fútbol">
+                        <img src="imagenes/natacion-02.jpg" alt="open">
                     </div>
                     <div class="card-content">
-                        <h3 class="card-title">Descubre tu Talento</h3>
-                        <p class="card-description">Deporte de equipo jugado entre dos conjuntos de 11 jugadores.</p>
+                        <h3 class="card-title">Open</h3>
+                        <p class="card-description">Disciplina individual donde se recorre una distancia en el agua utilizando diferentes estilos como libre, pecho, espalda o mariposa.</p>
                         <div class="stats">
                             <div class="stat-item">
                                 <span class="stat-label">Total Participantes:</span>
@@ -229,14 +231,56 @@
                     </div>
                 </div>
 
-                 <!-- Nadadores Activos -->
-                <div id="nadadores_activos" class="card" data-actividad="nadadores_activos">
+                <!-- Gran Master -->
+                <div id="gran_master" class="card" data-actividad="gran_master">
                     <div class="card-image">
-                        <img src="imagenes/futbol-02.jpg" alt="Fútbol">
+                        <img src="imagenes/atletismo-02.jpg" alt="gran_master">
                     </div>
                     <div class="card-content">
-                        <h3 class="card-title">Nadadores Activos</h3>
-                        <p class="card-description">Deporte de equipo jugado entre dos conjuntos de 11 jugadores.</p>
+                        <h3 class="card-title">Gran Master</h3>
+                        <p class="card-description">Conjunto de disciplinas deportivas que incluyen carreras, saltos y lanzamientos, realizadas al aire libre o en pista.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- Libre-->
+                <div id="libre" class="card" data-actividad="libre">
+                    <div class="card-image">
+                        <img src="imagenes/patinaje-02.jpg" alt="libre">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Libre</h3>
+                        <p class="card-description">Deporte que consiste en deslizarse sobre ruedas, combinando equilibrio, coordinación y velocidad.</p>
                         <div class="stats">
                             <div class="stat-item">
                                 <span class="stat-label">Total Participantes:</span>
@@ -271,14 +315,14 @@
                     </div>
                 </div>
 
-                 <!-- Yoga -->
-                <div id="yoga" class="card" data-actividad="yoga">
+                <!--prebenjamines-->
+                <div id="prebenjamines" class="card" data-actividad="prebenjamines">
                     <div class="card-image">
-                        <img src="imagenes/futbol-02.jpg" alt="Fútbol">
+                        <img src="imagenes/rugby-02.jpg" alt="prebenjamines">
                     </div>
                     <div class="card-content">
-                        <h3 class="card-title">Yoga</h3>
-                        <p class="card-description">Deporte de equipo jugado entre dos conjuntos de 11 jugadores.</p>
+                        <h3 class="card-title">Prebenjamines</h3>
+                        <p class="card-description">Deporte de contacto en equipo que combina fuerza, estrategia y trabajo en grupo, donde el objetivo es avanzar con un balón ovalado hasta la zona de anotación rival.</p>
                         <div class="stats">
                             <div class="stat-item">
                                 <span class="stat-label">Total Participantes:</span>
@@ -313,6 +357,135 @@
                     </div>
                 </div>
 
+
+
+
+                <!-- Benjamines -->
+                <div id="benjamines" class="card" data-actividad="benjamines">
+                    <div class="card-image">
+                        <img src="imagenes/tenis-02.jpg" alt="benjamines">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Benjamines</h3>
+                        <p class="card-description">Deporte individual o en pareja donde los jugadores usan raquetas para golpear una pelota por encima de una red, buscando precisión, agilidad y estrategia en cada punto.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                           </div>
+                        </div>
+
+
+                        <!-- Baby -->
+                <div id="baby" class="card" data-actividad="baby">
+                    <div class="card-image">
+                        <img src="imagenes/voleibol-02.jpg" alt="baby">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Baby</h3>
+                        <p class="card-description">Deporte de equipo donde dos conjuntos compiten por pasar el balón por encima de una red sin dejarlo caer, usando coordinación, reflejos y trabajo en equipo para sumar puntos.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                      
+                    </div>
+                </div>
+
+                <!-- BabyFútbol -->
+                 <div id="baby_futbol" class="card" data-actividad="baby_futbol">
+                    <div class="card-image">
+                        <img src="imagenes/descubre_tu_talento-02.jpg" alt="baby_futbol">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Baby Fútbol</h3>
+                        <p class="card-description">Actividad donde niños y jóvenes exploran diferentes deportes y disciplinas para descubrir sus habilidades naturales y encontrar su pasión deportiva.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                      
+                    </div>
+                </div>
+                   
 
                        
                     </div>
@@ -438,8 +611,10 @@
       const estadisticas = await obtenerEstadisticasActividades();
 
       const actividades = [
-        'gimnasio_municipal', 'descubre_tu_talento',
-        'nadadores_activos', 'yoga'
+        'master', 'open',
+        'gran_master', 'libre',
+        'prebenjamines', 'benjamines',
+        'baby', 'baby_futbol'
       ];
 
       actividades.forEach(actividad => {
@@ -489,4 +664,4 @@
 
 </body>
 </html>
- 
+

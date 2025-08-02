@@ -440,7 +440,8 @@
     .location-coords {
       font-size: 0.8rem;
       color: #666;
-    }    
+    }
+
     /* Estilos responsivos adicionales */
     @media (max-width: 768px) {
 
@@ -480,9 +481,13 @@
       <nav>
         <ul>
           <li><a href="index.html">Inicio</a></li>
-          <li><a href="Deportes.html">Deportes</a></li>
-          <li><a href="actividades.html">Actividades Físicas</a></li>
-          <li><a href="diagrama.html">Estadísticas</a></li>
+                    <li><a href="deportes.html">Deporte Formativo</a></li>
+                    <li><a href="actividades.html">Actividades Físicas</a></li>
+                    <li><a href="actividades.html">Recreación</a></li>
+                    <li><a href="actividades.html">Eventos Institucionales</a></li>
+                    <li><a href="actividades.html">Torneos Y Festivales</a></li>
+                    <li><a href="actividades.html">Juegos Institucionales</a></li>
+                    <li><a href="diagrama.html">Estadísticas</a></li>
         </ul>
       </nav>
       <button id="logout-btn" class="btn btn-secondary">Cerrar Sesión</button>
@@ -534,6 +539,7 @@
                 <th>Barrio</th>
               </tr>
             </thead>
+
             <tbody>
               <tr>
                 <td data-label="Documento">
@@ -552,35 +558,72 @@
                     <option value="Mujer">Mujer</option>
                   </select>
                 </td>
-                <td data-label="Actividad"><select name="actividad" required>
-                    <option value="">Seleccionar</option>
-                    <optgroup label="Deportes">
-                      <option value="futbol">Fútbol</option>
-                      <option value="futbol_de_salon">Fútbol de Salón</option>
-                      <option value="futbol_sala">Fútbol sala</option>
-                      <option value="ajedrez">Ajedrez</option>
-                      <option value="baloncesto">Baloncesto</option>
-                      <option value="balonmano">Balonmano</option>
-                      <option value="natacion">Natación</option>
-                      <option value="atletismo">Atletismo</option>
-                      <option value="patinaje">Patinaje</option>
-                      <option value="rugby">Rugby</option>
-                      <option value="tenis">Tenis</option>
-                      <option value="voleibol">Voleibol</option>
-                    </optgroup>
-                    <optgroup label="Actividades Físicas">
-                      <option value="bmx">BMX</option>
-                      <option value="boxeo">Boxeo</option>
-                      <option value="descubre_tu_talento">Descubre tú Talento</option>
-                      <option value="gimnasia">Gimnasia</option>
-                      <option value="jiu_jitsu">Jiu Jitsu</option>
-                      <option value="gimnasio">Gimnasio</option>
-                      <option value="levantamiento_de_pesas">Levantamiento de Pesas</option>
-                      <option value="tiro_con_arco">Tiro con Arco</option>
-                      <option value="taekwondo">Taekwondo</option>
-                    </optgroup>
-                  </select>
-                </td>
+               <td data-label="Actividad">
+  <select name="actividad" required>
+    <option value="">Seleccionar</option>
+
+    <optgroup label="Deportes">
+      <option value="futbol">Fútbol</option>
+      <option value="futbol_de_salon">Fútbol de Salón</option>
+      <option value="futbol_sala">Fútbol sala</option>
+      <option value="ajedrez">Ajedrez</option>
+      <option value="baloncesto">Baloncesto</option>
+      <option value="balonmano">Balonmano</option>
+      <option value="natacion">Natación</option>
+      <option value="atletismo">Atletismo</option>
+      <option value="patinaje">Patinaje</option>
+      <option value="rugby">Rugby</option>
+      <option value="tenis">Tenis de campo</option>
+      <option value="tenis_mesa">Tenis de Mesa</option>
+      <option value="bmx">BMX</option>
+      <option value="boxeo">Boxeo</option>
+      <option value="gimnasia">Gimnasia</option>
+      <option value="jiu_jitsu">Jiu Jitsu</option>
+      <option value="levantamiento_de_pesas">Levantamiento de Pesas</option>
+      <option value="taekwondo">Taekwondo</option>
+    </optgroup>
+
+    <optgroup label="Actividades Físicas">
+      <option value="gimnasio_municipal">Gimnasio Municipal</option>
+      <option value="descubre_tu_talento">Descubre tu Talento</option>
+      <option value="nadadores_activos">Nadadores Activos</option>
+      <option value="yoga">Yoga</option>
+    </optgroup>
+
+    <optgroup label="Recreación">
+      <option value="rumba_aerobica">Rumba Aeróbica</option>
+      <option value="hidroaerobicos">Hidroaeróbicos</option>
+    </optgroup>
+
+    <optgroup label="Eventos Institucionales">
+      <option value="vacaciones_recreativas">Vacaciones Recreativas</option>
+      <option value="celebracion_deporte_cultura">Celebración del Deporte y Cultura</option>
+    </optgroup>
+
+    <optgroup label="Torneos y Festivales">
+      <option value="master">Master</option>
+      <option value="open">Open</option>
+      <option value="gran_master">Gran Master</option>
+      <option value="libre">Libre</option>
+      <option value="prebenjamines">Prebenjamines</option>
+      <option value="benjamines">Benjamines</option>
+      <option value="baby">Baby</option>
+      <option value="baby_futbol">BabyFútbol</option>
+    </optgroup>
+
+    <optgroup label="Juegos Institucionales">
+      <option value="escolares_subregional">Escolares Sub-regional</option>
+      <option value="escolares_departamental">Escolares Departamental</option>
+      <option value="intercolegiados_municipal">Intercolegiados Municipal</option>
+      <option value="intercolegiados_subregional">Intercolegiados Sub-regional</option>
+      <option value="intercolegiados_departamental">Intercolegiados Departamental</option>
+      <option value="mayores_subregional">Mayores Sub-regional</option>
+      <option value="mayores_departamental">Mayores Departamental</option>
+    </optgroup>
+
+  </select>
+</td>
+
 
                 <td data-label="Barrio"><select name="barrio" required>
                     <option value="">Barrio/Vereda...</option>
@@ -625,10 +668,91 @@
                     </optgroup>
                   </select>
                 </td>
+                </td>
 
               </tr>
             </tbody>
+            <thead>
+              <tr>
+                <th>Teléfono</th>
+                <th>Correo</th>
+                <th>Vereda</th>
+                <th>LGBTQ+</th>
+                <th>Discapacidad</th>
+                <th>Victima</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="Teléfono">
+                  <input type="tel" name="telefono" placeholder="Ej: 3001234567" required>
+                </td>
+                <td data-label="Correo">
+                  <input type="email" name="correo" placeholder="Ej: correo@ejemplo.com">
+                </td>
+                <td data-label="Vereda">
+                  <select name="vereda">
+                    <option value="">Seleccionar...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                  </select>
+                </td>
+                <td data-label="LGBTQ+">
+                  <select name="lgbtq">
+                    <option value="">Seleccionar...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                  </select>
+                </td>
+                <td data-label="Discapacidad">
+                  <select name="discapacidad">
+                    <option value="">Seleccionar...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                  </select>
+                </td>
+                <td data-label="Víctima">
+                  <select name="victima">
+                    <option value="">Seleccionar...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                  </select>
+                </td>
+
+
+
+              </tr>
+            </tbody>
+
+            <thead>
+              <tr>
+                <th>Madre Cabeza Hogar</th>
+                <th>Desplazado</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+
+                <td data-label="Madre Cabeza Hogar">
+                  <select name="madre_cabeza">
+                    <option value="">Seleccionar...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                  </select>
+                </td>
+                <td data-label="Desplazado">
+                  <select name="desplazado">
+                    <option value="">Seleccionar...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                  </select>
+                </td>
+
+
           </table>
+
           <div class="button-group">
             <button type="submit" class="btn btn-primary" id="btn-guardar">Guardar</button>
             <button type="button" onclick="cancelarEdicion()" class="btn btn-outline" id="btn-cancelar"
@@ -787,7 +911,7 @@
               <p style="text-align: center; color: #666;">Cargando participantes...</p>
             </div>
           </div>
-          
+
           <button type="submit" class="btn btn-primary">💾 Guardar Asistencia</button>
         </form>
       </div>
@@ -1081,7 +1205,7 @@
           fecha_subida: timestamp,
           latitud: ubicacion.latitud || null,
           longitud: ubicacion.longitud || null,
-          direccion: ubicacion.direccion || null, 
+          direccion: ubicacion.direccion || null,
           ubicacion_error: ubicacion.error || null
         };
 
@@ -1139,7 +1263,7 @@
     }
     async function configurarDeporteInstructor() {
       // El username del instructor indica su deporte
-      const deporteInstructor = userProfile.username?.toLowerCase(); 
+      const deporteInstructor = userProfile.username?.toLowerCase();
 
       // Mostrar el deporte en otro lugar si quieres
       document.getElementById('deporte-instructor').textContent = deporteInstructor.toUpperCase();
@@ -1161,30 +1285,32 @@
     }
 
     async function cargarParticipantesDeporte() {
-      try {
-        const deporteInstructor = userProfile.username;
+  try {
+    const username = userProfile?.username || '';
+    const deportesAsignados = userProfile.username
+  .split(',')
+  .map(d => d.trim().toLowerCase()); // Separa por coma
 
-        // Obtener participantes del mismo deporte
-        const { data: participantes, error } = await supabaseClient
-          .from('participantes')
-          .select('*')
-          .ilike('actividad', deporteInstructor)
-          .order('nombre');
-        console.log("UserProfile completo:", userProfile);
-        console.log("Username del instructor:", userProfile?.username);
+    console.log("Deportes asignados:", deportesAsignados);
 
-        if (error) throw error;
+    const { data: participantes, error } = await supabaseClient
+  .from('participantes')
+  .select('*')
+  .in('actividad', deportesAsignados)
+  .order('nombre');
 
-        const container = document.getElementById('lista-participantes-deporte');
 
-        if (!participantes || participantes.length === 0) {
-          container.innerHTML = `
+    if (error) throw error;
+
+    const container = document.getElementById('lista-participantes-deporte');
+
+    if (!participantes || participantes.length === 0) {
+      container.innerHTML = `
         <p style="text-align: center; color: #666;">
-          No hay participantes registrados para ${deporteInstructor}
-        </p>
-      `;
-          return;
-        }
+          No hay participantes registrados para ${deportesAsignados.join(', ')}
+        </p>`;
+      return;
+    }
 
         // Crear tabla con checkboxes
         let html = `
@@ -1221,7 +1347,7 @@
             mapaAsistencias[asistencia.participante_id] = {
               asistio: asistencia.asistio,
               id: asistencia.id,
-              observaciones: asistencia.observaciones  
+              observaciones: asistencia.observaciones
             };
           });
         }
@@ -1909,17 +2035,26 @@
       submitButton.textContent = modoEdicion ? 'Actualizando...' : 'Guardando...';
       submitButton.disabled = true;
 
-      const fila = document.querySelector('#tablaFormulario tbody tr');
-      const documento_identidad = fila.querySelector('[name="documento_identidad"]').value;
-      const nombre = fila.querySelector('[name="nombre"]').value.trim();
-      const edad = parseInt(fila.querySelector('[name="edad"]').value);
-      const genero = fila.querySelector('[name="genero"]').value;
-      const actividad = fila.querySelector('[name="actividad"]').value.trim();
-      const barrio = fila.querySelector('[name="barrio"]').value.trim();
+      const documento_identidad = document.querySelector('[name="documento_identidad"]').value.trim();
+      const nombre = document.querySelector('[name="nombre"]').value.trim();
+      const edad = parseInt(document.querySelector('[name="edad"]').value);
+      const genero = document.querySelector('[name="genero"]').value;
+      const actividad = document.querySelector('[name="actividad"]').value.trim();
+      const barrio = document.querySelector('[name="barrio"]').value.trim();
+      const telefono = document.querySelector('[name="telefono"]').value.trim();
+      const correo = document.querySelector('[name="correo"]').value.trim();
+      const vereda = document.querySelector('[name="vereda"]').value;
+      const lgbtq = document.querySelector('[name="lgbtq"]').value;
+      const discapacidad = document.querySelector('[name="discapacidad"]').value;
+      const victima = document.querySelector('[name="victima"]').value;
+      const madre_cabeza = document.querySelector('[name="madre_cabeza"]').value;
+
+      const desplazado = document.querySelector('[name="desplazado"]').value;
+
 
 
       // Validar que todos los campos estén completos
-      if (!documento_identidad || !nombre || !edad || !genero || !actividad || !barrio) {
+      if (!documento_identidad || !nombre || !edad || !genero || !actividad || !barrio || !telefono || !correo || !vereda || !lgbtq || !discapacidad || !victima || !madre_cabeza || !desplazado) {
         alert('Por favor, complete todos los campos.');
         submitButton.textContent = originalText;
         submitButton.disabled = false;
@@ -1932,7 +2067,17 @@
         edad,
         genero,
         actividad,
-        barrio
+        barrio,
+        telefono,
+        correo,
+        vereda,
+        lgbtq,
+        discapacidad,
+        victima,
+        madrecabezahogar: madre_cabeza,
+        desplazado,
+
+
       };
 
       let resultado;
@@ -1975,17 +2120,41 @@
         'atletismo': 'Atletismo',
         'patinaje': 'Patinaje',
         'rugby': 'Rugby',
-        'tenis': 'Tenis',
+        'tenis_de_campo': 'Tenis de Campo',
         'voleibol': 'Voleibol',
+        'tenis_mesa': 'Tenis de Mesa',
         'bmx': 'BMX',
-        'boxeo': 'Boxeo',
-        'descubre_tu_talento': 'Descubre tu Talento',
+        'boxeo': 'Boxeo',        
         'gimnasia': 'Gimnasia',
-        'jiu_jitsu': 'Jiu Jitsu',
-        'gimnasio': 'Gimnasio',
-        'levantamiento_de_pesas': 'Levantamiento de Pesas',
-        'tiro_con_arco': 'Tiro con Arco',
-        'taekwondo': 'Taekwondo'
+        'jiu_jitsu': 'Jiu Jitsu',        
+        'levantamiento_de_pesas': 'Levantamiento de Pesas',        
+        'taekwondo': 'Taekwondo',
+        'gimnasio_municipal': 'Gimnasio Municipal',
+        'descubre_tu_talento': 'Descubre tu Talento',
+        'nadadores_activos': 'Nadadores Activos',
+        'yoga': 'Yoga',
+        'rumba_aerobica': 'Rumba Aeróbica',
+        'hidroaerobicos': 'Hidroaerobicos',
+        'vacaciones_recreativas': 'Vacaciones Recreativas',
+        'celebracion_deporte_cultura': 'Celebración del Deporte y Cultura',
+        'master': 'Master',
+        'open': 'Open',
+        'gran_master': 'Gran Master',
+        'libre': 'Libre',
+        'prebenjamines': 'Prebenjamines',
+        'benjamines': 'Benjamines',
+        'baby': 'Baby',
+        'baby_futbol': 'Baby Fútbol',
+        'escolares_subregional': 'Escolares Sub-Regional',
+        'escolares_departamental': 'Escolares Departamental',
+        'intercolegiados_municipal': 'Intercolegiados Municipal',
+        'intercolegiados_departamental': 'Intercolegiados Departamental',
+        'intercolegiados_subregional': 'Intercolegiados Sub-Regional',
+        'mayores_subregional': 'Mayores Sub-Regional',
+        'mayores_departamental': 'Mayores Departamental'
+
+        
+        
       };
 
       return casosEspeciales[actividad] || actividad.charAt(0).toUpperCase() + actividad.slice(1);
@@ -2197,7 +2366,7 @@
       let participantesVisibles = 0;
 
       filas.forEach(fila => {
-        const nombreCell = fila.querySelector('td:nth-child(2)'); 
+        const nombreCell = fila.querySelector('td:nth-child(2)');
 
         if (nombreCell) {
           const nombre = nombreCell.textContent.toLowerCase();
