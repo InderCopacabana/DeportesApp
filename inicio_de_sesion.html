@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Iniciar Sesión - INDER Copacabana</title>
   <link rel="stylesheet" href="estilos.css" />
 </head>
+
 <body>
   <!-- Encabezado con navegación -->
   <header>
@@ -79,14 +81,16 @@
             <a href="#" id="forgot-password-link" class="forgot-password-link">¿Olvidaste tu contraseña?</a>
           </div>
           <div id="login-error" class="error-message"></div>
-          <div id="login-success" class="success-message" style="color: green; text-align: center; display: none;"></div>
+          <div id="login-success" class="success-message" style="color: green; text-align: center; display: none;">
+          </div>
         </form>
 
         <!-- Formulario de Recuperación de Contraseña -->
         <form id="reset-form" class="login-form" style="display: none;">
           <div class="form-group">
             <label for="reset-email">Correo Electrónico</label>
-            <input type="email" id="reset-email" name="reset-email" placeholder="Ingrese su correo electrónico" required />
+            <input type="email" id="reset-email" name="reset-email" placeholder="Ingrese su correo electrónico"
+              required />
           </div>
           <div class="form-group">
             <button type="submit" class="btn btn-block">Enviar Enlace de Recuperación</button>
@@ -95,7 +99,8 @@
             <a href="#" id="back-to-login-link" class="forgot-password-link">← Volver al inicio de sesión</a>
           </div>
           <div id="reset-error" class="error-message"></div>
-          <div id="reset-success" class="success-message" style="color: green; text-align: center; display: none;"></div>
+          <div id="reset-success" class="success-message" style="color: green; text-align: center; display: none;">
+          </div>
         </form>
 
         <div class="login-info">
@@ -154,4 +159,5 @@
     }
   </style>
 </body>
+
 </html>
