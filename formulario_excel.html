@@ -935,6 +935,36 @@
   </footer>
 
   <script type="module">
+    // Función para obtener parámetros de la URL
+    function obtenerParametroURL(nombre) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(nombre);
+    }
+
+    // Al cargar la página, verificar si viene un deporte específico
+    document.addEventListener('DOMContentLoaded', async function () {
+      const deporteParam = obtenerParametroURL('deporte');
+      const instructorParam = obtenerParametroURL('instructor');
+      const autoAbrir = obtenerParametroURL('autoAbrir');
+
+      if (deporteParam && autoAbrir === 'asistencia') {
+        console.log(`Auto-abriendo modal de asistencia para deporte: ${deporteParam}`);
+
+        // Esperar un momento para que la página se cargue completamente
+        setTimeout(async () => {
+          // Abrir directamente el modal de asistencia
+          await abrirModalAsistencia();
+
+          // Pre-seleccionar el deporte en el modal
+          const selectActividad = document.getElementById('actividad-asistencia');
+          if (selectActividad) {
+            selectActividad.value = deporteParam;
+            // Disparar evento change para actualizar la lista de participantes
+            selectActividad.dispatchEvent(new Event('change'));
+          }
+        }, 500);
+      }
+    });
     import { supabaseClient, getUserProfile } from './supabase-config.js';
 
     // Variables globales
@@ -1262,34 +1292,55 @@
       }
     }
     async function configurarDeporteInstructor() {
-      // El username del instructor indica su deporte
-      const deporteInstructor = userProfile.username?.toLowerCase();
+      // Verificar si viene un deporte específico desde el dashboard
+      const deporteParam = obtenerParametroURL('deporte');
+      const deportesInstructor = userProfile.username?.split(',').map(d => d.trim().toLowerCase()) || [];
 
-      // Mostrar el deporte en otro lugar si quieres
-      document.getElementById('deporte-instructor').textContent = deporteInstructor.toUpperCase();
+      let deporteSeleccionado = deporteParam || deportesInstructor[0];
+
+      // Mostrar el deporte seleccionado
+      document.getElementById('deporte-instructor').textContent = deporteSeleccionado.toUpperCase();
 
       // Configurar el select de actividad
       const selectActividad = document.getElementById('actividad-asistencia');
+      selectActividad.innerHTML = ''; // limpiar
 
-      // Limpiar y agregar opción única del deporte
-      selectActividad.innerHTML = ''; // limpia todo
-      const opcion = document.createElement('option');
-      opcion.value = deporteInstructor;
-      opcion.textContent = deporteInstructor.charAt(0).toUpperCase() + deporteInstructor.slice(1); // capitaliza
-      selectActividad.appendChild(opcion);
-
-      // Desactivar el select y estilos
-      selectActividad.disabled = true;
-      selectActividad.style.backgroundColor = '#f8f9fa';
-      selectActividad.style.color = '#6c757d';
+      if (deporteParam) {
+        // Si viene un deporte específico, solo mostrar ese
+        const opcion = document.createElement('option');
+        opcion.value = deporteParam;
+        opcion.textContent = deporteParam.charAt(0).toUpperCase() + deporteParam.slice(1);
+        selectActividad.appendChild(opcion);
+        selectActividad.disabled = true;
+        selectActividad.style.backgroundColor = '#f8f9fa';
+        selectActividad.style.color = '#6c757d';
+      } else {
+        // Si no viene deporte específico, mostrar todos los deportes del instructor
+        deportesInstructor.forEach(deporte => {
+          const opcion = document.createElement('option');
+          opcion.value = deporte;
+          opcion.textContent = deporte.charAt(0).toUpperCase() + deporte.slice(1);
+          selectActividad.appendChild(opcion);
+        });
+      }
     }
 
     async function cargarParticipantesDeporte() {
       try {
         const username = userProfile?.username || '';
-        const deportesAsignados = userProfile.username
-          .split(',')
-          .map(d => d.trim().toLowerCase()); // Separa por coma
+        // Verificar si viene un deporte específico desde el dashboard
+        const deporteParam = obtenerParametroURL('deporte');
+        let deportesAsignados;
+
+        if (deporteParam) {
+          // Si viene un deporte específico, solo usar ese
+          deportesAsignados = [deporteParam];
+        } else {
+          // Si no, usar todos los deportes del instructor
+          deportesAsignados = userProfile.username
+            .split(',')
+            .map(d => d.trim().toLowerCase());
+        }
 
         console.log("Deportes asignados:", deportesAsignados);
 

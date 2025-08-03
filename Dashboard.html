@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - INDER Copacabana</title>
     <link rel="stylesheet" href="estilos.css">
-    
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
@@ -522,7 +522,7 @@
                     </button>
                 </div>
             </div>
-            
+
 
             <!-- REEMPLAZAR TODO EL dashboard-grid CON ESTO -->
             <!-- Controles del Dashboard -->
@@ -541,23 +541,9 @@
             </div>
 
             <!-- Resumen de Estadísticas -->
-            <div class="stats-overview">
-                <div class="stat-card">
-                    <div class="stat-number" id="total-participantes">0</div>
-                    <div class="stat-label">Total Participantes</div>
-                </div>
-                <div class="stat-card secondary">
-                    <div class="stat-number" id="total-deportes">0</div>
-                    <div class="stat-label">Deportes</div>
-                </div>
-                <div class="stat-card tertiary">
-                    <div class="stat-number" id="total-actividades">0</div>
-                    <div class="stat-label">Actividades Físicas</div>
-                </div>
-                <div class="stat-card quaternary">
-                    <div class="stat-number" id="total-asistencias">0</div>
-                    <div class="stat-label">Total Asistencias</div>
-                </div>
+            <!-- Resumen de Estadísticas Dinámicas -->
+            <div class="stats-overview" id="stats-container">
+                <!-- Las tarjetas se generarán dinámicamente aquí -->
             </div>
 
             <!-- Gráficos Principales -->
@@ -648,12 +634,12 @@
                     </div>
 
                     <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
-    <button onclick="seleccionarTodosMeses()" class="btn btn-outline">Seleccionar Todos</button>
-    <button onclick="limpiarSeleccionMeses()" class="btn btn-outline">Limpiar Selección</button>
-    <select id="filter-deporte-descarga" class="filter-dropdown" style="min-width: 200px;">
-        <option value="todos">Todos los Deportes</option>
-    </select>
-</div>
+                        <button onclick="seleccionarTodosMeses()" class="btn btn-outline">Seleccionar Todos</button>
+                        <button onclick="limpiarSeleccionMeses()" class="btn btn-outline">Limpiar Selección</button>
+                        <select id="filter-deporte-descarga" class="filter-dropdown" style="min-width: 200px;">
+                            <option value="todos">Todos los Deportes</option>
+                        </select>
+                    </div>
 
                     <div style="display: flex; gap: 1rem;">
                         <select id="año-descarga" class="filter-dropdown">
@@ -680,10 +666,10 @@
 
     <!-- Pie de página -->
     <footer>
-  <div class="container" style="text-align: center;">
-    <p>© 2025 INDER Copacabana. Todos los Derechos Reservados.</p>
-  </div>
-</footer>
+        <div class="container" style="text-align: center;">
+            <p>© 2025 INDER Copacabana. Todos los Derechos Reservados.</p>
+        </div>
+    </footer>
 
     <script type="module">
         import {
@@ -749,30 +735,30 @@
         });
 
         async function cargarDeportesEnSelector() {
-    try {
-        const { data: participantes, error } = await supabaseClient
-            .from('participantes')
-            .select('actividad')
-            .order('actividad');
-        
-        if (error) throw error;
-        
-        // Obtener deportes únicos
-        const deportesUnicos = [...new Set(participantes.map(p => p.actividad))];
-        
-        const selector = document.getElementById('filter-deporte-descarga');
-        let options = '<option value="todos">Todos los Deportes</option>';
-        
-        deportesUnicos.forEach(deporte => {
-            const deporteFormateado = deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            options += `<option value="${deporte}">${deporteFormateado}</option>`;
-        });
-        
-        selector.innerHTML = options;
-    } catch (error) {
-        console.error('Error cargando deportes:', error);
-    }
-}
+            try {
+                const { data: participantes, error } = await supabaseClient
+                    .from('participantes')
+                    .select('actividad')
+                    .order('actividad');
+
+                if (error) throw error;
+
+                // Obtener deportes únicos
+                const deportesUnicos = [...new Set(participantes.map(p => p.actividad))];
+
+                const selector = document.getElementById('filter-deporte-descarga');
+                let options = '<option value="todos">Todos los Deportes</option>';
+
+                deportesUnicos.forEach(deporte => {
+                    const deporteFormateado = deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    options += `<option value="${deporte}">${deporteFormateado}</option>`;
+                });
+
+                selector.innerHTML = options;
+            } catch (error) {
+                console.error('Error cargando deportes:', error);
+            }
+        }
 
 
         // Función para configurar el avatar del usuario
@@ -1023,12 +1009,12 @@
         async function configurarSelectorInstructor(profile) {
             const selectorInstructor = document.getElementById('filter-instructor');
             // Mostrar selector de deporte solo para administradores
-const selectorDeporte = document.getElementById('filter-deporte-descarga');
-if (profile.role === 'admin') {
-    selectorDeporte.style.display = 'inline-block';
-} else {
-    selectorDeporte.style.display = 'none';
-}
+            const selectorDeporte = document.getElementById('filter-deporte-descarga');
+            if (profile.role === 'admin') {
+                selectorDeporte.style.display = 'inline-block';
+            } else {
+                selectorDeporte.style.display = 'none';
+            }
 
             if (profile.role === 'admin') {
                 // Admin puede ver todos los instructores
@@ -1053,7 +1039,7 @@ if (profile.role === 'admin') {
                         // Agregar event listener
                         selectorInstructor.addEventListener('change', actualizarEstadisticas);
                     }
-                    
+
                 } catch (error) {
                     console.error('Error cargando instructores:', error);
                 }
@@ -1062,74 +1048,100 @@ if (profile.role === 'admin') {
                 selectorInstructor.style.display = 'none';
             }
         }
+        async function obtenerDatos() {
+            try {
+                const filterTipo = document.getElementById('filter-tipo').value;
+                const filterGenero = document.getElementById('filter-genero').value;
+                const filterInstructor = document.getElementById('filter-instructor').value;
 
-        // Función para obtener datos filtrados
-       async function obtenerDatos() {
-    try {
-        const filterTipo = document.getElementById('filter-tipo').value;
-        const filterGenero = document.getElementById('filter-genero').value;
-        const filterInstructor = document.getElementById('filter-instructor').value;
+                let query = supabaseClient.from('participantes').select('*');
+                let participanteIds = null;
 
-        let query = supabaseClient.from('participantes').select('*');
+                // 1. Filtrar por instructor (basado en asistencia)
+                if (currentUserProfile.role === 'instructor') {
+                    const deportesInstructor = currentUserProfile.username
+                        .split(',')
+                        .map(d => d.trim().toLowerCase());
 
-        // PRIMERO: Filtro por instructor
-        let participanteIds = null;
+                    // Traer todos los participantes
+                    const { data, error } = await supabaseClient
+                        .from('participantes')
+                        .select('*');
 
-        if (currentUserProfile.role === 'instructor') {
-            const { data: asistenciasInstructor } = await supabaseClient
-                .from('asistencias')
-                .select('participante_id')
-                .eq('instructor_id', currentUserProfile.id);
+                    if (error) throw error;
 
-            if (!asistenciasInstructor || asistenciasInstructor.length === 0) return [];
+                    // Filtrar por las actividades que tiene el instructor asignadas
+                    let datosFiltrados = data.filter(p =>
+                        deportesInstructor.includes(p.actividad?.toLowerCase())
+                    );
 
-            participanteIds = [...new Set(asistenciasInstructor.map(a => a.participante_id))];
-            query = query.in('id', participanteIds);
+                    // Aplica los filtros de género y tipo después si quieres
+                    // ...
 
-        } else if (currentUserProfile.role === 'admin' && filterInstructor !== 'todos') {
-            const { data: asistenciasInstructor } = await supabaseClient
-                .from('asistencias')
-                .select('participante_id')
-                .eq('instructor_id', filterInstructor);
+                    console.log('Instructor puede ver:', deportesInstructor);
+                    console.log('Actividades en participantes:', datosFiltrados.map(p => p.actividad));
 
-            if (!asistenciasInstructor || asistenciasInstructor.length === 0) return [];
+                    return datosFiltrados;
+                }
+                else if (currentUserProfile.role === 'admin' && filterInstructor !== 'todos') {
+                    const { data: asistenciasInstructor } = await supabaseClient
+                        .from('asistencias')
+                        .select('participante_id')
+                        .eq('instructor_id', filterInstructor);
 
-            participanteIds = [...new Set(asistenciasInstructor.map(a => a.participante_id))];
-            query = query.in('id', participanteIds);
-        }
+                    if (!asistenciasInstructor || asistenciasInstructor.length === 0) return [];
 
-        // SEGUNDO: Filtro por género
-        if (filterGenero !== 'todos') {
-            query = query.eq('genero', filterGenero);
-        }
+                    participanteIds = [...new Set(asistenciasInstructor.map(a => a.participante_id))];
+                    query = query.in('id', participanteIds);
+                }
 
-        // Obtener los datos de participantes (sin filtrar por tipo todavía)
-        const { data, error } = await query;
-        if (error) throw error;
+                // 2. Filtro por género
+                if (filterGenero !== 'todos') {
+                    query = query.eq('genero', filterGenero);
+                }
 
-        let datosFiltrados = data || [];
+                // 3. Obtener los datos
+                const { data, error } = await query;
+                if (error) throw error;
 
-        // TERCERO: Filtro por tipo de actividad usando el campo 'actividad'
-        if (filterTipo !== 'todos') {
-            const deportes = ['futbol', 'futbol_de_salon', 'futbol sala', 'ajedrez', 'baloncesto', 'balonmano', 'natacion', 'atletismo', 'patinaje', 'rugby', 'tenis', 'voleibol'];
+                let datosFiltrados = data || [];
 
-            if (filterTipo === 'deporte') {
-                datosFiltrados = datosFiltrados.filter(p =>
-                    deportes.includes(p.actividad?.toLowerCase())
-                );
-            } else if (filterTipo === 'actividad_fisica') {
-                datosFiltrados = datosFiltrados.filter(p =>
-                    !deportes.includes(p.actividad?.toLowerCase())
-                );
+                // 4. Filtro por tipo de actividad (deporte vs actividad física)
+                if (filterTipo !== 'todos') {
+                    const deportes = ['futbol', 'futbol_de_salon', 'futbol sala', 'ajedrez', 'baloncesto', 'balonmano', 'natacion', 'atletismo', 'patinaje', 'rugby', 'tenis', 'voleibol'];
+
+                    if (filterTipo === 'deporte') {
+                        datosFiltrados = datosFiltrados.filter(p =>
+                            deportes.includes(p.actividad?.toLowerCase())
+                        );
+                    } else if (filterTipo === 'actividad_fisica') {
+                        datosFiltrados = datosFiltrados.filter(p =>
+                            !deportes.includes(p.actividad?.toLowerCase())
+                        );
+                    }
+                }
+
+                // 5. Filtro por actividades que tiene asignadas el instructor (campo username)
+                if (currentUserProfile.role === 'instructor' && currentUserProfile.username) {
+                    const deportesInstructor = currentUserProfile.username
+                        .split(',')
+                        .map(d => d.trim().toLowerCase());
+
+                    datosFiltrados = datosFiltrados.filter(p =>
+                        deportesInstructor.includes(p.actividad?.toLowerCase())
+                    );
+
+                    console.log('Instructor puede ver:', deportesInstructor);
+                    console.log('Actividades en participantes:', datosFiltrados.map(p => p.actividad));
+                }
+
+                return datosFiltrados;
+
+            } catch (error) {
+                console.error('Error al obtener datos:', error);
+                return [];
             }
         }
-
-        return datosFiltrados;
-    } catch (error) {
-        console.error('Error al obtener datos:', error);
-        return [];
-    }
-}
 
 
         // Función para obtener asistencias
@@ -1322,26 +1334,88 @@ if (profile.role === 'admin') {
             });
         }
 
-        // Función para actualizar resumen
-        async function actualizarResumen(datos) {
+        // Función para generar tarjetas dinámicas según el instructor
+        async function generarTarjetasDinamicas(datos) {
+            const container = document.getElementById('stats-container');
             const totalParticipantes = datos.length;
-            const totalDeportes = datos.filter(p => p.tipo_actividad === 'deporte').length;
-            const totalActividades = datos.filter(p => p.tipo_actividad === 'actividad_fisica').length;
-
             const asistencias = await obtenerAsistencias();
             const totalAsistencias = asistencias.length;
 
-            document.getElementById('total-participantes').textContent = totalParticipantes;
-            document.getElementById('total-deportes').textContent = totalDeportes;
-            document.getElementById('total-actividades').textContent = totalActividades;
-            document.getElementById('total-asistencias').textContent = totalAsistencias;
+            // Limpiar container
+            container.innerHTML = '';
+
+            // Tarjeta de Total Participantes (siempre se muestra)
+            container.innerHTML += `
+        <div class="stat-card">
+            <div class="stat-number">${totalParticipantes}</div>
+            <div class="stat-label">Total Participantes</div>
+        </div>
+    `;
+
+            // Obtener deportes del instructor actual
+            let deportesInstructor = [];
+            if (currentUserProfile && currentUserProfile.username) {
+                deportesInstructor = currentUserProfile.username.split(',').map(d => d.trim());
+            }
+
+            // Si es admin, mostrar todos los deportes únicos
+            if (currentUserProfile.role === 'admin') {
+                const deportesUnicos = [...new Set(datos.map(p => p.actividad))];
+                deportesInstructor = deportesUnicos;
+            }
+
+            // Generar tarjetas para cada deporte
+            const coloresDeportes = ['secondary', 'tertiary', 'quaternary', '', 'secondary', 'tertiary'];
+            deportesInstructor.forEach((deporte, index) => {
+                const participantesDeporte = datos.filter(p =>
+                    p.actividad.toLowerCase() === deporte.toLowerCase()
+                ).length;
+
+                const colorClass = coloresDeportes[index % coloresDeportes.length];
+                const deporteFormateado = deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                // Solo hacer clickeable si es un deporte específico (no Total Participantes ni Total Asistencias)
+                if (deporte !== 'Total Participantes' && deporte !== 'Total Asistencias') {
+                    container.innerHTML += `
+        <div class="stat-card ${colorClass}" style="cursor: pointer; transition: transform 0.2s ease;" 
+             onclick="irATomarAsistencia('${deporte}')" 
+             onmouseover="this.style.transform='scale(1.05)'" 
+             onmouseout="this.style.transform='scale(1)'">
+            <div class="stat-number">${participantesDeporte}</div>
+            <div class="stat-label">${deporteFormateado}</div>
+            <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 0.5rem;">📝 Click para tomar asistencia</div>
+        </div>
+    `;
+                } else {
+                    container.innerHTML += `
+        <div class="stat-card ${colorClass}">
+            <div class="stat-number">${participantesDeporte}</div>
+            <div class="stat-label">${deporteFormateado}</div>
+        </div>
+    `;
+                }
+            });
+
+            // Tarjeta de Total Asistencias (siempre se muestra al final)
+            container.innerHTML += `
+        <div class="stat-card quaternary">
+            <div class="stat-number">${totalAsistencias}</div>
+            <div class="stat-label">Total Asistencias</div>
+        </div>
+    `;
         }
-        // Funciones para descarga de estadísticas
-        // Funciones para descarga de estadísticas
+
+        
+        // Función para actualizar resumen (ahora usa tarjetas dinámicas)
+        async function actualizarResumen(datos) {
+            await generarTarjetasDinamicas(datos);
+        }
+
+        // Funciones para descarga de estadísticas        
         window.abrirModalDescarga = async function () {
-    document.getElementById('modalDescarga').style.display = 'block';
-    await cargarDeportesEnSelector(); // AGREGAR ESTA LÍNEA
-}
+            document.getElementById('modalDescarga').style.display = 'block';
+            await cargarDeportesEnSelector(); // AGREGAR ESTA LÍNEA
+        }
 
         window.cerrarModalDescarga = function () {
             document.getElementById('modalDescarga').style.display = 'none';
@@ -1359,79 +1433,81 @@ if (profile.role === 'admin') {
         }
 
         async function obtenerDatosPorMeses() {
-    const mesesSeleccionados = [];
-    const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]:checked');
-    checkboxes.forEach(cb => mesesSeleccionados.push(parseInt(cb.value)));
+            const mesesSeleccionados = [];
+            const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => mesesSeleccionados.push(parseInt(cb.value)));
 
-    if (mesesSeleccionados.length === 0) {
-        alert('Por favor, seleccione al menos un mes.');
-        return null;
-    }
+            if (mesesSeleccionados.length === 0) {
+                alert('Por favor, seleccione al menos un mes.');
+                return null;
+            }
 
-    const año = document.getElementById('año-descarga').value;
-    
-   try {
-    let queryAsistencias = supabaseClient.from('asistencias').select('*');
+            const año = document.getElementById('año-descarga').value;
 
-    // LÓGICA CORREGIDA: Determinar qué instructor usar
-    if (currentUserProfile.role === 'instructor') {
-        // Si es instructor, solo sus datos
-        queryAsistencias = queryAsistencias.eq('instructor_id', currentUserProfile.id);
-    } else if (currentUserProfile.role === 'admin') {
-        // Si es admin, verificar el filtro seleccionado
-        const filterInstructor = document.getElementById('filter-instructor').value;
-        if (filterInstructor !== 'todos') {
-            queryAsistencias = queryAsistencias.eq('instructor_id', filterInstructor);
+            try {
+                let queryAsistencias = supabaseClient.from('asistencias').select('*');
+
+
+
+                // LÓGICA CORREGIDA: Determinar qué instructor usar
+                if (currentUserProfile.role === 'instructor') {
+                    // Si es instructor, solo sus datos
+                    queryAsistencias = queryAsistencias.eq('instructor_id', currentUserProfile.id);
+                } else if (currentUserProfile.role === 'admin') {
+                    // Si es admin, verificar el filtro seleccionado
+                    const filterInstructor = document.getElementById('filter-instructor').value;
+                    if (filterInstructor !== 'todos') {
+                        queryAsistencias = queryAsistencias.eq('instructor_id', filterInstructor);
+                    }
+                }
+
+                const { data: asistencias, error: errorAsistencias } = await queryAsistencias;
+                if (errorAsistencias) throw errorAsistencias;
+
+                if (!asistencias || asistencias.length === 0) {
+                    return [];
+                }
+
+                const participanteIds = [...new Set(asistencias.map(a => a.participante_id))];
+
+                // FILTRAR PARTICIPANTES POR DEPORTE SELECCIONADO
+                let queryParticipantes = supabaseClient.from('participantes').select('*');
+
+                const deporteSeleccionado = document.getElementById('filter-deporte-descarga').value;
+                if (deporteSeleccionado !== 'todos') {
+                    queryParticipantes = queryParticipantes.eq('actividad', deporteSeleccionado);
+                }
+
+                const { data: todosParticipantes, error: errorParticipantes } = await queryParticipantes;
+                if (errorParticipantes) throw errorParticipantes;
+
+                // FILTRAR PARTICIPANTES QUE ESTÁN EN LA LISTA DE ASISTENCIAS
+                const participantesDelDeporte = todosParticipantes.filter(p => participanteIds.includes(p.id));
+                const participantesDelDeporteIds = participantesDelDeporte.map(p => p.id);
+
+                // FILTRAR ASISTENCIAS POR FECHA Y PARTICIPANTE (DE ACUERDO AL DEPORTE)
+                const datosFiltrados = asistencias.filter(asistencia => {
+                    let fechaStr = asistencia.fecha || asistencia.fecha_asistencia || asistencia.created_at;
+                    if (!fechaStr) return false;
+
+                    const fecha = new Date(fechaStr);
+                    const mesAsistencia = fecha.getMonth() + 1;
+                    const añoAsistencia = fecha.getFullYear();
+
+                    const cumpleFecha = mesesSeleccionados.includes(mesAsistencia) && añoAsistencia === parseInt(año);
+                    const cumpleDeporte = participantesDelDeporteIds.includes(asistencia.participante_id);
+
+                    return cumpleFecha && cumpleDeporte;
+                });
+
+                return datosFiltrados;
+
+            } catch (error) {
+                console.error('Error al obtener datos:', error);
+                alert('Error al obtener los datos');
+                return null;
+            }
         }
-    }
-
-    const { data: asistencias, error: errorAsistencias } = await queryAsistencias;
-    if (errorAsistencias) throw errorAsistencias;
-
-    if (!asistencias || asistencias.length === 0) {
-        return [];
-    }
-
-    const participanteIds = [...new Set(asistencias.map(a => a.participante_id))];
-
-    // FILTRAR PARTICIPANTES POR DEPORTE SELECCIONADO
-    let queryParticipantes = supabaseClient.from('participantes').select('*');
-
-    const deporteSeleccionado = document.getElementById('filter-deporte-descarga').value;
-    if (deporteSeleccionado !== 'todos') {
-        queryParticipantes = queryParticipantes.eq('actividad', deporteSeleccionado);
-    }
-
-    const { data: todosParticipantes, error: errorParticipantes } = await queryParticipantes;
-    if (errorParticipantes) throw errorParticipantes;
-
-    // FILTRAR PARTICIPANTES QUE ESTÁN EN LA LISTA DE ASISTENCIAS
-    const participantesDelDeporte = todosParticipantes.filter(p => participanteIds.includes(p.id));
-    const participantesDelDeporteIds = participantesDelDeporte.map(p => p.id);
-
-    // FILTRAR ASISTENCIAS POR FECHA Y PARTICIPANTE (DE ACUERDO AL DEPORTE)
-    const datosFiltrados = asistencias.filter(asistencia => {
-        let fechaStr = asistencia.fecha || asistencia.fecha_asistencia || asistencia.created_at;
-        if (!fechaStr) return false;
-
-        const fecha = new Date(fechaStr);
-        const mesAsistencia = fecha.getMonth() + 1;
-        const añoAsistencia = fecha.getFullYear();
-
-        const cumpleFecha = mesesSeleccionados.includes(mesAsistencia) && añoAsistencia === parseInt(año);
-        const cumpleDeporte = participantesDelDeporteIds.includes(asistencia.participante_id);
-
-        return cumpleFecha && cumpleDeporte;
-    });
-
-    return datosFiltrados;
-
-} catch (error) {
-    console.error('Error al obtener datos:', error);
-    alert('Error al obtener los datos');
-    return null;
-}
-}
 
         window.previsualizarEstadisticas = async function () {
             const datos = await obtenerDatosPorMeses();
@@ -1530,98 +1606,98 @@ if (profile.role === 'admin') {
                 });
                 const año = document.getElementById('año-descarga').value;
 
-async function exportarEstadisticasAExcel() {
-    const wb = XLSX.utils.book_new(); // Crear libro
+                async function exportarEstadisticasAExcel() {
+                    const wb = XLSX.utils.book_new(); // Crear libro
 
-    // ==================== HOJA 1: ESTADÍSTICAS ====================
-    const dataEstadisticas = [
-        [`📊 REPORTE ESTADÍSTICO COMPLETO - ${obtenerTituloReporte()}`],
-        [`Período: ${mesesSeleccionados.join(', ')} ${año}`],
-        [],
-        ['📈 RESUMEN GENERAL'],
-        ['CONCEPTO', 'CANTIDAD', 'PORCENTAJE'],
-        ['Total Participantes', totalParticipantes, '100%'],
-        ['Total Asistencias Registradas', totalAsistencias, '-'],
-        ['Asistencias Confirmadas', asistieron, totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) + '%' : '0%'],
-        ['Asistencias No Confirmadas', noAsistieron, totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) + '%' : '0%'],
-        [],
-        ['👥 DISTRIBUCIÓN POR GÉNERO'],
-        ['GÉNERO', 'PARTICIPANTES', 'PORCENTAJE'],
-        ['Hombres', hombres, totalParticipantes > 0 ? Math.round((hombres / totalParticipantes) * 100) + '%' : '0%'],
-        ['Mujeres', mujeres, totalParticipantes > 0 ? Math.round((mujeres / totalParticipantes) * 100) + '%' : '0%'],
-        ['TOTAL', totalParticipantes, '100%'],
-        [],
-        ['🎯 DISTRIBUCIÓN POR TIPO DE ACTIVIDAD'],
-        ['TIPO', 'PARTICIPANTES', 'PORCENTAJE'],
-        ['Deportes', deportes, totalParticipantes > 0 ? Math.round((deportes / totalParticipantes) * 100) + '%' : '0%'],
-        ['Actividades Físicas', actividadesFisicas, totalParticipantes > 0 ? Math.round((actividadesFisicas / totalParticipantes) * 100) + '%' : '0%'],
-        ['TOTAL', totalParticipantes, '100%'],
-        [],
-        ['📊 DISTRIBUCIÓN POR EDAD'],
-        ['RANGO DE EDAD', 'PARTICIPANTES', 'PORCENTAJE'],
-    ];
+                    // ==================== HOJA 1: ESTADÍSTICAS ====================
+                    const dataEstadisticas = [
+                        [`📊 REPORTE ESTADÍSTICO COMPLETO - ${obtenerTituloReporte()}`],
+                        [`Período: ${mesesSeleccionados.join(', ')} ${año}`],
+                        [],
+                        ['📈 RESUMEN GENERAL'],
+                        ['CONCEPTO', 'CANTIDAD', 'PORCENTAJE'],
+                        ['Total Participantes', totalParticipantes, '100%'],
+                        ['Total Asistencias Registradas', totalAsistencias, '-'],
+                        ['Asistencias Confirmadas', asistieron, totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) + '%' : '0%'],
+                        ['Asistencias No Confirmadas', noAsistieron, totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) + '%' : '0%'],
+                        [],
+                        ['👥 DISTRIBUCIÓN POR GÉNERO'],
+                        ['GÉNERO', 'PARTICIPANTES', 'PORCENTAJE'],
+                        ['Hombres', hombres, totalParticipantes > 0 ? Math.round((hombres / totalParticipantes) * 100) + '%' : '0%'],
+                        ['Mujeres', mujeres, totalParticipantes > 0 ? Math.round((mujeres / totalParticipantes) * 100) + '%' : '0%'],
+                        ['TOTAL', totalParticipantes, '100%'],
+                        [],
+                        ['🎯 DISTRIBUCIÓN POR TIPO DE ACTIVIDAD'],
+                        ['TIPO', 'PARTICIPANTES', 'PORCENTAJE'],
+                        ['Deportes', deportes, totalParticipantes > 0 ? Math.round((deportes / totalParticipantes) * 100) + '%' : '0%'],
+                        ['Actividades Físicas', actividadesFisicas, totalParticipantes > 0 ? Math.round((actividadesFisicas / totalParticipantes) * 100) + '%' : '0%'],
+                        ['TOTAL', totalParticipantes, '100%'],
+                        [],
+                        ['📊 DISTRIBUCIÓN POR EDAD'],
+                        ['RANGO DE EDAD', 'PARTICIPANTES', 'PORCENTAJE'],
+                    ];
 
-    // Agregar rangos de edad
-    Object.entries(rangosEdad).forEach(([rango, cantidad]) => {
-        const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) + '%' : '0%';
-        dataEstadisticas.push([rango, cantidad, porcentaje]);
-    });
-    dataEstadisticas.push(['TOTAL', totalParticipantes, '100%']);
-    dataEstadisticas.push([]);
+                    // Agregar rangos de edad
+                    Object.entries(rangosEdad).forEach(([rango, cantidad]) => {
+                        const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) + '%' : '0%';
+                        dataEstadisticas.push([rango, cantidad, porcentaje]);
+                    });
+                    dataEstadisticas.push(['TOTAL', totalParticipantes, '100%']);
+                    dataEstadisticas.push([]);
 
-    // Actividades más populares
-    dataEstadisticas.push(['🏃‍♂️ ACTIVIDADES MÁS POPULARES']);
-    dataEstadisticas.push(['ACTIVIDAD', 'PARTICIPANTES', 'PORCENTAJE']);
-    Object.entries(actividadesConteo)
-        .sort(([, a], [, b]) => b - a)
-        .forEach(([actividad, cantidad]) => {
-            const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) + '%' : '0%';
-            dataEstadisticas.push([actividad, cantidad, porcentaje]);
-        });
-    dataEstadisticas.push([]);
+                    // Actividades más populares
+                    dataEstadisticas.push(['🏃‍♂️ ACTIVIDADES MÁS POPULARES']);
+                    dataEstadisticas.push(['ACTIVIDAD', 'PARTICIPANTES', 'PORCENTAJE']);
+                    Object.entries(actividadesConteo)
+                        .sort(([, a], [, b]) => b - a)
+                        .forEach(([actividad, cantidad]) => {
+                            const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) + '%' : '0%';
+                            dataEstadisticas.push([actividad, cantidad, porcentaje]);
+                        });
+                    dataEstadisticas.push([]);
 
-    // Barrios
-    dataEstadisticas.push(['🏘️ DISTRIBUCIÓN POR BARRIO']);
-    dataEstadisticas.push(['BARRIO', 'PARTICIPANTES', 'PORCENTAJE']);
-    Object.entries(barriosConteo)
-        .sort(([, a], [, b]) => b - a)
-        .forEach(([barrio, cantidad]) => {
-            const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) + '%' : '0%';
-            dataEstadisticas.push([barrio, cantidad, porcentaje]);
-        });
-    dataEstadisticas.push([]);
+                    // Barrios
+                    dataEstadisticas.push(['🏘️ DISTRIBUCIÓN POR BARRIO']);
+                    dataEstadisticas.push(['BARRIO', 'PARTICIPANTES', 'PORCENTAJE']);
+                    Object.entries(barriosConteo)
+                        .sort(([, a], [, b]) => b - a)
+                        .forEach(([barrio, cantidad]) => {
+                            const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) + '%' : '0%';
+                            dataEstadisticas.push([barrio, cantidad, porcentaje]);
+                        });
+                    dataEstadisticas.push([]);
 
-    // Asistencia
-    dataEstadisticas.push(['✅ ESTADÍSTICAS DE ASISTENCIA']);
-    dataEstadisticas.push(['ESTADO', 'CANTIDAD', 'PORCENTAJE']);
-    dataEstadisticas.push(['Asistieron', asistieron, totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) + '%' : '0%']);
-    dataEstadisticas.push(['No Asistieron', noAsistieron, totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) + '%' : '0%']);
-    dataEstadisticas.push(['TOTAL REGISTROS', totalAsistencias, '100%']);
+                    // Asistencia
+                    dataEstadisticas.push(['✅ ESTADÍSTICAS DE ASISTENCIA']);
+                    dataEstadisticas.push(['ESTADO', 'CANTIDAD', 'PORCENTAJE']);
+                    dataEstadisticas.push(['Asistieron', asistieron, totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) + '%' : '0%']);
+                    dataEstadisticas.push(['No Asistieron', noAsistieron, totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) + '%' : '0%']);
+                    dataEstadisticas.push(['TOTAL REGISTROS', totalAsistencias, '100%']);
 
-    // Crear hoja de estadísticas
-    const wsEstadisticas = XLSX.utils.aoa_to_sheet(dataEstadisticas);
-    XLSX.utils.book_append_sheet(wb, wsEstadisticas, "📊 Estadísticas");
+                    // Crear hoja de estadísticas
+                    const wsEstadisticas = XLSX.utils.aoa_to_sheet(dataEstadisticas);
+                    XLSX.utils.book_append_sheet(wb, wsEstadisticas, "📊 Estadísticas");
 
-    // ==================== HOJA 2: LISTA DE ASISTENCIAS ====================
-    const dataAsistencias = await obtenerDatosAsistenciasDetalladas(datos);
-    const wsAsistencias = XLSX.utils.aoa_to_sheet(dataAsistencias);
-    XLSX.utils.book_append_sheet(wb, wsAsistencias, "📋 Asistencias");
+                    // ==================== HOJA 2: LISTA DE ASISTENCIAS ====================
+                    const dataAsistencias = await obtenerDatosAsistenciasDetalladas(datos);
+                    const wsAsistencias = XLSX.utils.aoa_to_sheet(dataAsistencias);
+                    XLSX.utils.book_append_sheet(wb, wsAsistencias, "📋 Asistencias");
 
-    // ==================== HOJA 3: EVIDENCIAS FOTOGRÁFICAS ====================
-    const dataEvidencias = await obtenerDatosEvidencias(datos);
-    const wsEvidencias = XLSX.utils.aoa_to_sheet(dataEvidencias);
-    XLSX.utils.book_append_sheet(wb, wsEvidencias, "📷 Evidencias");
+                    // ==================== HOJA 3: EVIDENCIAS FOTOGRÁFICAS ====================
+                    const dataEvidencias = await obtenerDatosEvidencias(datos);
+                    const wsEvidencias = XLSX.utils.aoa_to_sheet(dataEvidencias);
+                    XLSX.utils.book_append_sheet(wb, wsEvidencias, "📷 Evidencias");
 
-    // Descargar archivo
-    const nombreArchivo = `Reporte_Completo_${obtenerNombreArchivo()}_${mesesSeleccionados.join('-')}_${año}.xlsx`;
-    XLSX.writeFile(wb, nombreArchivo);
-    alert('✅ Reporte completo descargado exitosamente (3 hojas: Estadísticas, Asistencias y Evidencias)');
-}
+                    // Descargar archivo
+                    const nombreArchivo = `Reporte_Completo_${obtenerNombreArchivo()}_${mesesSeleccionados.join('-')}_${año}.xlsx`;
+                    XLSX.writeFile(wb, nombreArchivo);
+                    alert('✅ Reporte completo descargado exitosamente (3 hojas: Estadísticas, Asistencias y Evidencias)');
+                }
 
-        await exportarEstadisticasAExcel();
+                await exportarEstadisticasAExcel();
 
 
-                
+
                 window.cerrarModalDescarga();
             } catch (error) {
                 console.error('Error al descargar estadísticas:', error);
@@ -1629,20 +1705,20 @@ async function exportarEstadisticasAExcel() {
             }
         }
         function obtenerNombreArchivo() {
-    if (currentUserProfile.role === 'instructor') {
-        return currentUserProfile.full_name || 'Instructor';
-    } else if (currentUserProfile.role === 'admin') {
-        const filterInstructor = document.getElementById('filter-instructor').value;
-        if (filterInstructor === 'todos') {
-            return 'Reporte_General';
-        } else {
-            const selectorInstructor = document.getElementById('filter-instructor');
-            const instructorSeleccionado = selectorInstructor.options[selectorInstructor.selectedIndex].text;
-            return instructorSeleccionado.replace(/\s+/g, '_');
+            if (currentUserProfile.role === 'instructor') {
+                return currentUserProfile.full_name || 'Instructor';
+            } else if (currentUserProfile.role === 'admin') {
+                const filterInstructor = document.getElementById('filter-instructor').value;
+                if (filterInstructor === 'todos') {
+                    return 'Reporte_General';
+                } else {
+                    const selectorInstructor = document.getElementById('filter-instructor');
+                    const instructorSeleccionado = selectorInstructor.options[selectorInstructor.selectedIndex].text;
+                    return instructorSeleccionado.replace(/\s+/g, '_');
+                }
+            }
+            return 'Admin';
         }
-    }
-    return 'Admin';
-}
 
         // Función principal para actualizar estadísticas
         async function actualizarEstadisticas() {
@@ -1679,32 +1755,32 @@ async function exportarEstadisticasAExcel() {
         }
 
         function obtenerTituloReporte() {
-    let titulo = '';
-    
-    if (currentUserProfile.role === 'instructor') {
-        titulo = currentUserProfile.full_name || 'INSTRUCTOR';
-    } else if (currentUserProfile.role === 'admin') {
-        const filterInstructor = document.getElementById('filter-instructor').value;
-        if (filterInstructor === 'todos') {
-            titulo = 'REPORTE GENERAL - TODOS LOS INSTRUCTORES';
-        } else {
-            const selectorInstructor = document.getElementById('filter-instructor');
-            const instructorSeleccionado = selectorInstructor.options[selectorInstructor.selectedIndex].text;
-            titulo = `INSTRUCTOR: ${instructorSeleccionado}`;
+            let titulo = '';
+
+            if (currentUserProfile.role === 'instructor') {
+                titulo = currentUserProfile.full_name || 'INSTRUCTOR';
+            } else if (currentUserProfile.role === 'admin') {
+                const filterInstructor = document.getElementById('filter-instructor').value;
+                if (filterInstructor === 'todos') {
+                    titulo = 'REPORTE GENERAL - TODOS LOS INSTRUCTORES';
+                } else {
+                    const selectorInstructor = document.getElementById('filter-instructor');
+                    const instructorSeleccionado = selectorInstructor.options[selectorInstructor.selectedIndex].text;
+                    titulo = `INSTRUCTOR: ${instructorSeleccionado}`;
+                }
+            } else {
+                titulo = 'ADMINISTRADOR';
+            }
+
+            // AGREGAR FILTRO POR DEPORTE
+            const deporteSeleccionado = document.getElementById('filter-deporte-descarga').value;
+            if (deporteSeleccionado !== 'todos') {
+                const deporteFormateado = deporteSeleccionado.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                titulo += ` - DEPORTE: ${deporteFormateado}`;
+            }
+
+            return titulo;
         }
-    } else {
-        titulo = 'ADMINISTRADOR';
-    }
-    
-    // AGREGAR FILTRO POR DEPORTE
-    const deporteSeleccionado = document.getElementById('filter-deporte-descarga').value;
-    if (deporteSeleccionado !== 'todos') {
-        const deporteFormateado = deporteSeleccionado.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        titulo += ` - DEPORTE: ${deporteFormateado}`;
-    }
-    
-    return titulo;
-}
 
         // Función para iniciar actualización automática
         function iniciarActualizacionAutomatica() {
@@ -1722,219 +1798,219 @@ async function exportarEstadisticasAExcel() {
                 clearInterval(intervalId);
             }
         });
-        
+
 
         async function obtenerDatosAsistenciasDetalladas(datosAsistencias) {
-    try {
-        // OBTENER mesesSeleccionados desde el DOM
-        const mesesSeleccionados = [];
-        const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]:checked');
-        checkboxes.forEach(cb => {
-            const meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-            mesesSeleccionados.push(meses[parseInt(cb.value)]);
-        });
-        const año = document.getElementById('año-descarga').value;
+            try {
+                // OBTENER mesesSeleccionados desde el DOM
+                const mesesSeleccionados = [];
+                const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]:checked');
+                checkboxes.forEach(cb => {
+                    const meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                    mesesSeleccionados.push(meses[parseInt(cb.value)]);
+                });
+                const año = document.getElementById('año-descarga').value;
 
-        // Obtener participantes relacionados
-        const participanteIds = [...new Set(datosAsistencias.map(a => a.participante_id))];
-        const { data: participantes, error: errorParticipantes } = await supabaseClient
-            .from('participantes')
-            .select('*')
-            .in('id', participanteIds);
+                // Obtener participantes relacionados
+                const participanteIds = [...new Set(datosAsistencias.map(a => a.participante_id))];
+                const { data: participantes, error: errorParticipantes } = await supabaseClient
+                    .from('participantes')
+                    .select('*')
+                    .in('id', participanteIds);
 
-        if (errorParticipantes) throw errorParticipantes;
+                if (errorParticipantes) throw errorParticipantes;
 
-        // Obtener instructores relacionados
-        const instructorIds = [...new Set(datosAsistencias.map(a => a.instructor_id))];
-        const { data: instructores, error: errorInstructores } = await supabaseClient
-            .from('profiles')
-            .select('id, full_name, username')
-            .in('id', instructorIds);
+                // Obtener instructores relacionados
+                const instructorIds = [...new Set(datosAsistencias.map(a => a.instructor_id))];
+                const { data: instructores, error: errorInstructores } = await supabaseClient
+                    .from('profiles')
+                    .select('id, full_name, username')
+                    .in('id', instructorIds);
 
-        if (errorInstructores) throw errorInstructores;
+                if (errorInstructores) throw errorInstructores;
 
-        // Crear mapas para búsqueda rápida
-        const participantesMap = {};
-        participantes.forEach(p => participantesMap[p.id] = p);
+                // Crear mapas para búsqueda rápida
+                const participantesMap = {};
+                participantes.forEach(p => participantesMap[p.id] = p);
 
-        const instructoresMap = {};
-        instructores.forEach(i => instructoresMap[i.id] = i);
+                const instructoresMap = {};
+                instructores.forEach(i => instructoresMap[i.id] = i);
 
-        // Construir datos para Excel
-        const data = [
-            [`📋 LISTA DETALLADA DE ASISTENCIAS - ${obtenerTituloReporte()}`],
-            [`Período: ${mesesSeleccionados.join(', ')} ${año}`],
-            [`Total de registros: ${datosAsistencias.length}`],
-            [],
-            ['FECHA', 'PARTICIPANTE', 'DOCUMENTO', 'EDAD', 'GÉNERO', 'ACTIVIDAD', 'BARRIO', 'INSTRUCTOR', 'ASISTIÓ', 'OBSERVACIONES']
-        ];
+                // Construir datos para Excel
+                const data = [
+                    [`📋 LISTA DETALLADA DE ASISTENCIAS - ${obtenerTituloReporte()}`],
+                    [`Período: ${mesesSeleccionados.join(', ')} ${año}`],
+                    [`Total de registros: ${datosAsistencias.length}`],
+                    [],
+                    ['FECHA', 'PARTICIPANTE', 'DOCUMENTO', 'EDAD', 'GÉNERO', 'ACTIVIDAD', 'BARRIO', 'INSTRUCTOR', 'ASISTIÓ', 'OBSERVACIONES']
+                ];
 
-        // Agregar cada asistencia
-        datosAsistencias.forEach(asistencia => {
-            const participante = participantesMap[asistencia.participante_id];
-            const instructor = instructoresMap[asistencia.instructor_id];
-            
-            if (participante) {
-                const fecha = asistencia.fecha_clase || asistencia.created_at;
-const fechaFormateada = fecha; // Usar directamente la fecha como string desde Supabase
+                // Agregar cada asistencia
+                datosAsistencias.forEach(asistencia => {
+                    const participante = participantesMap[asistencia.participante_id];
+                    const instructor = instructoresMap[asistencia.instructor_id];
+
+                    if (participante) {
+                        const fecha = asistencia.fecha_clase || asistencia.created_at;
+                        const fechaFormateada = fecha; // Usar directamente la fecha como string desde Supabase
 
 
-                
-                data.push([
-                    fechaFormateada,
-                    participante.nombre || 'Sin nombre',
-                    participante.documento_identidad || 'Sin documento',
-                    participante.edad || 'Sin edad',
-                    participante.genero || 'Sin género',
-                    (participante.actividad || 'Sin actividad').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-                    participante.barrio || 'Sin barrio',
-                    instructor ? (instructor.full_name || instructor.username) : 'Sin instructor',
-                    asistencia.asistio ? '✅ SÍ' : '❌ NO',
-                    asistencia.observaciones || ''
-                ]);
+
+                        data.push([
+                            fechaFormateada,
+                            participante.nombre || 'Sin nombre',
+                            participante.documento_identidad || 'Sin documento',
+                            participante.edad || 'Sin edad',
+                            participante.genero || 'Sin género',
+                            (participante.actividad || 'Sin actividad').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                            participante.barrio || 'Sin barrio',
+                            instructor ? (instructor.full_name || instructor.username) : 'Sin instructor',
+                            asistencia.asistio ? '✅ SÍ' : '❌ NO',
+                            asistencia.observaciones || ''
+                        ]);
+                    }
+                });
+
+                // Agregar resumen al final
+                data.push([]);
+                data.push(['RESUMEN DE ASISTENCIAS']);
+                data.push(['Total registros:', datosAsistencias.length]);
+                data.push(['Asistieron:', datosAsistencias.filter(a => a.asistio).length]);
+                data.push(['No asistieron:', datosAsistencias.filter(a => !a.asistio).length]);
+
+                return data;
+
+            } catch (error) {
+                console.error('Error al obtener datos de asistencias:', error);
+                return [
+                    ['❌ ERROR AL CARGAR DATOS DE ASISTENCIAS'],
+                    ['Error:', error.message]
+                ];
             }
-        });
-
-        // Agregar resumen al final
-        data.push([]);
-        data.push(['RESUMEN DE ASISTENCIAS']);
-        data.push(['Total registros:', datosAsistencias.length]);
-        data.push(['Asistieron:', datosAsistencias.filter(a => a.asistio).length]);
-        data.push(['No asistieron:', datosAsistencias.filter(a => !a.asistio).length]);
-
-        return data;
-
-    } catch (error) {
-        console.error('Error al obtener datos de asistencias:', error);
-        return [
-            ['❌ ERROR AL CARGAR DATOS DE ASISTENCIAS'],
-            ['Error:', error.message]
-        ];
-    }
-}
-async function obtenerDatosEvidencias(datosAsistencias) {
-    try {
-        // OBTENER mesesSeleccionados desde el DOM
-        const mesesSeleccionados = [];
-        const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]:checked');
-        checkboxes.forEach(cb => {
-            const meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-            mesesSeleccionados.push(meses[parseInt(cb.value)]);
-        });
-        const año = document.getElementById('año-descarga').value;
-
-        // Obtener instructores únicos de las asistencias
-        const instructorIds = [...new Set(datosAsistencias.map(a => a.instructor_id))];
-        
-        // CONSULTA CORREGIDA: Obtener evidencias por instructor_id (no por asistencia_id)
-        let queryEvidencias = supabaseClient
-            .from('evidencias')
-            .select('*')
-            .in('instructor_id', instructorIds);
-
-        const { data: evidencias, error: errorEvidencias } = await queryEvidencias;
-
-        if (errorEvidencias) throw errorEvidencias;
-
-        // Obtener datos de instructores para mostrar nombres
-        const { data: instructores, error: errorInstructores } = await supabaseClient
-            .from('profiles')
-            .select('id, full_name, username')
-            .in('id', instructorIds);
-
-        if (errorInstructores) throw errorInstructores;
-
-        // Crear mapa de instructores
-        const instructoresMap = {};
-        instructores.forEach(i => instructoresMap[i.id] = i);
-
-        // Filtrar evidencias por período seleccionado
-        const evidenciasFiltradas = evidencias ? evidencias.filter(evidencia => {
-            const fechaEvidencia = new Date(evidencia.fecha_subida);
-            const mesEvidencia = fechaEvidencia.getMonth() + 1;
-            const añoEvidencia = fechaEvidencia.getFullYear();
-            
-            const mesesNumericos = [];
-            checkboxes.forEach(cb => {
-                if (cb.checked) {
-                    mesesNumericos.push(parseInt(cb.value));
-                }
-            });
-            
-            return mesesNumericos.includes(mesEvidencia) && añoEvidencia === parseInt(año);
-        }) : [];
-
-        // Construir datos para Excel
-        const data = [
-            [`📷 EVIDENCIAS FOTOGRÁFICAS - ${obtenerTituloReporte()}`],
-            [`Período: ${mesesSeleccionados.join(', ')} ${año}`],
-            [`Total de evidencias: ${evidenciasFiltradas.length}`],
-            [],
-            ['FECHA', 'INSTRUCTOR', 'ARCHIVO', 'URL IMAGEN', 'UBICACIÓN', 'COORDENADAS', 'DESCRIPCIÓN']
-        ];
-
-        if (evidenciasFiltradas.length > 0) {
-            evidenciasFiltradas.forEach(evidencia => {
-                const instructor = instructoresMap[evidencia.instructor_id];
-                const fecha = new Date(evidencia.fecha_subida).toLocaleDateString('es-ES');
-                
-                // Formatear ubicación
-                let ubicacion = 'Sin ubicación';
-                let coordenadas = 'Sin coordenadas';
-                
-                if (evidencia.direccion) {
-                    ubicacion = evidencia.direccion;
-                }
-                
-                if (evidencia.latitud && evidencia.longitud) {
-                    coordenadas = `${evidencia.latitud.toFixed(6)}, ${evidencia.longitud.toFixed(6)}`;
-                }
-                
-                data.push([
-                    fecha,
-                    instructor ? (instructor.full_name || instructor.username) : 'Sin instructor',
-                    evidencia.archivo_nombre || 'Sin nombre',
-                    evidencia.archivo_url || 'Sin URL',
-                    ubicacion,
-                    coordenadas,
-                    'Evidencia fotográfica de actividad'
-                ]);
-            });
-
-            // Agregar resumen
-            data.push([]);
-            data.push(['RESUMEN DE EVIDENCIAS']);
-            data.push(['Total evidencias:', evidenciasFiltradas.length]);
-            
-            // Contar por instructor
-            const evidenciasPorInstructor = {};
-            evidenciasFiltradas.forEach(e => {
-                const instructor = instructoresMap[e.instructor_id];
-                const nombreInstructor = instructor ? (instructor.full_name || instructor.username) : 'Sin instructor';
-                evidenciasPorInstructor[nombreInstructor] = (evidenciasPorInstructor[nombreInstructor] || 0) + 1;
-            });
-            
-            Object.entries(evidenciasPorInstructor).forEach(([instructor, cantidad]) => {
-                data.push([`${instructor}:`, cantidad]);
-            });
-
-        } else {
-            data.push(['Sin evidencias fotográficas para este período']);
         }
+        async function obtenerDatosEvidencias(datosAsistencias) {
+            try {
+                // OBTENER mesesSeleccionados desde el DOM
+                const mesesSeleccionados = [];
+                const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]:checked');
+                checkboxes.forEach(cb => {
+                    const meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                    mesesSeleccionados.push(meses[parseInt(cb.value)]);
+                });
+                const año = document.getElementById('año-descarga').value;
 
-        return data;
+                // Obtener instructores únicos de las asistencias
+                const instructorIds = [...new Set(datosAsistencias.map(a => a.instructor_id))];
 
-    } catch (error) {
-        console.error('Error al obtener evidencias:', error);
-        return [
-            ['❌ ERROR AL CARGAR EVIDENCIAS'],
-            ['Error:', error.message],
-            [],
-            ['NOTA: Las evidencias se obtienen por instructor, no por asistencia individual'],
-            ['Campos disponibles: instructor_id, archivo_nombre, archivo_url, fecha_subida, direccion, latitud, longitud']
-        ];
-    }
-}
+                // CONSULTA CORREGIDA: Obtener evidencias por instructor_id (no por asistencia_id)
+                let queryEvidencias = supabaseClient
+                    .from('evidencias')
+                    .select('*')
+                    .in('instructor_id', instructorIds);
+
+                const { data: evidencias, error: errorEvidencias } = await queryEvidencias;
+
+                if (errorEvidencias) throw errorEvidencias;
+
+                // Obtener datos de instructores para mostrar nombres
+                const { data: instructores, error: errorInstructores } = await supabaseClient
+                    .from('profiles')
+                    .select('id, full_name, username')
+                    .in('id', instructorIds);
+
+                if (errorInstructores) throw errorInstructores;
+
+                // Crear mapa de instructores
+                const instructoresMap = {};
+                instructores.forEach(i => instructoresMap[i.id] = i);
+
+                // Filtrar evidencias por período seleccionado
+                const evidenciasFiltradas = evidencias ? evidencias.filter(evidencia => {
+                    const fechaEvidencia = new Date(evidencia.fecha_subida);
+                    const mesEvidencia = fechaEvidencia.getMonth() + 1;
+                    const añoEvidencia = fechaEvidencia.getFullYear();
+
+                    const mesesNumericos = [];
+                    checkboxes.forEach(cb => {
+                        if (cb.checked) {
+                            mesesNumericos.push(parseInt(cb.value));
+                        }
+                    });
+
+                    return mesesNumericos.includes(mesEvidencia) && añoEvidencia === parseInt(año);
+                }) : [];
+
+                // Construir datos para Excel
+                const data = [
+                    [`📷 EVIDENCIAS FOTOGRÁFICAS - ${obtenerTituloReporte()}`],
+                    [`Período: ${mesesSeleccionados.join(', ')} ${año}`],
+                    [`Total de evidencias: ${evidenciasFiltradas.length}`],
+                    [],
+                    ['FECHA', 'INSTRUCTOR', 'ARCHIVO', 'URL IMAGEN', 'UBICACIÓN', 'COORDENADAS', 'DESCRIPCIÓN']
+                ];
+
+                if (evidenciasFiltradas.length > 0) {
+                    evidenciasFiltradas.forEach(evidencia => {
+                        const instructor = instructoresMap[evidencia.instructor_id];
+                        const fecha = new Date(evidencia.fecha_subida).toLocaleDateString('es-ES');
+
+                        // Formatear ubicación
+                        let ubicacion = 'Sin ubicación';
+                        let coordenadas = 'Sin coordenadas';
+
+                        if (evidencia.direccion) {
+                            ubicacion = evidencia.direccion;
+                        }
+
+                        if (evidencia.latitud && evidencia.longitud) {
+                            coordenadas = `${evidencia.latitud.toFixed(6)}, ${evidencia.longitud.toFixed(6)}`;
+                        }
+
+                        data.push([
+                            fecha,
+                            instructor ? (instructor.full_name || instructor.username) : 'Sin instructor',
+                            evidencia.archivo_nombre || 'Sin nombre',
+                            evidencia.archivo_url || 'Sin URL',
+                            ubicacion,
+                            coordenadas,
+                            'Evidencia fotográfica de actividad'
+                        ]);
+                    });
+
+                    // Agregar resumen
+                    data.push([]);
+                    data.push(['RESUMEN DE EVIDENCIAS']);
+                    data.push(['Total evidencias:', evidenciasFiltradas.length]);
+
+                    // Contar por instructor
+                    const evidenciasPorInstructor = {};
+                    evidenciasFiltradas.forEach(e => {
+                        const instructor = instructoresMap[e.instructor_id];
+                        const nombreInstructor = instructor ? (instructor.full_name || instructor.username) : 'Sin instructor';
+                        evidenciasPorInstructor[nombreInstructor] = (evidenciasPorInstructor[nombreInstructor] || 0) + 1;
+                    });
+
+                    Object.entries(evidenciasPorInstructor).forEach(([instructor, cantidad]) => {
+                        data.push([`${instructor}:`, cantidad]);
+                    });
+
+                } else {
+                    data.push(['Sin evidencias fotográficas para este período']);
+                }
+
+                return data;
+
+            } catch (error) {
+                console.error('Error al obtener evidencias:', error);
+                return [
+                    ['❌ ERROR AL CARGAR EVIDENCIAS'],
+                    ['Error:', error.message],
+                    [],
+                    ['NOTA: Las evidencias se obtienen por instructor, no por asistencia individual'],
+                    ['Campos disponibles: instructor_id, archivo_nombre, archivo_url, fecha_subida, direccion, latitud, longitud']
+                ];
+            }
+        }
 
 
 
@@ -1946,10 +2022,23 @@ async function obtenerDatosEvidencias(datosAsistencias) {
                 window.cerrarModalDescarga();
             }
         });
+
+        // Función para ir a tomar asistencia de un deporte específico
+        function irATomarAsistencia(deporte) {
+            // Guardar el deporte seleccionado en localStorage para usar en formulario_excel.html
+            localStorage.setItem('deporteSeleccionado', deporte.toLowerCase());
+            localStorage.setItem('instructorId', currentUserProfile.id);
+
+            // Redirigir a formulario_excel.html
+            window.location.href = `formulario_excel.html?autoAbrir=asistencia&deporte=${encodeURIComponent(deporte.toLowerCase())}`;
+        }
+
+        // Exponer función globalmente
+        window.irATomarAsistencia = irATomarAsistencia;
     </script>
 
     <script src="script.js"></script>
-    
+
 </body>
 
 </html>
