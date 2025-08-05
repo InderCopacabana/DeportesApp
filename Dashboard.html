@@ -547,6 +547,77 @@
                     <option value="Mujer">Solo Mujeres</option>
                 </select>
             </div>
+            <!-- Sección de Gestión de Grupos -->
+<div class="grupos-section" style="margin: 2rem 0;">
+    <div class="grupos-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3>🏆 Gestión de Grupos</h3>
+        <button onclick="abrirModalCrearGrupo()" class="btn btn-primary">
+            ➕ Crear Grupo
+        </button>
+    </div>
+    <div id="grupos-container" class="grupos-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+        <!-- Los grupos se cargarán aquí dinámicamente -->
+    </div>
+</div>
+
+<!-- Modal para Crear/Editar Grupo -->
+<div id="modalGrupo" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 500px;">
+        <span class="close" onclick="cerrarModalGrupo()">&times;</span>
+        <h2 id="titulo-modal-grupo">➕ Crear Nuevo Grupo</h2>
+        <form id="form-grupo" onsubmit="guardarGrupo(event)">
+            <div style="margin-bottom: 1rem;">
+                <label>Nombre del Grupo:</label>
+                <input type="text" id="grupo-nombre" required placeholder="Ej: Baloncesto Principiante Infante">
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label>Deporte:</label>
+                <select id="grupo-deporte" required>
+                    <!-- Se llenará dinámicamente con los deportes del instructor -->
+                </select>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label>Descripción (opcional):</label>
+                <textarea id="grupo-descripcion" placeholder="Descripción del grupo..."></textarea>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label>Color del Grupo:</label>
+                <input type="color" id="grupo-color" value="#667eea">
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button type="submit" class="btn btn-primary">💾 Guardar</button>
+                <button type="button" onclick="cerrarModalGrupo()" class="btn btn-secondary">❌ Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Gestionar Participantes del Grupo -->
+<div id="modalParticipantesGrupo" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 800px;">
+        <span class="close" onclick="cerrarModalParticipantes()">&times;</span>
+        <h2 id="titulo-participantes-grupo">👥 Gestionar Participantes</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <!-- Participantes Disponibles -->
+            <div>
+                <h4>Participantes Disponibles</h4>
+                <div id="participantes-disponibles" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 1rem;">
+                    <!-- Se llenarán dinámicamente -->
+                </div>
+            </div>
+            <!-- Participantes en el Grupo -->
+            <div>
+                <h4>Participantes en el Grupo</h4>
+                <div id="participantes-grupo" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 1rem;">
+                    <!-- Se llenarán dinámicamente -->
+                </div>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 1rem;">
+            <button onclick="cerrarModalParticipantes()" class="btn btn-primary">✅ Cerrar</button>
+        </div>
+    </div>
+</div>
 
 
             <!-- Resumen de Estadísticas Dinámicas -->
@@ -719,10 +790,8 @@
                     <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
                         <button onclick="seleccionarTodosMesesPDF()" class="btn btn-outline">Seleccionar Todos</button>
                         <button onclick="limpiarSeleccionMesesPDF()" class="btn btn-outline">Limpiar Selección</button>
-                        <select id="filter-deporte-pdf" class="filter-dropdown" style="min-width: 200px;">
-    <option value="todos">Todos los Deportes</option>
-</select>
-
+                        <select id="filter-deporte-descarga" class="filter-dropdown" style="min-width: 200px;">
+                            <option value="todos">Todos los Deportes</option>
                         </select>
                     </div>
                     <div style="display: flex; gap: 1rem;">
@@ -744,7 +813,9 @@
             </div>
             <div id="preview-estadisticas-pdf" style="margin-top: 2rem; max-height: 400px; overflow-y: auto;"></div>
         </div>
+        
         </div>
+        
     </main>
 
     <!-- Pie de página -->
@@ -755,6 +826,170 @@
     </footer>
 
     <script type="module">
+        // Variables globales para grupos
+let gruposData = [];
+let grupoEditando = null;
+let grupoSeleccionado = null;
+
+// Cargar grupos del instructor
+async function cargarGrupos() {
+    try {
+        let query = supabaseClient
+            .from('grupos')
+            .select(`
+                *,
+                participantes_grupos(
+                    participante_id,
+                    participantes(nombre, edad, genero)
+                )
+            `)
+            .eq('activo', true);
+
+        if (currentUserProfile.role === 'instructor') {
+            query = query.eq('instructor_id', currentUserProfile.id);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        gruposData = data || [];
+        renderizarGrupos();
+    } catch (error) {
+        console.error('Error cargando grupos:', error);
+    }
+}
+
+// Renderizar grupos en el dashboard
+function renderizarGrupos() {
+    const container = document.getElementById('grupos-container');
+    if (!container) return;
+
+    if (gruposData.length === 0) {
+        container.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #666;">
+                <p>No hay grupos creados aún.</p>
+                <p>Haz clic en "Crear Grupo" para comenzar.</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = gruposData.map(grupo => {
+        const participantesCount = grupo.participantes_grupos?.length || 0;
+        return `
+            <div class="grupo-card" style="border-left-color: ${grupo.color}">
+                <div class="grupo-header">
+                    <div>
+                        <div class="grupo-nombre">${grupo.nombre}</div>
+                        <div class="grupo-deporte">${grupo.deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
+                    </div>
+                </div>
+                
+                <div class="grupo-stats">
+                    <div class="grupo-stat">
+                        <div class="grupo-stat-number">${participantesCount}</div>
+                        <div class="grupo-stat-label">Participantes</div>
+                    </div>
+                </div>
+                
+                ${grupo.descripcion ? `<p style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">${grupo.descripcion}</p>` : ''}
+                
+                <div class="grupo-actions">
+                    <button onclick="gestionarParticipantesGrupo('${grupo.id}')" class="btn-small btn-manage">
+                        👥 Gestionar
+                    </button>
+                    <button onclick="tomarAsistenciaGrupo('${grupo.id}')" class="btn-small btn-manage">
+                        📝 Asistencia
+                    </button>
+                    <button onclick="editarGrupo('${grupo.id}')" class="btn-small btn-manage">
+                        ✏️ Editar
+                    </button>
+                    <button onclick="eliminarGrupo('${grupo.id}')" class="btn-small btn-delete">
+                        🗑️ Eliminar
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Abrir modal para crear grupo
+async function abrirModalCrearGrupo() {
+    grupoEditando = null;
+    document.getElementById('titulo-modal-grupo').textContent = '➕ Crear Nuevo Grupo';
+    document.getElementById('form-grupo').reset();
+    
+    // Llenar selector de deportes
+    await llenarSelectorDeportes();
+    
+    document.getElementById('modalGrupo').style.display = 'block';
+}
+
+// Llenar selector de deportes del instructor
+async function llenarSelectorDeportes() {
+    const selector = document.getElementById('grupo-deporte');
+    let deportes = [];
+    
+    if (currentUserProfile.username) {
+        deportes = currentUserProfile.username.split(',').map(d => d.trim());
+    }
+    
+    selector.innerHTML = deportes.map(deporte => 
+        `<option value="${deporte}">${deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>`
+    ).join('');
+}
+
+// Guardar grupo
+async function guardarGrupo(event) {
+    event.preventDefault();
+    
+    const nombre = document.getElementById('grupo-nombre').value;
+    const deporte = document.getElementById('grupo-deporte').value;
+    const descripcion = document.getElementById('grupo-descripcion').value;
+    const color = document.getElementById('grupo-color').value;
+    
+    try {
+        const grupoData = {
+            nombre,
+            deporte,
+            descripcion,
+            color,
+            instructor_id: currentUserProfile.id
+        };
+        
+        if (grupoEditando) {
+            const { error } = await supabaseClient
+                .from('grupos')
+                .update(grupoData)
+                .eq('id', grupoEditando);
+            if (error) throw error;
+        } else {
+            const { error } = await supabaseClient
+                .from('grupos')
+                .insert([grupoData]);
+            if (error) throw error;
+        }
+        
+        await cargarGrupos();
+        cerrarModalGrupo();
+        alert('✅ Grupo guardado exitosamente');
+    } catch (error) {
+        console.error('Error guardando grupo:', error);
+        alert('❌ Error al guardar el grupo');
+    }
+}
+
+// Cerrar modal de grupo
+function cerrarModalGrupo() {
+    document.getElementById('modalGrupo').style.display = 'none';
+    grupoEditando = null;
+}
+
+// Exponer funciones globalmente
+window.abrirModalCrearGrupo = abrirModalCrearGrupo;
+window.cerrarModalGrupo = cerrarModalGrupo;
+window.guardarGrupo = guardarGrupo;
+
         import {
             protectPage,
             getUserProfile,
@@ -824,6 +1059,8 @@
                 document.getElementById('filter-tipo').addEventListener('change', actualizarEstadisticas);
                 document.getElementById('filter-genero').addEventListener('change', actualizarEstadisticas);
 
+                await cargarGrupos();
+
                 // Cargar estadísticas iniciales
                 await actualizarEstadisticas();
                 // Configurar actualización automática
@@ -835,32 +1072,31 @@
             }
         });
 
-        // ✅ Función REUTILIZABLE para Excel y PDF
-async function cargarDeportesEnSelector(idSelect = 'filter-deporte-descarga') {
-    try {
-        const { data: participantes, error } = await supabaseClient
-            .from('participantes')
-            .select('actividad')
-            .order('actividad');
+        async function cargarDeportesEnSelector() {
+            try {
+                const { data: participantes, error } = await supabaseClient
+                    .from('participantes')
+                    .select('actividad')
+                    .order('actividad');
 
-        if (error) throw error;
+                if (error) throw error;
 
-        const deportesUnicos = [...new Set(participantes.map(p => p.actividad))];
+                // Obtener deportes únicos
+                const deportesUnicos = [...new Set(participantes.map(p => p.actividad))];
 
-        const selector = document.getElementById(idSelect);
-        let options = '<option value="todos">Todos los Deportes</option>';
+                const selector = document.getElementById('filter-deporte-descarga');
+                let options = '<option value="todos">Todos los Deportes</option>';
 
-        deportesUnicos.forEach(deporte => {
-            const deporteFormateado = deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            options += `<option value="${deporte}">${deporteFormateado}</option>`;
-        });
+                deportesUnicos.forEach(deporte => {
+                    const deporteFormateado = deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    options += `<option value="${deporte}">${deporteFormateado}</option>`;
+                });
 
-        selector.innerHTML = options;
-    } catch (error) {
-        console.error('Error cargando deportes:', error);
-    }
-}
-
+                selector.innerHTML = options;
+            } catch (error) {
+                console.error('Error cargando deportes:', error);
+            }
+        }
 
 
         // Función para configurar el avatar del usuario
@@ -1503,6 +1739,24 @@ async function cargarDeportesEnSelector(idSelect = 'filter-deporte-descarga') {
     `;
                 }
             });
+            // ================= GRUPOS NUEVOS =================
+    await cargarGrupos(); // 👈 esta función debe obtener y llenar `gruposData`
+
+    gruposData.forEach((grupo, index) => {
+        const participantesGrupo = grupo.participantes_grupos?.length || 0;
+        const colorClass = coloresDeportes[index % coloresDeportes.length];
+
+        container.innerHTML += `
+            <div class="stat-card ${colorClass}" style="cursor: pointer; transition: transform 0.2s ease;"
+                 onclick="tomarAsistenciaGrupo('${grupo.id}')"
+                 onmouseover="this.style.transform='scale(1.05)'"
+                 onmouseout="this.style.transform='scale(1)'">
+                <div class="stat-number">${participantesGrupo}</div>
+                <div class="stat-label">${grupo.nombre}</div>
+                <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 0.5rem;">📝 Click para tomar asistencia</div>
+            </div>
+        `;
+    });
 
             // Tarjeta de Total Asistencias (siempre se muestra al final)
             container.innerHTML += `

@@ -1407,6 +1407,122 @@
       padding: 0.3rem;
     }
   }
+
+  .grupo-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid;
+    transition: transform 0.3s ease;
+}
+
+.grupo-card:hover {
+    transform: translateY(-2px);
+}
+
+.grupo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.grupo-nombre {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.grupo-deporte {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.grupo-stats {
+    display: flex;
+    justify-content: space-between;
+    margin: 1rem 0;
+}
+
+.grupo-stat {
+    text-align: center;
+}
+
+.grupo-stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.grupo-stat-label {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.grupo-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-small {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-manage {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-manage:hover {
+    background-color: #0056b3;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
+
+.participante-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.participante-item:hover {
+    background: #e9ecef;
+}
+
+.participante-info {
+    flex: 1;
+}
+
+.participante-nombre {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.participante-detalles {
+    font-size: 0.8rem;
+    color: #666;
+}
  
 
 
