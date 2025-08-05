@@ -782,11 +782,12 @@
 
                     // Después de la configuración del botón de Excel
                     const botonDescargaPDF = document.getElementById('btnDescargarPDF');
-                    if (botonDescargaPDF && profile.role === 'instructor') {
-                        botonDescargaPDF.style.display = 'inline-block';
-                    } else if (botonDescargaPDF) {
-                        botonDescargaPDF.style.display = 'none';
-                    }
+                    if (botonDescargaPDF && (profile.role === 'instructor' || profile.role === 'admin')) {
+    botonDescargaPDF.style.display = 'inline-block';
+} else if (botonDescargaPDF) {
+    botonDescargaPDF.style.display = 'none';
+}
+
 
 
                     // Actualizar rol mostrado
