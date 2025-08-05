@@ -656,19 +656,19 @@
                         </select>
                     </div>
                 </div>
-
+                <!--
                 <div style="display: flex; gap: 1rem; justify-content: center;">
                     <button onclick="previsualizarEstadisticas()" class="btn btn-primary">
                         👁️ Previsualizar
                     </button>
-                    <button onclick="descargarEstadisticas()" class="btn btn-primary"
-                        style="background-color: #28a745;">
-                        📥 Descargar Excel
-                    </button>
-                </div>
-
-                <div id="preview-estadisticas" style="margin-top: 2rem; max-height: 400px; overflow-y: auto;"></div>
+                -->
+                <button onclick="descargarEstadisticas()" class="btn btn-primary" style="background-color: #28a745;">
+                    📥 Descargar Excel
+                </button>
             </div>
+
+            <div id="preview-estadisticas" style="margin-top: 2rem; max-height: 400px; overflow-y: auto;"></div>
+        </div>
 
         </div>
         <!-- Modal de Descarga PDF -->
@@ -719,6 +719,11 @@
                     <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
                         <button onclick="seleccionarTodosMesesPDF()" class="btn btn-outline">Seleccionar Todos</button>
                         <button onclick="limpiarSeleccionMesesPDF()" class="btn btn-outline">Limpiar Selección</button>
+                        <select id="filter-deporte-pdf" class="filter-dropdown" style="min-width: 200px;">
+    <option value="todos">Todos los Deportes</option>
+</select>
+
+                        </select>
                     </div>
                     <div style="display: flex; gap: 1rem;">
                         <select id="año-descarga-pdf" class="filter-dropdown">
@@ -727,16 +732,18 @@
                         </select>
                     </div>
                 </div>
+                <!--
                 <div style="display: flex; gap: 1rem; justify-content: center;">
                     <button onclick="previsualizarEstadisticasPDF()" class="btn btn-primary">
                         👁️ Previsualizar
                     </button>
-                    <button onclick="descargarPDF()" class="btn btn-primary" style="background-color: #dc3545;">
-                        📥 Descargar PDF
-                    </button>
-                </div>
-                <div id="preview-estadisticas-pdf" style="margin-top: 2rem; max-height: 400px; overflow-y: auto;"></div>
+                    -->
+                <button onclick="descargarPDF()" class="btn btn-primary" style="background-color: #dc3545;">
+                    📥 Descargar PDF
+                </button>
             </div>
+            <div id="preview-estadisticas-pdf" style="margin-top: 2rem; max-height: 400px; overflow-y: auto;"></div>
+        </div>
         </div>
     </main>
 
@@ -783,10 +790,10 @@
                     // Después de la configuración del botón de Excel
                     const botonDescargaPDF = document.getElementById('btnDescargarPDF');
                     if (botonDescargaPDF && (profile.role === 'instructor' || profile.role === 'admin')) {
-    botonDescargaPDF.style.display = 'inline-block';
-} else if (botonDescargaPDF) {
-    botonDescargaPDF.style.display = 'none';
-}
+                        botonDescargaPDF.style.display = 'inline-block';
+                    } else if (botonDescargaPDF) {
+                        botonDescargaPDF.style.display = 'none';
+                    }
 
 
 
@@ -828,31 +835,32 @@
             }
         });
 
-        async function cargarDeportesEnSelector() {
-            try {
-                const { data: participantes, error } = await supabaseClient
-                    .from('participantes')
-                    .select('actividad')
-                    .order('actividad');
+        // ✅ Función REUTILIZABLE para Excel y PDF
+async function cargarDeportesEnSelector(idSelect = 'filter-deporte-descarga') {
+    try {
+        const { data: participantes, error } = await supabaseClient
+            .from('participantes')
+            .select('actividad')
+            .order('actividad');
 
-                if (error) throw error;
+        if (error) throw error;
 
-                // Obtener deportes únicos
-                const deportesUnicos = [...new Set(participantes.map(p => p.actividad))];
+        const deportesUnicos = [...new Set(participantes.map(p => p.actividad))];
 
-                const selector = document.getElementById('filter-deporte-descarga');
-                let options = '<option value="todos">Todos los Deportes</option>';
+        const selector = document.getElementById(idSelect);
+        let options = '<option value="todos">Todos los Deportes</option>';
 
-                deportesUnicos.forEach(deporte => {
-                    const deporteFormateado = deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    options += `<option value="${deporte}">${deporteFormateado}</option>`;
-                });
+        deportesUnicos.forEach(deporte => {
+            const deporteFormateado = deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            options += `<option value="${deporte}">${deporteFormateado}</option>`;
+        });
 
-                selector.innerHTML = options;
-            } catch (error) {
-                console.error('Error cargando deportes:', error);
-            }
-        }
+        selector.innerHTML = options;
+    } catch (error) {
+        console.error('Error cargando deportes:', error);
+    }
+}
+
 
 
         // Función para configurar el avatar del usuario
@@ -1261,7 +1269,7 @@
             }
         }
 
-        // Función para calcular estadísticas por edad
+
         // Función para calcular estadísticas por edad
         function calcularEstadisticasEdad(datos) {
             const rangos = {
@@ -1669,7 +1677,8 @@
                 const deportes = participantes.filter(p => p.tipo_actividad === 'deporte').length;
                 const actividadesFisicas = participantes.filter(p => p.tipo_actividad === 'actividad_fisica').length;
 
-                // ESTADÍSTICAS POR EDAD (como el gráfico)
+
+                // ESTADÍSTICAS POR EDAD (usando participantes)
                 const rangos = {
                     'Primera infancia (0-5)': 0,
                     'Infancia (6-11)': 0,
@@ -1679,8 +1688,8 @@
                     'Persona mayor (60+)': 0
                 };
 
-                datos.forEach(p => {
-                    const edad = p.edad;
+                participantes.forEach(p => {
+                    const edad = parseInt(p.edad); // asegúrate de que sea número
                     if (edad >= 0 && edad <= 5) rangos['Primera infancia (0-5)']++;
                     else if (edad >= 6 && edad <= 11) rangos['Infancia (6-11)']++;
                     else if (edad >= 12 && edad <= 18) rangos['Adolescencia (12-18)']++;
@@ -1688,6 +1697,7 @@
                     else if (edad >= 27 && edad <= 59) rangos['Adultez (27-59)']++;
                     else if (edad >= 60) rangos['Persona mayor (60+)']++;
                 });
+
 
                 // ACTIVIDADES POPULARES (como el gráfico)
                 const actividadesConteo = {};
@@ -1731,12 +1741,7 @@
                         ['Hombres', hombres, totalParticipantes > 0 ? Math.round((hombres / totalParticipantes) * 100) + '%' : '0%'],
                         ['Mujeres', mujeres, totalParticipantes > 0 ? Math.round((mujeres / totalParticipantes) * 100) + '%' : '0%'],
                         ['TOTAL', totalParticipantes, '100%'],
-                        [],
-                        ['🎯 DISTRIBUCIÓN POR TIPO DE ACTIVIDAD'],
-                        ['TIPO', 'PARTICIPANTES', 'PORCENTAJE'],
-                        ['Deportes', deportes, totalParticipantes > 0 ? Math.round((deportes / totalParticipantes) * 100) + '%' : '0%'],
-                        ['Actividades Físicas', actividadesFisicas, totalParticipantes > 0 ? Math.round((actividadesFisicas / totalParticipantes) * 100) + '%' : '0%'],
-                        ['TOTAL', totalParticipantes, '100%'],
+
                         [],
                         ['📊 DISTRIBUCIÓN POR EDAD'],
                         ['RANGO DE EDAD', 'PARTICIPANTES', 'PORCENTAJE'],
