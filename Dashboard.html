@@ -11,6 +11,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <style>
         .dashboard-container {
             padding: 2rem 0;
@@ -516,9 +518,16 @@
                         🔄 Actualizar
                     </button>
 
-                    <button id="btnDescargarEstadisticas" style="display: none; background-color: #28a745; margin-left: 0.5rem;" onclick="abrirModalDescarga()" class="refresh-button">
-    📊 Descargar Estadísticas
-</button>
+                    <button id="btnDescargarEstadisticas"
+                        style="display: none; background-color: #28a745; margin-left: 0.5rem;"
+                        onclick="abrirModalDescarga()" class="refresh-button">
+                        📊 Descargar Estadísticas
+                    </button>
+
+                    <button id="btnDescargarPDF" style="display: none; background-color: #dc3545; margin-left: 0.5rem;"
+                        onclick="abrirModalDescargaPDF()" class="refresh-button">
+                        📄 Descargar PDF
+                    </button>
                 </div>
             </div>
 
@@ -660,6 +669,74 @@
 
                 <div id="preview-estadisticas" style="margin-top: 2rem; max-height: 400px; overflow-y: auto;"></div>
             </div>
+
+        </div>
+        <!-- Modal de Descarga PDF -->
+        <div id="modalDescargaPDF" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 500px;">
+                <span class="close" onclick="cerrarModalDescargaPDF()">&times;</span>
+                <h2>📄 Descargar Reporte PDF</h2>
+                <div style="margin-bottom: 2rem;">
+                    <h4>Seleccionar Período:</h4>
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-enero" value="1"> Enero
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-febrero" value="2"> Febrero
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-marzo" value="3"> Marzo
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-abril" value="4"> Abril
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-mayo" value="5"> Mayo
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-junio" value="6"> Junio
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-julio" value="7"> Julio
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-agosto" value="8"> Agosto
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-septiembre" value="9"> Septiembre
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-octubre" value="10"> Octubre
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-noviembre" value="11"> Noviembre
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-diciembre" value="12"> Diciembre
+                        </label>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                        <button onclick="seleccionarTodosMesesPDF()" class="btn btn-outline">Seleccionar Todos</button>
+                        <button onclick="limpiarSeleccionMesesPDF()" class="btn btn-outline">Limpiar Selección</button>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <select id="año-descarga-pdf" class="filter-dropdown">
+                            <option value="2024">2024</option>
+                            <option value="2025" selected>2025</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button onclick="previsualizarEstadisticasPDF()" class="btn btn-primary">
+                        👁️ Previsualizar
+                    </button>
+                    <button onclick="descargarPDF()" class="btn btn-primary" style="background-color: #dc3545;">
+                        📥 Descargar PDF
+                    </button>
+                </div>
+                <div id="preview-estadisticas-pdf" style="margin-top: 2rem; max-height: 400px; overflow-y: auto;"></div>
+            </div>
         </div>
     </main>
 
@@ -696,12 +773,20 @@
                     document.getElementById('user-name').textContent =
                         profile.full_name || profile.username || 'Usuario';
 
-const botonDescarga = document.getElementById('btnDescargarEstadisticas');
-if (botonDescarga && profile.role !== 'admin') {
-    botonDescarga.style.display = 'none';
-} else if (botonDescarga && profile.role === 'admin') {
-    botonDescarga.style.display = 'inline-block'; // o 'block', según tu diseño
-}
+                    const botonDescarga = document.getElementById('btnDescargarEstadisticas');
+                    if (botonDescarga && profile.role !== 'admin') {
+                        botonDescarga.style.display = 'none';
+                    } else if (botonDescarga && profile.role === 'admin') {
+                        botonDescarga.style.display = 'inline-block'; // o 'block', según tu diseño
+                    }
+
+                    // Después de la configuración del botón de Excel
+                    const botonDescargaPDF = document.getElementById('btnDescargarPDF');
+                    if (botonDescargaPDF && profile.role === 'instructor') {
+                        botonDescargaPDF.style.display = 'inline-block';
+                    } else if (botonDescargaPDF) {
+                        botonDescargaPDF.style.display = 'none';
+                    }
 
 
                     // Actualizar rol mostrado
@@ -2038,6 +2123,389 @@ if (botonDescarga && profile.role !== 'admin') {
             }
         });
 
+        async function obtenerDatosPorMesesPDF() {
+            const mesesSeleccionados = [];
+            const checkboxes = document.querySelectorAll('#modalDescargaPDF input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => mesesSeleccionados.push(parseInt(cb.value)));
+
+            if (mesesSeleccionados.length === 0) {
+                alert('Por favor, seleccione al menos un mes.');
+                return null;
+            }
+
+            const año = document.getElementById('año-descarga-pdf').value;
+
+            try {
+                // Para instructores, solo sus datos
+                let queryAsistencias = supabaseClient
+                    .from('asistencias')
+                    .select('*')
+                    .eq('instructor_id', currentUserProfile.id);
+
+                const { data: asistencias, error: errorAsistencias } = await queryAsistencias;
+                if (errorAsistencias) throw errorAsistencias;
+
+                if (!asistencias || asistencias.length === 0) {
+                    return [];
+                }
+
+                // Filtrar por fechas seleccionadas
+                const datosFiltrados = asistencias.filter(asistencia => {
+                    let fechaStr = asistencia.fecha || asistencia.fecha_asistencia || asistencia.created_at;
+                    if (!fechaStr) return false;
+
+                    const fecha = new Date(fechaStr);
+                    const mesAsistencia = fecha.getMonth() + 1;
+                    const añoAsistencia = fecha.getFullYear();
+
+                    return mesesSeleccionados.includes(mesAsistencia) && añoAsistencia === parseInt(año);
+                });
+
+                return datosFiltrados;
+            } catch (error) {
+                console.error('Error al obtener datos:', error);
+                alert('Error al obtener los datos');
+                return null;
+            }
+        }
+        window.previsualizarEstadisticasPDF = async function () {
+            const datos = await obtenerDatosPorMesesPDF();
+            if (!datos) return;
+
+            const preview = document.getElementById('preview-estadisticas-pdf');
+            const totalAsistencias = datos.length;
+            const asistieron = datos.filter(d => d.asistio).length;
+            const noAsistieron = totalAsistencias - asistieron;
+
+            preview.innerHTML = `
+        <h4>📋 Previsualización de Reporte PDF</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: bold; color: #007bff;">${totalAsistencias}</div>
+                <div>Total Asistencias</div>
+            </div>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: bold; color: #28a745;">${asistieron}</div>
+                <div>Asistieron</div>
+            </div>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: bold; color: #dc3545;">${noAsistieron}</div>
+                <div>No Asistieron</div>
+            </div>
+        </div>
+        <p><strong>Nota:</strong> El PDF incluirá estadísticas detalladas, lista de asistencias y evidencias fotográficas.</p>
+    `;
+        }
+        window.descargarPDF = async function () {
+            const datos = await obtenerDatosPorMesesPDF();
+            if (!datos || datos.length === 0) {
+                alert('No hay datos para descargar');
+                return;
+            }
+
+            try {
+                // Obtener meses seleccionados para el título
+                const mesesSeleccionados = [];
+                const checkboxes = document.querySelectorAll('#modalDescargaPDF input[type="checkbox"]:checked');
+                checkboxes.forEach(cb => {
+                    const meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                    mesesSeleccionados.push(meses[parseInt(cb.value)]);
+                });
+                const año = document.getElementById('año-descarga-pdf').value;
+
+                // Crear nuevo documento PDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Configurar fuente
+                doc.setFont('helvetica');
+
+                // Título principal
+                doc.setFontSize(16);
+                doc.setTextColor(40, 40, 40);
+                doc.text('REPORTE DE ACTIVIDADES - INDER COPACABANA', 20, 20);
+
+                doc.setFontSize(12);
+                doc.text(`Instructor: ${currentUserProfile.full_name || currentUserProfile.username}`, 20, 30);
+                doc.text(`Período: ${mesesSeleccionados.join(', ')} ${año}`, 20, 40);
+                doc.text(`Fecha de generación: ${new Date().toLocaleDateString('es-ES')}`, 20, 50);
+
+                // Obtener datos de participantes
+                const participanteIds = [...new Set(datos.map(a => a.participante_id))];
+                const { data: participantes, error } = await supabaseClient
+                    .from('participantes')
+                    .select('*')
+                    .in('id', participanteIds);
+
+                if (error) throw error;
+
+                // Calcular estadísticas
+                // Calcular estadísticas detalladas
+                const totalAsistencias = datos.length;
+                const asistieron = datos.filter(d => d.asistio).length;
+                const noAsistieron = totalAsistencias - asistieron;
+
+
+
+                // Estadísticas por deporte
+                const estadisticasPorDeporte = {};
+                const deportesInstructor = currentUserProfile.username ?
+                    currentUserProfile.username.split(',').map(d => d.trim()) : [];
+
+                deportesInstructor.forEach(deporte => {
+                    const participantesDeporte = participantes.filter(p =>
+                        p.actividad?.toLowerCase() === deporte.toLowerCase()
+                    );
+
+                    estadisticasPorDeporte[deporte] = {
+                        total: participantesDeporte.length,
+                        hombres: participantesDeporte.filter(p => p.genero === 'Hombre').length,
+                        mujeres: participantesDeporte.filter(p => p.genero === 'Mujer').length,
+                        barrios: {},
+                        edades: {
+                            'Primera infancia (0-5)': 0,
+                            'Infancia (6-11)': 0,
+                            'Adolescencia (12-18)': 0,
+                            'Juventud (19-26)': 0,
+                            'Adultez (27-59)': 0,
+                            'Persona mayor (60+)': 0
+                        }
+                    };
+
+                    // Contar barrios y edades por deporte
+                    participantesDeporte.forEach(p => {
+                        // Barrios
+                        const barrio = p.barrio || 'Sin barrio';
+                        estadisticasPorDeporte[deporte].barrios[barrio] =
+                            (estadisticasPorDeporte[deporte].barrios[barrio] || 0) + 1;
+
+                        // Edades
+                        const edad = p.edad;
+                        if (edad >= 0 && edad <= 5) estadisticasPorDeporte[deporte].edades['Primera infancia (0-5)']++;
+                        else if (edad >= 6 && edad <= 11) estadisticasPorDeporte[deporte].edades['Infancia (6-11)']++;
+                        else if (edad >= 12 && edad <= 18) estadisticasPorDeporte[deporte].edades['Adolescencia (12-18)']++;
+                        else if (edad >= 19 && edad <= 26) estadisticasPorDeporte[deporte].edades['Juventud (19-26)']++;
+                        else if (edad >= 27 && edad <= 59) estadisticasPorDeporte[deporte].edades['Adultez (27-59)']++;
+                        else if (edad >= 60) estadisticasPorDeporte[deporte].edades['Persona mayor (60+)']++;
+                    });
+                });
+
+                // Sección de estadísticas generales
+                // Sección de estadísticas generales
+                let yPosition = 70;
+                doc.setFontSize(14);
+                doc.setTextColor(0, 0, 0);
+                doc.text('RESUMEN ESTADÍSTICO COMPLETO', 20, yPosition);
+
+                yPosition += 15;
+                doc.setFontSize(10);
+                doc.text(`Total de registros de asistencia: ${totalAsistencias}`, 25, yPosition);
+                yPosition += 8;
+                doc.text(`Asistencias confirmadas: ${asistieron} (${totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) : 0}%)`, 25, yPosition);
+                yPosition += 8;
+                doc.text(`Asistencias no confirmadas: ${noAsistieron} (${totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) : 0}%)`, 25, yPosition);
+
+                // Estadísticas por deporte
+                yPosition += 20;
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+
+                doc.setFontSize(14);
+                doc.text('ESTADÍSTICAS POR DEPORTE', 20, yPosition);
+                yPosition += 10;
+
+                Object.entries(estadisticasPorDeporte).forEach(([deporte, stats]) => {
+                    if (yPosition > 240) {
+                        doc.addPage();
+                        yPosition = 20;
+                    }
+
+                    const deporteFormateado = deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                    doc.setFontSize(12);
+                    doc.setTextColor(67, 97, 238);
+                    doc.text(`${deporteFormateado}`, 25, yPosition);
+                    yPosition += 10;
+
+                    doc.setFontSize(10);
+                    doc.setTextColor(0, 0, 0);
+                    doc.text(`Total participantes: ${stats.total}`, 30, yPosition);
+                    yPosition += 6;
+                    doc.text(`Hombres: ${stats.hombres} (${stats.total > 0 ? Math.round((stats.hombres / stats.total) * 100) : 0}%)`, 30, yPosition);
+                    yPosition += 6;
+                    doc.text(`Mujeres: ${stats.mujeres} (${stats.total > 0 ? Math.round((stats.mujeres / stats.total) * 100) : 0}%)`, 30, yPosition);
+                    yPosition += 8;
+
+                    // Distribución por edad
+                    doc.text('Distribución por edad:', 30, yPosition);
+                    yPosition += 6;
+                    Object.entries(stats.edades).forEach(([rango, cantidad]) => {
+                        if (cantidad > 0) {
+                            doc.text(`  ${rango}: ${cantidad}`, 35, yPosition);
+                            yPosition += 5;
+                        }
+                    });
+
+                    yPosition += 3;
+                    // Distribución por barrios
+                    doc.text('Distribución por barrios:', 30, yPosition);
+                    yPosition += 6;
+                    Object.entries(stats.barrios).forEach(([barrio, cantidad]) => {
+                        doc.text(`  ${barrio}: ${cantidad}`, 35, yPosition);
+                        yPosition += 5;
+                    });
+
+                    yPosition += 10;
+                });
+
+                // Tabla de asistencias detallada
+                yPosition += 20;
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+
+                doc.setFontSize(14);
+                doc.text('DETALLE DE ASISTENCIAS', 20, yPosition);
+                yPosition += 10;
+
+                // Preparar datos para la tabla
+                const participantesMap = {};
+                participantes.forEach(p => participantesMap[p.id] = p);
+
+                const tableData = datos.map(asistencia => {
+                    const participante = participantesMap[asistencia.participante_id];
+                    if (!participante) return null;
+
+                    const fecha = new Date(asistencia.fecha_clase || asistencia.created_at).toLocaleDateString('es-ES');
+                    return [
+                        fecha,
+                        participante.nombre || 'Sin nombre',
+                        participante.edad || 'N/A',
+                        participante.genero || 'N/A',
+                        (participante.actividad || 'Sin actividad').replace(/_/g, ' '),
+                        asistencia.asistio ? 'Sí' : 'No'
+                    ];
+                }).filter(row => row !== null);
+
+                // Crear tabla con autoTable
+                doc.autoTable({
+                    startY: yPosition,
+                    head: [['Fecha', 'Participante', 'Edad', 'Género', 'Actividad', 'Asistió']],
+                    body: tableData,
+                    styles: { fontSize: 8 },
+                    headStyles: { fillColor: [67, 97, 238] },
+                    alternateRowStyles: { fillColor: [245, 245, 245] }
+                });
+                // Después de doc.autoTable() de asistencias
+                yPosition = doc.lastAutoTable.finalY + 20; // Obtener posición final de la tabla + espacio
+
+                // Sección de evidencias fotográficas
+                // Sección de evidencias fotográficas
+                // Verificar si hay espacio suficiente para el título y al menos una fila
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+
+                doc.setFontSize(14);
+                doc.setTextColor(0, 0, 0);
+                doc.text('EVIDENCIAS FOTOGRÁFICAS', 20, yPosition);
+                yPosition += 10;
+
+                try {
+                    // Obtener evidencias del instructor
+                    const { data: evidencias, error: errorEvidencias } = await supabaseClient
+                        .from('evidencias')
+                        .select('*')
+                        .eq('instructor_id', currentUserProfile.id);
+
+                    if (!errorEvidencias && evidencias && evidencias.length > 0) {
+                        // Filtrar evidencias por período
+                        const mesesNumericos = [];
+                        checkboxes.forEach(cb => {
+                            if (cb.checked) {
+                                mesesNumericos.push(parseInt(cb.value));
+                            }
+                        });
+
+                        const evidenciasFiltradas = evidencias.filter(evidencia => {
+                            const fechaEvidencia = new Date(evidencia.fecha_subida);
+                            const mesEvidencia = fechaEvidencia.getMonth() + 1;
+                            const añoEvidencia = fechaEvidencia.getFullYear();
+                            return mesesNumericos.includes(mesEvidencia) && añoEvidencia === parseInt(año);
+                        });
+
+                        if (evidenciasFiltradas.length > 0) {
+                            doc.setFontSize(10);
+                            doc.text(`Total de evidencias: ${evidenciasFiltradas.length}`, 25, yPosition);
+                            yPosition += 10;
+
+                            // Crear tabla de evidencias
+                            const evidenciasTableData = evidenciasFiltradas.map(evidencia => {
+                                const fecha = new Date(evidencia.fecha_subida).toLocaleDateString('es-ES');
+                                const ubicacion = evidencia.direccion || 'Sin ubicación';
+                                const coordenadas = evidencia.latitud && evidencia.longitud ?
+                                    `${evidencia.latitud.toFixed(4)}, ${evidencia.longitud.toFixed(4)}` : 'Sin coordenadas';
+
+                                return [
+                                    fecha,
+                                    evidencia.archivo_nombre || 'Sin nombre',
+                                    ubicacion,
+                                    coordenadas,
+                                    evidencia.archivo_url || 'Sin URL'
+                                ];
+                            });
+
+                            doc.autoTable({
+                                startY: yPosition,
+                                head: [['Fecha', 'Archivo', 'Ubicación', 'Coordenadas', 'URL']],
+                                body: evidenciasTableData,
+                                styles: { fontSize: 7 },
+                                headStyles: { fillColor: [220, 53, 69] },
+                                alternateRowStyles: { fillColor: [245, 245, 245] },
+                                columnStyles: {
+                                    4: { cellWidth: 40 } // URL column más ancha
+                                }
+                            });
+                            // Después de doc.autoTable() de evidencias
+                            yPosition = doc.lastAutoTable.finalY + 10;
+                        } else {
+                            doc.setFontSize(10);
+                            doc.text('No hay evidencias fotográficas para este período', 25, yPosition);
+                        }
+                    } else {
+                        doc.setFontSize(10);
+                        doc.text('No hay evidencias fotográficas disponibles', 25, yPosition);
+                    }
+                } catch (error) {
+                    console.error('Error al obtener evidencias:', error);
+                    doc.setFontSize(10);
+                    doc.text('Error al cargar evidencias fotográficas', 25, yPosition);
+                }
+
+                // Generar nombre del archivo
+                const nombreArchivo = `Reporte_${currentUserProfile.full_name || 'Instructor'}_${mesesSeleccionados.join('-')}_${año}.pdf`;
+
+
+
+                // Descargar PDF
+                doc.save(nombreArchivo);
+
+                alert('✅ Reporte PDF descargado exitosamente');
+                window.cerrarModalDescargaPDF();
+
+            } catch (error) {
+                console.error('Error al generar PDF:', error);
+                alert(`❌ Error al generar PDF: ${error.message}`);
+            }
+
+
+        }
+
+
         // Función para ir a tomar asistencia de un deporte específico
         function irATomarAsistencia(deporte) {
             // Guardar el deporte seleccionado en localStorage para usar en formulario_excel.html
@@ -2050,6 +2518,26 @@ if (botonDescarga && profile.role !== 'admin') {
 
         // Exponer función globalmente
         window.irATomarAsistencia = irATomarAsistencia;
+
+        // Funciones para el modal PDF
+        window.abrirModalDescargaPDF = function () {
+            document.getElementById('modalDescargaPDF').style.display = 'block';
+        }
+
+        window.cerrarModalDescargaPDF = function () {
+            document.getElementById('modalDescargaPDF').style.display = 'none';
+            document.getElementById('preview-estadisticas-pdf').innerHTML = '';
+        }
+
+        window.seleccionarTodosMesesPDF = function () {
+            const checkboxes = document.querySelectorAll('#modalDescargaPDF input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = true);
+        }
+
+        window.limpiarSeleccionMesesPDF = function () {
+            const checkboxes = document.querySelectorAll('#modalDescargaPDF input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+        }
     </script>
 
     <script src="script.js"></script>
