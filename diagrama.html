@@ -44,7 +44,7 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);
             color: white;
             padding: 1.5rem;
             border-radius: 12px;
@@ -53,15 +53,15 @@
         }
 
         .stat-card.secondary {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);
         }
 
         .stat-card.tertiary {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);
         }
 
         .stat-card.quaternary {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);
         }
 
         .stat-number {
@@ -379,20 +379,20 @@
                     <div class="stat-label">Edad Promedio</div>
                 </div>
 
-                <div class="stat-card" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);">
+                <div class="stat-card" style="background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);">
                     <div class="stat-number" id="total-condiciones-especiales">0</div>
                     <div class="stat-label">Condiciones Especiales</div>
                 </div>
-                <div class="stat-card" style="background: linear-gradient(135deg, #a55eea 0%, #8b5cf6 100%);">
+                <div class="stat-card" style="background: linear-gradient(135deg, #364b8a    0%, #5f6ed6 100%);">
                     <div class="stat-number" id="porcentaje-urbano">0%</div>
                     <div class="stat-label">Población Urbana</div>
                 </div>
                 <!-- Agregar después de las tarjetas existentes: -->
-                <div class="stat-card" style="background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);">
+                <div class="stat-card" style="background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);">
                     <div class="stat-number" id="total-recreacion">0</div>
                     <div class="stat-label">Recreación</div>
                 </div>
-                <div class="stat-card" style="background: linear-gradient(135deg, #26a69a 0%, #00695c 100%);">
+                <div class="stat-card" style="background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);">
                     <div class="stat-number" id="total-eventos">0</div>
                     <div class="stat-label">Eventos</div>
                 </div>
@@ -588,8 +588,6 @@
             }
         }
 
-
-
         // Función para calcular estadísticas por edad
         function calcularEstadisticasEdad(datos) {
             const rangos = {
@@ -642,12 +640,12 @@
                     datasets: [{
                         data: Object.values(estadisticas),
                         backgroundColor: [
-                            '#FF6384',
-                            '#36A2EB',
-                            '#FFCE56',
-                            '#4BC0C0',
+                            '#21284d',
+                            '#7280f2',
+                            '#364b8a',
+                            '#4a5cb0',
                             '#9966FF',
-                            '#FF9F40'
+                            '#7084d1'
                         ],
                         borderWidth: 2,
                         borderColor: '#fff'
@@ -828,12 +826,12 @@
                     datasets: [{
                         data: Object.values(conteoTipos),
                         backgroundColor: [
-                            '#4CAF50', // Deportes
-                            '#FF9800', // Actividades Físicas
-                            '#3F51B5', // Recreación
-                            '#9C27B0', // Eventos Institucionales
-                            '#00BCD4', // Torneos y Festivales
-                            '#E91E63'  // Juegos Institucionales
+                            '#21284d',
+                            '#7280f2',
+                            '#364b8a',
+                            '#4a5cb0',
+                            '#9966FF',
+                            '#7084d1'  // Juegos Institucionales
                         ],
                         borderWidth: 3,
                         borderColor: '#fff'
