@@ -589,29 +589,31 @@
         }
 
 
+
         // Función para calcular estadísticas por edad
         function calcularEstadisticasEdad(datos) {
             const rangos = {
-                '0-5 años': 0,
-                '6-11 años': 0,
-                '12-18 años': 0,
-                '19-26 años': 0,
-                '27-59 años': 0,
-                '60+ años': 0
+                'Primera infancia (0-5)': 0,
+                'Infancia (6-11)': 0,
+                'Adolescencia (12-18)': 0,
+                'Juventud (19-26)': 0,
+                'Adultez (27-59)': 0,
+                'Persona mayor (60+)': 0
             };
 
             datos.forEach(p => {
                 const edad = p.edad;
-                if (edad >= 5 && edad <= 12) rangos['0-5 años']++;
-                else if (edad >= 13 && edad <= 18) rangos['6-11 años']++;
-                else if (edad >= 19 && edad <= 25) rangos['12-18 años']++;
-                else if (edad >= 26 && edad <= 35) rangos['19-26 años']++;
-                else if (edad >= 36 && edad <= 50) rangos['27-59 años']++;
-                else if (edad >= 51) rangos['60+ años']++;
+                if (edad >= 0 && edad <= 5) rangos['Primera infancia (0-5)']++;
+                else if (edad >= 6 && edad <= 11) rangos['Infancia (6-11)']++;
+                else if (edad >= 12 && edad <= 18) rangos['Adolescencia (12-18)']++;
+                else if (edad >= 19 && edad <= 26) rangos['Juventud (19-26)']++;
+                else if (edad >= 27 && edad <= 59) rangos['Adultez (27-59)']++;
+                else if (edad >= 60) rangos['Persona mayor (60+)']++;
             });
 
             return rangos;
         }
+
 
         // Función para calcular actividades más populares
         function calcularActividadesPopulares(datos) {

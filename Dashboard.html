@@ -516,10 +516,9 @@
                         🔄 Actualizar
                     </button>
 
-                    <button onclick="abrirModalDescarga()" class="refresh-button"
-                        style="background-color: #28a745; margin-left: 0.5rem;">
-                        📊 Descargar Estadísticas
-                    </button>
+                    <button id="btnDescargarEstadisticas" style="display: none; background-color: #28a745; margin-left: 0.5rem;" onclick="abrirModalDescarga()" class="refresh-button">
+    📊 Descargar Estadísticas
+</button>
                 </div>
             </div>
 
@@ -540,7 +539,7 @@
                 </select>
             </div>
 
-            <!-- Resumen de Estadísticas -->
+
             <!-- Resumen de Estadísticas Dinámicas -->
             <div class="stats-overview" id="stats-container">
                 <!-- Las tarjetas se generarán dinámicamente aquí -->
@@ -696,6 +695,15 @@
                     currentUserProfile = profile;
                     document.getElementById('user-name').textContent =
                         profile.full_name || profile.username || 'Usuario';
+
+const botonDescarga = document.getElementById('btnDescargarEstadisticas');
+if (botonDescarga && profile.role !== 'admin') {
+    botonDescarga.style.display = 'none';
+} else if (botonDescarga && profile.role === 'admin') {
+    botonDescarga.style.display = 'inline-block'; // o 'block', según tu diseño
+}
+
+
                     // Actualizar rol mostrado
                     const roleText = profile.role === 'admin' ? 'Administrador' : 'Instructor';
                     document.getElementById('user-role').textContent = roleText;
@@ -1168,28 +1176,30 @@
         }
 
         // Función para calcular estadísticas por edad
+        // Función para calcular estadísticas por edad
         function calcularEstadisticasEdad(datos) {
             const rangos = {
-                '5-12 años': 0,
-                '13-18 años': 0,
-                '19-25 años': 0,
-                '26-35 años': 0,
-                '36-50 años': 0,
-                '51+ años': 0
+                'Primera infancia (0-5)': 0,
+                'Infancia (6-11)': 0,
+                'Adolescencia (12-18)': 0,
+                'Juventud (19-26)': 0,
+                'Adultez (27-59)': 0,
+                'Persona mayor (60+)': 0
             };
 
             datos.forEach(p => {
                 const edad = p.edad;
-                if (edad >= 5 && edad <= 12) rangos['5-12 años']++;
-                else if (edad >= 13 && edad <= 18) rangos['13-18 años']++;
-                else if (edad >= 19 && edad <= 25) rangos['19-25 años']++;
-                else if (edad >= 26 && edad <= 35) rangos['26-35 años']++;
-                else if (edad >= 36 && edad <= 50) rangos['36-50 años']++;
-                else if (edad >= 51) rangos['51+ años']++;
+                if (edad >= 0 && edad <= 5) rangos['Primera infancia (0-5)']++;
+                else if (edad >= 6 && edad <= 11) rangos['Infancia (6-11)']++;
+                else if (edad >= 12 && edad <= 18) rangos['Adolescencia (12-18)']++;
+                else if (edad >= 19 && edad <= 26) rangos['Juventud (19-26)']++;
+                else if (edad >= 27 && edad <= 59) rangos['Adultez (27-59)']++;
+                else if (edad >= 60) rangos['Persona mayor (60+)']++;
             });
 
             return rangos;
         }
+
 
         // Función para calcular actividades populares
         function calcularActividadesPopulares(datos) {
@@ -1405,7 +1415,7 @@
     `;
         }
 
-        
+
         // Función para actualizar resumen (ahora usa tarjetas dinámicas)
         async function actualizarResumen(datos) {
             await generarTarjetasDinamicas(datos);
@@ -1570,18 +1580,23 @@
                 const actividadesFisicas = participantes.filter(p => p.tipo_actividad === 'actividad_fisica').length;
 
                 // ESTADÍSTICAS POR EDAD (como el gráfico)
-                const rangosEdad = {
-                    '5-12 años': 0, '13-18 años': 0, '19-25 años': 0,
-                    '26-35 años': 0, '36-50 años': 0, '51+ años': 0
+                const rangos = {
+                    'Primera infancia (0-5)': 0,
+                    'Infancia (6-11)': 0,
+                    'Adolescencia (12-18)': 0,
+                    'Juventud (19-26)': 0,
+                    'Adultez (27-59)': 0,
+                    'Persona mayor (60+)': 0
                 };
-                participantes.forEach(p => {
+
+                datos.forEach(p => {
                     const edad = p.edad;
-                    if (edad >= 5 && edad <= 12) rangosEdad['5-12 años']++;
-                    else if (edad >= 13 && edad <= 18) rangosEdad['13-18 años']++;
-                    else if (edad >= 19 && edad <= 25) rangosEdad['19-25 años']++;
-                    else if (edad >= 26 && edad <= 35) rangosEdad['26-35 años']++;
-                    else if (edad >= 36 && edad <= 50) rangosEdad['36-50 años']++;
-                    else if (edad >= 51) rangosEdad['51+ años']++;
+                    if (edad >= 0 && edad <= 5) rangos['Primera infancia (0-5)']++;
+                    else if (edad >= 6 && edad <= 11) rangos['Infancia (6-11)']++;
+                    else if (edad >= 12 && edad <= 18) rangos['Adolescencia (12-18)']++;
+                    else if (edad >= 19 && edad <= 26) rangos['Juventud (19-26)']++;
+                    else if (edad >= 27 && edad <= 59) rangos['Adultez (27-59)']++;
+                    else if (edad >= 60) rangos['Persona mayor (60+)']++;
                 });
 
                 // ACTIVIDADES POPULARES (como el gráfico)
@@ -1638,7 +1653,7 @@
                     ];
 
                     // Agregar rangos de edad
-                    Object.entries(rangosEdad).forEach(([rango, cantidad]) => {
+                    Object.entries(rangos).forEach(([rango, cantidad]) => {
                         const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) + '%' : '0%';
                         dataEstadisticas.push([rango, cantidad, porcentaje]);
                     });
