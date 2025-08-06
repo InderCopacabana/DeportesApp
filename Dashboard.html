@@ -591,7 +591,7 @@
             </div>
 
 
-            <!-- REEMPLAZAR TODO EL dashboard-grid CON ESTO -->
+
             <!-- Controles del Dashboard -->
             <div class="dashboard-controls"
                 style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
@@ -826,7 +826,7 @@
                     <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
                         <button onclick="seleccionarTodosMesesPDF()" class="btn btn-outline">Seleccionar Todos</button>
                         <button onclick="limpiarSeleccionMesesPDF()" class="btn btn-outline">Limpiar Selección</button>
-                        <select id="filter-deporte-descarga" class="filter-dropdown" style="min-width: 200px;">
+                        <select id="filter-grupo-descarga-pdf" class="filter-dropdown" style="min-width: 200px;">
                             <option value="todos">Grupos</option>
                         </select>
                     </div>
@@ -1368,7 +1368,7 @@
             }
         });
 
-        async function cargarDeportesEnSelector() {
+        async function cargarGruposEnSelectorPDF() {
             try {
                 const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
                 if (sessionError) throw sessionError;
@@ -1379,29 +1379,34 @@
                     return;
                 }
 
-                console.log("Usuario autenticado:", user.email, user.id);
-
-                const { data: grupos, error: gruposError } = await supabaseClient
+                let query = supabaseClient
                     .from('grupos')
                     .select('*')
-                    .eq('instructor_id', user.id);
+                    .eq('activo', true);
 
+                // Si es instructor, solo sus grupos
+                if (currentUserProfile.role === 'instructor') {
+                    query = query.eq('instructor_id', user.id);
+                }
+                // Si es admin, puede ver todos los grupos
+
+                const { data: grupos, error: gruposError } = await query;
                 if (gruposError) throw gruposError;
 
-                console.log("Grupos encontrados:", grupos);
+                console.log("Grupos encontrados para PDF:", grupos);
 
-                const deportesUnicos = [...new Set(grupos.map(g => g.deporte))];
-                const selector = document.getElementById('filter-deporte-descarga');
-                let options = '<option value="todos">Todos los Deportes</option>';
+                const selector = document.getElementById('filter-grupo-descarga-pdf');
+                let options = '<option value="todos">Todos los Grupos</option>';
 
-                deportesUnicos.forEach(deporte => {
-                    const deporteFormateado = deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    options += `<option value="${deporte}">${deporteFormateado}</option>`;
-                });
+                if (grupos && grupos.length > 0) {
+                    grupos.forEach(grupo => {
+                        options += `<option value="${grupo.id}">${grupo.nombre}</option>`;
+                    });
+                }
 
                 selector.innerHTML = options;
             } catch (error) {
-                console.error('Error cargando deportes:', error.message);
+                console.error('Error cargando grupos para PDF:', error.message);
             }
         }
 
@@ -1768,9 +1773,13 @@
                     }
                 }
 
-                // 5. Filtro por actividades que tiene asignadas el instructor (campo username)
+                // 5. Filtro por actividades según el rol del usuario
+                // 5. Filtro por actividades según el rol del usuario
+                let deportesInstructor = [];
+
                 if (currentUserProfile.role === 'instructor' && currentUserProfile.username) {
-                    const deportesInstructor = currentUserProfile.username
+                    // Instructor: deportes según su perfil
+                    deportesInstructor = currentUserProfile.username
                         .split(',')
                         .map(d => d.trim().toLowerCase());
 
@@ -1778,11 +1787,19 @@
                         deportesInstructor.includes(p.actividad?.toLowerCase())
                     );
 
-                    console.log('Instructor puede ver:', deportesInstructor);
-                    console.log('Actividades en participantes:', datosFiltrados.map(p => p.actividad));
+                } else if (currentUserProfile.role === 'admin') {
+                    // Admin: ver todos los deportes (sin filtrar datos)
+                    deportesInstructor = [...new Set(datosFiltrados.map(p => p.actividad?.toLowerCase()))].filter(Boolean);
+
+                    // Aquí NO filtramos datosFiltrados, porque el admin debe ver todos
                 }
 
+                // Mostrar en consola lo que puede ver el usuario (para debugging)
+                console.log(`${currentUserProfile.role} puede ver:`, deportesInstructor);
+                console.log('Actividades en participantes:', datosFiltrados.map(p => p.actividad));
+
                 return datosFiltrados;
+
 
             } catch (error) {
                 console.error('Error al obtener datos:', error);
@@ -2431,9 +2448,8 @@
 
         function obtenerTituloReporte() {
             let titulo = '';
-
             if (currentUserProfile.role === 'instructor') {
-                titulo = currentUserProfile.full_name || 'INSTRUCTOR';
+                titulo = `INSTRUCTOR: ${currentUserProfile.full_name || currentUserProfile.username || 'INSTRUCTOR'}`;
             } else if (currentUserProfile.role === 'admin') {
                 const filterInstructor = document.getElementById('filter-instructor').value;
                 if (filterInstructor === 'todos') {
@@ -2698,6 +2714,101 @@
             }
         });
 
+        async function obtenerEstadisticasPorGrupo(datosAsistencias) {
+            try {
+                // Obtener todos los grupos del instructor
+                // Filtrar por grupo específico si está seleccionado
+                const grupoSeleccionado = document.getElementById('filter-grupo-descarga-pdf').value;
+                let query = supabaseClient
+                    .from('grupos')
+                    .select(`
+        *,
+        participantes_grupos(
+            participante_id,
+            activo,
+            participantes(id, nombre, edad, genero, barrio, actividad)
+        )
+    `)
+                    .eq('activo', true);
+                if (currentUserProfile.role === 'instructor') {
+                    query = query.eq('instructor_id', currentUserProfile.id);
+                }
+
+
+                if (grupoSeleccionado !== 'todos') {
+                    query = query.eq('id', grupoSeleccionado);
+                }
+
+                const { data: grupos, error: errorGrupos } = await query;
+
+                if (errorGrupos) throw errorGrupos;
+
+                const estadisticasPorGrupo = {};
+
+                grupos.forEach(grupo => {
+                    const participantesGrupo = grupo.participantes_grupos
+                        .filter(pg => pg.participantes && pg.activo !== false)
+                        .map(pg => pg.participantes);
+
+                    // Calcular estadísticas del grupo
+                    const totalParticipantes = participantesGrupo.length;
+                    const hombres = participantesGrupo.filter(p => p.genero === 'Hombre').length;
+                    const mujeres = participantesGrupo.filter(p => p.genero === 'Mujer').length;
+
+                    // Rangos de edad
+                    const edades = {
+                        'Primera infancia (0-5)': 0,
+                        'Infancia (6-11)': 0,
+                        'Adolescencia (12-18)': 0,
+                        'Juventud (19-26)': 0,
+                        'Adultez (27-59)': 0,
+                        'Persona mayor (60+)': 0
+                    };
+
+                    // Barrios
+                    const barrios = {};
+
+                    participantesGrupo.forEach(p => {
+                        // Contar edades
+                        const edad = p.edad;
+                        if (edad >= 0 && edad <= 5) edades['Primera infancia (0-5)']++;
+                        else if (edad >= 6 && edad <= 11) edades['Infancia (6-11)']++;
+                        else if (edad >= 12 && edad <= 18) edades['Adolescencia (12-18)']++;
+                        else if (edad >= 19 && edad <= 26) edades['Juventud (19-26)']++;
+                        else if (edad >= 27 && edad <= 59) edades['Adultez (27-59)']++;
+                        else if (edad >= 60) edades['Persona mayor (60+)']++;
+
+                        // Contar barrios
+                        const barrio = p.barrio || 'Sin barrio';
+                        barrios[barrio] = (barrios[barrio] || 0) + 1;
+                    });
+
+                    // Asistencias del grupo
+                    const participantesIds = participantesGrupo.map(p => p.id);
+                    const asistenciasGrupo = datosAsistencias.filter(a =>
+                        participantesIds.includes(a.participante_id)
+                    );
+
+                    estadisticasPorGrupo[grupo.id] = {
+                        nombre: grupo.nombre,
+                        deporte: grupo.deporte,
+                        totalParticipantes,
+                        hombres,
+                        mujeres,
+                        edades,
+                        barrios,
+                        asistencias: asistenciasGrupo,
+                        participantes: participantesGrupo
+                    };
+                });
+
+                return estadisticasPorGrupo;
+            } catch (error) {
+                console.error('Error obteniendo estadísticas por grupo:', error);
+                return {};
+            }
+        }
+
         async function obtenerDatosPorMesesPDF() {
             const mesesSeleccionados = [];
             const checkboxes = document.querySelectorAll('#modalDescargaPDF input[type="checkbox"]:checked');
@@ -2711,13 +2822,64 @@
             const año = document.getElementById('año-descarga-pdf').value;
 
             try {
-                // Para instructores, solo sus datos
+                // Obtener asistencias con información de grupo
                 let queryAsistencias = supabaseClient
                     .from('asistencias')
-                    .select('*')
-                    .eq('instructor_id', currentUserProfile.id);
+                    .select(`
+        *,
+        participantes(
+            id, nombre, edad, genero, barrio, actividad,
+            participantes_grupos(
+                grupo_id,
+                grupos(id, nombre, deporte)
+            )
+        )
+    `);
+
+                // Filtrar por instructor
+                if (currentUserProfile.role === 'instructor') {
+                    queryAsistencias = queryAsistencias.eq('instructor_id', currentUserProfile.id);
+                } else if (currentUserProfile.role === 'admin') {
+                    // Admin: obtener datos del instructor que creó el grupo seleccionado
+                    const grupoSeleccionado = document.getElementById('filter-grupo-descarga-pdf').value;
+                    if (grupoSeleccionado !== 'todos') {
+                        // Obtener el instructor_id del grupo seleccionado
+                        const { data: grupoInfo, error: errorGrupo } = await supabaseClient
+                            .from('grupos')
+                            .select('instructor_id')
+                            .eq('id', grupoSeleccionado)
+                            .single();
+
+                        if (!errorGrupo && grupoInfo) {
+                            queryAsistencias = queryAsistencias.eq('instructor_id', grupoInfo.instructor_id);
+                        }
+                    }
+                    // Si no hay grupo específico, usar el filtro de instructor general
+                    const filterInstructor = document.getElementById('filter-instructor')?.value;
+                    if (filterInstructor && filterInstructor !== 'todos') {
+                        queryAsistencias = queryAsistencias.eq('instructor_id', filterInstructor);
+                    }
+                }
+
+
 
                 const { data: asistencias, error: errorAsistencias } = await queryAsistencias;
+                // Filtrar por grupo seleccionado después de obtener los datos
+                const grupoSeleccionado = document.getElementById('filter-grupo-descarga-pdf').value;
+                let asistenciasFiltradas = asistencias;
+
+                if (grupoSeleccionado !== 'todos') {
+                    asistenciasFiltradas = asistencias.filter(asistencia => {
+                        const participante = asistencia.participantes;
+                        if (!participante || !participante.participantes_grupos) return false;
+
+                        return participante.participantes_grupos.some(pg =>
+                            pg.grupos && pg.grupos.id === grupoSeleccionado
+                        );
+                    });
+                }
+
+                // Usar asistenciasFiltradas en lugar de asistencias para el resto del código
                 if (errorAsistencias) throw errorAsistencias;
 
                 if (!asistencias || asistencias.length === 0) {
@@ -2815,8 +2977,36 @@
                 if (error) throw error;
 
                 // Calcular estadísticas
-                // Calcular estadísticas detalladas
-                const totalAsistencias = datos.length;
+                // Obtener estadísticas por grupo
+                const estadisticasPorGrupo = await obtenerEstadisticasPorGrupo(datos);
+
+                // Calcular estadísticas generales
+                // Obtener participantes únicos del grupo seleccionado
+                // Obtener participantes únicos del grupo seleccionado
+                const grupoSeleccionado = document.getElementById('filter-grupo-descarga-pdf').value;
+                const participantesUnicos = new Set();
+
+                if (grupoSeleccionado !== 'todos') {
+                    // Si hay grupo específico, contar participantes de ese grupo
+                    const { data: participantesGrupo, error: errorParticipantes } = await supabaseClient
+                        .from('participantes_grupos')
+                        .select('participante_id')
+                        .eq('grupo_id', grupoSeleccionado)
+                        .eq('activo', true);
+
+                    if (!errorParticipantes && participantesGrupo) {
+                        participantesGrupo.forEach(pg => participantesUnicos.add(pg.participante_id));
+                    }
+                } else {
+                    // Si es "todos", usar los datos de asistencias
+                    datos.forEach(asistencia => {
+                        participantesUnicos.add(asistencia.participante_id);
+                    });
+                }
+
+                const totalAsistencias = datos.length; // Usar el total de registros de asistencia
+                const totalParticipantesUnicos = participantesUnicos.size;
+
                 const asistieron = datos.filter(d => d.asistio).length;
                 const noAsistieron = totalAsistencias - asistieron;
 
@@ -2874,43 +3064,52 @@
 
                 yPosition += 15;
                 doc.setFontSize(10);
+                doc.text(`Total de participantes únicos: ${totalParticipantesUnicos}`, 25, yPosition);
+                yPosition += 8;
                 doc.text(`Total de registros de asistencia: ${totalAsistencias}`, 25, yPosition);
                 yPosition += 8;
                 doc.text(`Asistencias confirmadas: ${asistieron} (${totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) : 0}%)`, 25, yPosition);
                 yPosition += 8;
                 doc.text(`Asistencias no confirmadas: ${noAsistieron} (${totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) : 0}%)`, 25, yPosition);
-
-                // Estadísticas por deporte
+                // Estadísticas por grupo
                 yPosition += 20;
                 if (yPosition > 250) {
                     doc.addPage();
                     yPosition = 20;
                 }
-
                 doc.setFontSize(14);
-                doc.text('ESTADÍSTICAS POR DEPORTE', 20, yPosition);
+                doc.text('ESTADÍSTICAS POR GRUPO', 20, yPosition);
                 yPosition += 10;
 
-                Object.entries(estadisticasPorDeporte).forEach(([deporte, stats]) => {
-                    if (yPosition > 240) {
+                Object.entries(estadisticasPorGrupo).forEach(([grupoId, stats]) => {
+                    if (yPosition > 220) {
                         doc.addPage();
                         yPosition = 20;
                     }
 
-                    const deporteFormateado = deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
+                    // Título del grupo
                     doc.setFontSize(12);
                     doc.setTextColor(67, 97, 238);
-                    doc.text(`${deporteFormateado}`, 25, yPosition);
-                    yPosition += 10;
+                    doc.text(`GRUPO: ${stats.nombre}`, 25, yPosition);
+                    yPosition += 8;
 
                     doc.setFontSize(10);
                     doc.setTextColor(0, 0, 0);
-                    doc.text(`Total participantes: ${stats.total}`, 30, yPosition);
+                    doc.text(`Deporte: ${stats.deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`, 30, yPosition);
                     yPosition += 6;
-                    doc.text(`Hombres: ${stats.hombres} (${stats.total > 0 ? Math.round((stats.hombres / stats.total) * 100) : 0}%)`, 30, yPosition);
+                    doc.text(`Total participantes: ${stats.totalParticipantes}`, 30, yPosition);
                     yPosition += 6;
-                    doc.text(`Mujeres: ${stats.mujeres} (${stats.total > 0 ? Math.round((stats.mujeres / stats.total) * 100) : 0}%)`, 30, yPosition);
+                    doc.text(`Hombres: ${stats.hombres} (${stats.totalParticipantes > 0 ? Math.round((stats.hombres / stats.totalParticipantes) * 100) : 0}%)`, 30, yPosition);
+                    yPosition += 6;
+                    doc.text(`Mujeres: ${stats.mujeres} (${stats.totalParticipantes > 0 ? Math.round((stats.mujeres / stats.totalParticipantes) * 100) : 0}%)`, 30, yPosition);
+                    yPosition += 8;
+
+                    // Asistencias del grupo
+                    const asistenciasGrupo = stats.asistencias.length;
+                    const asistieronGrupo = stats.asistencias.filter(a => a.asistio).length;
+                    doc.text(`Asistencias registradas: ${asistenciasGrupo}`, 30, yPosition);
+                    yPosition += 6;
+                    doc.text(`Asistieron: ${asistieronGrupo} (${asistenciasGrupo > 0 ? Math.round((asistieronGrupo / asistenciasGrupo) * 100) : 0}%)`, 30, yPosition);
                     yPosition += 8;
 
                     // Distribución por edad
@@ -2922,8 +3121,8 @@
                             yPosition += 5;
                         }
                     });
-
                     yPosition += 3;
+
                     // Distribución por barrios
                     doc.text('Distribución por barrios:', 30, yPosition);
                     yPosition += 6;
@@ -2931,8 +3130,7 @@
                         doc.text(`  ${barrio}: ${cantidad}`, 35, yPosition);
                         yPosition += 5;
                     });
-
-                    yPosition += 10;
+                    yPosition += 15;
                 });
 
                 // Tabla de asistencias detallada
@@ -2950,25 +3148,46 @@
                 const participantesMap = {};
                 participantes.forEach(p => participantesMap[p.id] = p);
 
-                const tableData = datos.map(asistencia => {
-                    const participante = participantesMap[asistencia.participante_id];
-                    if (!participante) return null;
+                const tableData = [];
+                Object.entries(estadisticasPorGrupo).forEach(([grupoId, stats]) => {
+                    // Mostrar todos los participantes del grupo, no solo los que tienen asistencias
+                    stats.participantes.forEach(participante => {
+                        // Buscar si tiene asistencias registradas
+                        const asistenciasParticipante = stats.asistencias.filter(a => a.participante_id === participante.id);
 
-                    const fecha = new Date(asistencia.fecha_clase || asistencia.created_at).toLocaleDateString('es-ES');
-                    return [
-                        fecha,
-                        participante.nombre || 'Sin nombre',
-                        participante.edad || 'N/A',
-                        participante.genero || 'N/A',
-                        (participante.actividad || 'Sin actividad').replace(/_/g, ' '),
-                        asistencia.asistio ? 'Sí' : 'No'
-                    ];
-                }).filter(row => row !== null);
+                        if (asistenciasParticipante.length > 0) {
+                            // Si tiene asistencias, mostrar cada una
+                            asistenciasParticipante.forEach(asistencia => {
+                                const fecha = new Date(asistencia.fecha_clase || asistencia.created_at).toLocaleDateString('es-ES');
+                                tableData.push([
+                                    fecha,
+                                    stats.nombre,
+                                    participante.nombre || 'Sin nombre',
+                                    participante.edad || 'N/A',
+                                    participante.genero || 'N/A',
+                                    participante.barrio || 'Sin barrio',
+                                    asistencia.asistio ? 'Sí' : 'No'
+                                ]);
+                            });
+                        } else {
+                            // Si no tiene asistencias, mostrar como "Sin registro"
+                            tableData.push([
+                                'Sin registro',
+                                stats.nombre,
+                                participante.nombre || 'Sin nombre',
+                                participante.edad || 'N/A',
+                                participante.genero || 'N/A',
+                                participante.barrio || 'Sin barrio',
+                                'Sin registro'
+                            ]);
+                        }
+                    });
+                });
 
                 // Crear tabla con autoTable
                 doc.autoTable({
                     startY: yPosition,
-                    head: [['Fecha', 'Participante', 'Edad', 'Género', 'Actividad', 'Asistió']],
+                    head: [['Fecha', 'Grupo', 'Participante', 'Edad', 'Género', 'Barrio', 'Asistió']],
                     body: tableData,
                     styles: { fontSize: 8 },
                     headStyles: { fillColor: [67, 97, 238] },
@@ -2992,10 +3211,28 @@
 
                 try {
                     // Obtener evidencias del instructor
-                    const { data: evidencias, error: errorEvidencias } = await supabaseClient
-                        .from('evidencias')
-                        .select('*')
-                        .eq('instructor_id', currentUserProfile.id);
+                    // Obtener evidencias según el rol
+                    let queryEvidencias = supabaseClient.from('evidencias').select('*');
+
+                    if (currentUserProfile.role === 'instructor') {
+                        queryEvidencias = queryEvidencias.eq('instructor_id', currentUserProfile.id);
+                    } else if (currentUserProfile.role === 'admin') {
+                        // Admin: obtener evidencias del instructor del grupo seleccionado
+                        const grupoSeleccionado = document.getElementById('filter-grupo-descarga-pdf').value;
+                        if (grupoSeleccionado !== 'todos') {
+                            const { data: grupoInfo, error: errorGrupo } = await supabaseClient
+                                .from('grupos')
+                                .select('instructor_id')
+                                .eq('id', grupoSeleccionado)
+                                .single();
+
+                            if (!errorGrupo && grupoInfo) {
+                                queryEvidencias = queryEvidencias.eq('instructor_id', grupoInfo.instructor_id);
+                            }
+                        }
+                    }
+
+                    const { data: evidencias, error: errorEvidencias } = await queryEvidencias;
 
                     if (!errorEvidencias && evidencias && evidencias.length > 0) {
                         // Filtrar evidencias por período
@@ -3096,8 +3333,9 @@
         window.irATomarAsistencia = irATomarAsistencia;
 
         // Funciones para el modal PDF
-        window.abrirModalDescargaPDF = function () {
+        window.abrirModalDescargaPDF = async function () {
             document.getElementById('modalDescargaPDF').style.display = 'block';
+            await cargarGruposEnSelectorPDF(); // AGREGAR ESTA LÍNEA
         }
 
         window.cerrarModalDescargaPDF = function () {
