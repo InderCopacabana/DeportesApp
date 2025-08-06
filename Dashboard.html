@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="estilos.css">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -330,7 +330,7 @@
             animation: spin 1s linear infinite;
         }
 
-       
+
 
         .stats-overview {
             display: grid;
@@ -525,83 +525,89 @@
                 <!-- Las tarjetas se generarán dinámicamente aquí -->
             </div>
 
-            
+
             <!-- Sección de Gestión de Grupos -->
-<div class="grupos-section" style="margin: 2rem 0;">
-    <div class="grupos-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3>🏆 Gestión de Grupos</h3>
-        <button onclick="abrirModalCrearGrupo()" class="btn btn-primary">
-            ➕ Crear Grupo
-        </button>
-    </div>
-    <div id="grupos-container" class="grupos-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
-        <!-- Los grupos se cargarán aquí dinámicamente -->
-    </div>
-</div>
-
-<!-- Modal para Crear/Editar Grupo -->
-<div id="modalGrupo" class="modal" style="display: none;">
-    <div class="modal-content" style="max-width: 500px;">
-        <span class="close" onclick="cerrarModalGrupo()">&times;</span>
-        <h2 id="titulo-modal-grupo">➕ Crear Nuevo Grupo</h2>
-        <form id="form-grupo" onsubmit="guardarGrupo(event)">
-            <div style="margin-bottom: 1rem;">
-                <label>Nombre del Grupo:</label>
-                <input type="text" id="grupo-nombre" required placeholder="Ej: Baloncesto Principiante Infante">
-            </div>
-            <div style="margin-bottom: 1rem;">
-                <label>Deporte:</label>
-                <select id="grupo-deporte" required>
-                    <!-- Se llenará dinámicamente con los deportes del instructor -->
-                </select>
-            </div>
-            <div style="margin-bottom: 1rem;">
-                <label>Descripción (opcional):</label>
-                <textarea id="grupo-descripcion" placeholder="Descripción del grupo..."></textarea>
-            </div>
-            <div style="margin-bottom: 1rem;">
-                <label>Color del Grupo:</label>
-                <input type="color" id="grupo-color" value="#667eea">
-            </div>
-            <div style="display: flex; gap: 1rem; justify-content: center;">
-                <button type="submit" class="btn btn-primary">💾 Guardar</button>
-                <button type="button" onclick="cerrarModalGrupo()" class="btn btn-secondary">❌ Cancelar</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Modal para Gestionar Participantes del Grupo -->
-<div id="modalParticipantesGrupo" class="modal" style="display: none;">
-    <div class="modal-content" style="max-width: 800px;">
-        <span class="close" onclick="cerrarModalParticipantes()">&times;</span>
-        <h2 id="titulo-participantes-grupo">👥 Gestionar Participantes</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-            <!-- Participantes Disponibles -->
-            <div>
-                <h4>Participantes Disponibles</h4>
-                <div id="participantes-disponibles" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 1rem;">
-                    <!-- Se llenarán dinámicamente -->
+            <div class="grupos-section" style="margin: 2rem 0;">
+                <div class="grupos-header"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3>🏆 Gestión de Grupos</h3>
+                    <button onclick="abrirModalCrearGrupo()" class="btn btn-primary">
+                        ➕ Crear Grupo
+                    </button>
+                </div>
+                <div id="grupos-container" class="grupos-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+                    <!-- Los grupos se cargarán aquí dinámicamente -->
                 </div>
             </div>
-            <!-- Participantes en el Grupo -->
-            <div>
-                <h4>Participantes en el Grupo</h4>
-                <div id="participantes-grupo" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 1rem;">
-                    <!-- Se llenarán dinámicamente -->
+
+            <!-- Modal para Crear/Editar Grupo -->
+            <div id="modalGrupo" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 500px;">
+                    <span class="close" onclick="cerrarModalGrupo()">&times;</span>
+                    <h2 id="titulo-modal-grupo">➕ Crear Nuevo Grupo</h2>
+                    <form id="form-grupo" onsubmit="guardarGrupo(event)">
+                        <div style="margin-bottom: 1rem;">
+                            <label>Nombre del Grupo:</label>
+                            <input type="text" id="grupo-nombre" required
+                                placeholder="Ej: Baloncesto Principiante Infante">
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label>Deporte:</label>
+                            <select id="grupo-deporte" required>
+                                <!-- Se llenará dinámicamente con los deportes del instructor -->
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label>Descripción (opcional):</label>
+                            <textarea id="grupo-descripcion" placeholder="Descripción del grupo..."></textarea>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label>Color del Grupo:</label>
+                            <input type="color" id="grupo-color" value="#667eea">
+                        </div>
+                        <div style="display: flex; gap: 1rem; justify-content: center;">
+                            <button type="submit" class="btn btn-primary">💾 Guardar</button>
+                            <button type="button" onclick="cerrarModalGrupo()" class="btn btn-secondary">❌
+                                Cancelar</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </div>
-        <div style="text-align: center; margin-top: 1rem;">
-            <button onclick="cerrarModalParticipantes()" class="btn btn-primary">✅ Cerrar</button>
-        </div>
-    </div>
-</div>
+
+            <!-- Modal para Gestionar Participantes del Grupo -->
+            <div id="modalParticipantesGrupo" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 800px;">
+                    <span class="close" onclick="cerrarModalParticipantes()">&times;</span>
+                    <h2 id="titulo-participantes-grupo">👥 Gestionar Participantes</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <!-- Participantes Disponibles -->
+                        <div>
+                            <h4>Participantes Disponibles</h4>
+                            <div id="participantes-disponibles"
+                                style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 1rem;">
+                                <!-- Se llenarán dinámicamente -->
+                            </div>
+                        </div>
+                        <!-- Participantes en el Grupo -->
+                        <div>
+                            <h4>Participantes en el Grupo</h4>
+                            <div id="participantes-grupo"
+                                style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 1rem;">
+                                <!-- Se llenarán dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <button onclick="cerrarModalParticipantes()" class="btn btn-primary">✅ Cerrar</button>
+                    </div>
+                </div>
+            </div>
 
 
-            
 
-           
+
+
 
             <div class="update-info">
                 <p id="ultima-actualizacion">Última actualización: Cargando...</p>
@@ -756,9 +762,9 @@
             </div>
             <div id="preview-estadisticas-pdf" style="margin-top: 2rem; max-height: 400px; overflow-y: auto;"></div>
         </div>
-        
+
         </div>
-        
+
     </main>
 
     <!-- Pie de página -->
@@ -770,85 +776,85 @@
 
     <script type="module">
         // Variables globales para grupos
-let gruposData = [];
-let grupoEditando = null;
-let grupoSeleccionado = null;
+        let gruposData = [];
+        let grupoEditando = null;
+        let grupoSeleccionado = null;
 
-// Función para gestionar participantes de un grupo específico
-async function gestionarParticipantesGrupo(grupoId) {
-    try {
-        grupoSeleccionado = grupoId;
-        
-        // Obtener información del grupo
-        const { data: grupo, error: errorGrupo } = await supabaseClient
-            .from('grupos')
-            .select('*')
-            .eq('id', grupoId)
-            .single();
-            
-        if (errorGrupo) throw errorGrupo;
-        
-        // Actualizar título del modal
-        document.getElementById('titulo-participantes-grupo').textContent = 
-            `👥 Gestionar Participantes - ${grupo.nombre}`;
-            console.log('📌 Deporte del grupo:', grupo.deporte);
+        // Función para gestionar participantes de un grupo específico
+        async function gestionarParticipantesGrupo(grupoId) {
+            try {
+                grupoSeleccionado = grupoId;
 
-        
-        // Obtener participantes del deporte específico del grupo
-        const { data: participantesDelDeporte, error: errorParticipantes } = await supabaseClient
-            .from('participantes')
-            .select('*')
-            .eq('actividad', grupo.deporte)
-            
-            .order('nombre');
-            
-        if (errorParticipantes) throw errorParticipantes;
-        
-        // Obtener participantes ya asignados al grupo
-        const { data: participantesGrupo, error: errorAsignados } = await supabaseClient
-            .from('participantes_grupos')
-            .select(`
+                // Obtener información del grupo
+                const { data: grupo, error: errorGrupo } = await supabaseClient
+                    .from('grupos')
+                    .select('*')
+                    .eq('id', grupoId)
+                    .single();
+
+                if (errorGrupo) throw errorGrupo;
+
+                // Actualizar título del modal
+                document.getElementById('titulo-participantes-grupo').textContent =
+                    `👥 Gestionar Participantes - ${grupo.nombre}`;
+                console.log('📌 Deporte del grupo:', grupo.deporte);
+
+
+                // Obtener participantes del deporte específico del grupo
+                const { data: participantesDelDeporte, error: errorParticipantes } = await supabaseClient
+                    .from('participantes')
+                    .select('*')
+                    .eq('actividad', grupo.deporte)
+
+                    .order('nombre');
+
+                if (errorParticipantes) throw errorParticipantes;
+
+                // Obtener participantes ya asignados al grupo
+                const { data: participantesGrupo, error: errorAsignados } = await supabaseClient
+                    .from('participantes_grupos')
+                    .select(`
                 participante_id,
                 participantes(id, nombre, edad, genero)
             `)
-            .eq('grupo_id', grupoId)
-            .eq('activo', true);
-            
-        if (errorAsignados) throw errorAsignados;
-        
-        const participantesAsignadosIds = participantesGrupo.map(pg => pg.participante_id);
-        
-        // Renderizar participantes disponibles (del mismo deporte, no asignados)
-        const participantesDisponibles = participantesDelDeporte.filter(p => 
-            !participantesAsignadosIds.includes(p.id)
-        );
-        
-        renderizarParticipantesDisponibles(participantesDisponibles);
-        renderizarParticipantesEnGrupo(participantesGrupo);
-        
-        // Mostrar modal
-        document.getElementById('modalParticipantesGrupo').style.display = 'block';
-        
-    } catch (error) {
-        console.error('Error gestionando participantes:', error);
-        alert('❌ Error al cargar participantes del grupo');
-    }
-}
+                    .eq('grupo_id', grupoId)
+                    .eq('activo', true);
 
-// Renderizar participantes disponibles del deporte
-function renderizarParticipantesDisponibles(participantes) {
-    const container = document.getElementById('participantes-disponibles');
-    
-    if (participantes.length === 0) {
-        container.innerHTML = `
+                if (errorAsignados) throw errorAsignados;
+
+                const participantesAsignadosIds = participantesGrupo.map(pg => pg.participante_id);
+
+                // Renderizar participantes disponibles (del mismo deporte, no asignados)
+                const participantesDisponibles = participantesDelDeporte.filter(p =>
+                    !participantesAsignadosIds.includes(p.id)
+                );
+
+                renderizarParticipantesDisponibles(participantesDisponibles);
+                renderizarParticipantesEnGrupo(participantesGrupo);
+
+                // Mostrar modal
+                document.getElementById('modalParticipantesGrupo').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error gestionando participantes:', error);
+                alert('❌ Error al cargar participantes del grupo');
+            }
+        }
+
+        // Renderizar participantes disponibles del deporte
+        function renderizarParticipantesDisponibles(participantes) {
+            const container = document.getElementById('participantes-disponibles');
+
+            if (participantes.length === 0) {
+                container.innerHTML = `
             <div style="text-align: center; color: #666; padding: 2rem;">
                 <p>No hay participantes disponibles de este deporte</p>
             </div>
         `;
-        return;
-    }
-    
-    container.innerHTML = participantes.map(participante => `
+                return;
+            }
+
+            container.innerHTML = participantes.map(participante => `
         <div class="participante-item" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; border: 1px solid #ddd; margin-bottom: 0.5rem; border-radius: 4px;">
             <div>
                 <strong>${participante.nombre}</strong><br>
@@ -860,27 +866,27 @@ function renderizarParticipantesDisponibles(participantes) {
             </button>
         </div>
     `).join('');
-}
+        }
 
 
 
-// Renderizar participantes ya en el grupo
-function renderizarParticipantesEnGrupo(participantesGrupo) {
-    const participantesActivos = participantesGrupo.filter(pg => pg.activo !== false);
-    const container = document.getElementById('participantes-grupo');
-    
-    if (participantesGrupo.length === 0) {
-        container.innerHTML = `
+        // Renderizar participantes ya en el grupo
+        function renderizarParticipantesEnGrupo(participantesGrupo) {
+            const participantesActivos = participantesGrupo.filter(pg => pg.activo !== false);
+            const container = document.getElementById('participantes-grupo');
+
+            if (participantesGrupo.length === 0) {
+                container.innerHTML = `
             <div style="text-align: center; color: #666; padding: 2rem;">
                 <p>No hay participantes en este grupo</p>
             </div>
         `;
-        return;
-    }
-    
-    container.innerHTML = participantesActivos.map(pg => {
-        const participante = pg.participantes;
-        return `
+                return;
+            }
+
+            container.innerHTML = participantesActivos.map(pg => {
+                const participante = pg.participantes;
+                return `
             <div class="participante-item" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; border: 1px solid #ddd; margin-bottom: 0.5rem; border-radius: 4px; background-color: #f8f9fa;">
                 <div>
                     <strong>${participante.nombre}</strong><br>
@@ -892,115 +898,115 @@ function renderizarParticipantesEnGrupo(participantesGrupo) {
                 </button>
             </div>
         `;
-    }).join('');
-}
-async function agregarParticipanteAGrupo(participanteId) {
-    try {
-        // Siempre eliminar cualquier relación previa (si existe)
-        await supabaseClient
-            .from('participantes_grupos')
-            .delete()
-            .eq('participante_id', participanteId)
-            .eq('grupo_id', grupoSeleccionado);
+            }).join('');
+        }
+        async function agregarParticipanteAGrupo(participanteId) {
+            try {
+                // Siempre eliminar cualquier relación previa (si existe)
+                await supabaseClient
+                    .from('participantes_grupos')
+                    .delete()
+                    .eq('participante_id', participanteId)
+                    .eq('grupo_id', grupoSeleccionado);
 
-        // Ahora insertar nuevamente
-        const { error: errorInsert } = await supabaseClient
-            .from('participantes_grupos')
-            .insert([{
-                participante_id: participanteId,
-                grupo_id: grupoSeleccionado,
-                fecha_asignacion: new Date().toISOString(),
-                activo: true
-            }]);
-        if (errorInsert) throw errorInsert;
+                // Ahora insertar nuevamente
+                const { error: errorInsert } = await supabaseClient
+                    .from('participantes_grupos')
+                    .insert([{
+                        participante_id: participanteId,
+                        grupo_id: grupoSeleccionado,
+                        fecha_asignacion: new Date().toISOString(),
+                        activo: true
+                    }]);
+                if (errorInsert) throw errorInsert;
 
-        // Recargar listas visuales
-        await gestionarParticipantesGrupo(grupoSeleccionado);
-        
-    } catch (error) {
-        console.error('Error agregando participante:', error);
-        alert('❌ Error al agregar participante al grupo');
-    }
-}
+                // Recargar listas visuales
+                await gestionarParticipantesGrupo(grupoSeleccionado);
+
+            } catch (error) {
+                console.error('Error agregando participante:', error);
+                alert('❌ Error al agregar participante al grupo');
+            }
+        }
 
 
-// Remover participante del grupo
-async function removerParticipanteDeGrupo(participanteId) {
-    if (!confirm('¿Está seguro de remover este participante del grupo?')) {
-        return;
-    }
-    
-    try {
-        const { error } = await supabaseClient
-    .from('participantes_grupos')
-    .delete()
-    .eq('participante_id', participanteId)
-    .eq('grupo_id', grupoSeleccionado);
+        // Remover participante del grupo
+        async function removerParticipanteDeGrupo(participanteId) {
+            if (!confirm('¿Está seguro de remover este participante del grupo?')) {
+                return;
+            }
 
-            
-        if (error) throw error;
-        
-        // Recargar listas
-        await gestionarParticipantesGrupo(grupoSeleccionado);
-        
-    } catch (error) {
-        console.error('Error removiendo participante:', error);
-        alert('❌ Error al remover participante del grupo');
-    }
-}
+            try {
+                const { error } = await supabaseClient
+                    .from('participantes_grupos')
+                    .delete()
+                    .eq('participante_id', participanteId)
+                    .eq('grupo_id', grupoSeleccionado);
 
-// Cerrar modal de participantes
-function cerrarModalParticipantes() {
-    document.getElementById('modalParticipantesGrupo').style.display = 'none';
-    grupoSeleccionado = null;
-}
 
-// Cargar grupos del instructor
-async function cargarGrupos() {
-    try {
-        let query = supabaseClient
-            .from('grupos')
-            .select(`
+                if (error) throw error;
+
+                // Recargar listas
+                await gestionarParticipantesGrupo(grupoSeleccionado);
+
+            } catch (error) {
+                console.error('Error removiendo participante:', error);
+                alert('❌ Error al remover participante del grupo');
+            }
+        }
+
+        // Cerrar modal de participantes
+        function cerrarModalParticipantes() {
+            document.getElementById('modalParticipantesGrupo').style.display = 'none';
+            grupoSeleccionado = null;
+        }
+
+        // Cargar grupos del instructor
+        async function cargarGrupos() {
+            try {
+                let query = supabaseClient
+                    .from('grupos')
+                    .select(`
                 *,
                 participantes_grupos(
                     participante_id,
                     participantes(nombre, edad, genero)
                 )
             `)
-            .eq('activo', true);
+                    .eq('activo', true);
 
-        if (currentUserProfile.role === 'instructor') {
-            query = query.eq('instructor_id', currentUserProfile.id);
+                if (currentUserProfile.role === 'instructor') {
+                    query = query.eq('instructor_id', currentUserProfile.id);
+                }
+
+                const { data, error } = await query;
+                if (error) throw error;
+
+                gruposData = data || [];
+                renderizarGrupos();
+            } catch (error) {
+                console.error('Error cargando grupos:', error);
+            }
         }
 
-        const { data, error } = await query;
-        if (error) throw error;
+        // Renderizar grupos en el dashboard
+        function renderizarGrupos() {
+            const container = document.getElementById('grupos-container');
+            if (!container) return;
 
-        gruposData = data || [];
-        renderizarGrupos();
-    } catch (error) {
-        console.error('Error cargando grupos:', error);
-    }
-}
-
-// Renderizar grupos en el dashboard
-function renderizarGrupos() {
-    const container = document.getElementById('grupos-container');
-    if (!container) return;
-
-    if (gruposData.length === 0) {
-        container.innerHTML = `
+            if (gruposData.length === 0) {
+                container.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #666;">
                 <p>No hay grupos creados aún.</p>
                 <p>Haz clic en "Crear Grupo" para comenzar.</p>
             </div>
         `;
-        return;
-    }
+                return;
+            }
 
-    container.innerHTML = gruposData.map(grupo => {
-        const participantesCount = grupo.participantes_grupos?.length || 0;
-        return `
+            container.innerHTML = gruposData.map(grupo => {
+                const participantesCount = grupo.participantes_grupos?.length || 0;
+                return `
             <div class="grupo-card" style="border-left-color: ${grupo.color}">
                 <div class="grupo-header">
                     <div>
@@ -1032,85 +1038,85 @@ function renderizarGrupos() {
                 </div>
             </div>
         `;
-    }).join('');
-}
-
-// Abrir modal para crear grupo
-async function abrirModalCrearGrupo() {
-    grupoEditando = null;
-    document.getElementById('titulo-modal-grupo').textContent = '➕ Crear Nuevo Grupo';
-    document.getElementById('form-grupo').reset();
-    
-    // Llenar selector de deportes
-    await llenarSelectorDeportes();
-    
-    document.getElementById('modalGrupo').style.display = 'block';
-}
-
-// Llenar selector de deportes del instructor
-async function llenarSelectorDeportes() {
-    const selector = document.getElementById('grupo-deporte');
-    let deportes = [];
-    
-    if (currentUserProfile.username) {
-        deportes = currentUserProfile.username.split(',').map(d => d.trim());
-    }
-    
-    selector.innerHTML = deportes.map(deporte => 
-        `<option value="${deporte}">${deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>`
-    ).join('');
-}
-
-// Guardar grupo
-async function guardarGrupo(event) {
-    event.preventDefault();
-    
-    const nombre = document.getElementById('grupo-nombre').value;
-    const deporte = document.getElementById('grupo-deporte').value;
-    const descripcion = document.getElementById('grupo-descripcion').value;
-    const color = document.getElementById('grupo-color').value;
-    
-    try {
-        const grupoData = {
-            nombre,
-            deporte,
-            descripcion,
-            color,
-            instructor_id: currentUserProfile.id
-        };
-        
-        if (grupoEditando) {
-            const { error } = await supabaseClient
-                .from('grupos')
-                .update(grupoData)
-                .eq('id', grupoEditando);
-            if (error) throw error;
-        } else {
-            const { error } = await supabaseClient
-                .from('grupos')
-                .insert([grupoData]);
-            if (error) throw error;
+            }).join('');
         }
-        
-        await cargarGrupos();
-        cerrarModalGrupo();
-        alert('✅ Grupo guardado exitosamente');
-    } catch (error) {
-        console.error('Error guardando grupo:', error);
-        alert('❌ Error al guardar el grupo');
-    }
-}
 
-// Cerrar modal de grupo
-function cerrarModalGrupo() {
-    document.getElementById('modalGrupo').style.display = 'none';
-    grupoEditando = null;
-}
+        // Abrir modal para crear grupo
+        async function abrirModalCrearGrupo() {
+            grupoEditando = null;
+            document.getElementById('titulo-modal-grupo').textContent = '➕ Crear Nuevo Grupo';
+            document.getElementById('form-grupo').reset();
 
-// Exponer funciones globalmente
-window.abrirModalCrearGrupo = abrirModalCrearGrupo;
-window.cerrarModalGrupo = cerrarModalGrupo;
-window.guardarGrupo = guardarGrupo;
+            // Llenar selector de deportes
+            await llenarSelectorDeportes();
+
+            document.getElementById('modalGrupo').style.display = 'block';
+        }
+
+        // Llenar selector de deportes del instructor
+        async function llenarSelectorDeportes() {
+            const selector = document.getElementById('grupo-deporte');
+            let deportes = [];
+
+            if (currentUserProfile.username) {
+                deportes = currentUserProfile.username.split(',').map(d => d.trim());
+            }
+
+            selector.innerHTML = deportes.map(deporte =>
+                `<option value="${deporte}">${deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>`
+            ).join('');
+        }
+
+        // Guardar grupo
+        async function guardarGrupo(event) {
+            event.preventDefault();
+
+            const nombre = document.getElementById('grupo-nombre').value;
+            const deporte = document.getElementById('grupo-deporte').value;
+            const descripcion = document.getElementById('grupo-descripcion').value;
+            const color = document.getElementById('grupo-color').value;
+
+            try {
+                const grupoData = {
+                    nombre,
+                    deporte,
+                    descripcion,
+                    color,
+                    instructor_id: currentUserProfile.id
+                };
+
+                if (grupoEditando) {
+                    const { error } = await supabaseClient
+                        .from('grupos')
+                        .update(grupoData)
+                        .eq('id', grupoEditando);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabaseClient
+                        .from('grupos')
+                        .insert([grupoData]);
+                    if (error) throw error;
+                }
+
+                await cargarGrupos();
+                cerrarModalGrupo();
+                alert('✅ Grupo guardado exitosamente');
+            } catch (error) {
+                console.error('Error guardando grupo:', error);
+                alert('❌ Error al guardar el grupo');
+            }
+        }
+
+        // Cerrar modal de grupo
+        function cerrarModalGrupo() {
+            document.getElementById('modalGrupo').style.display = 'none';
+            grupoEditando = null;
+        }
+
+        // Exponer funciones globalmente
+        window.abrirModalCrearGrupo = abrirModalCrearGrupo;
+        window.cerrarModalGrupo = cerrarModalGrupo;
+        window.guardarGrupo = guardarGrupo;
 
         import {
             protectPage,
@@ -1122,7 +1128,7 @@ window.guardarGrupo = guardarGrupo;
         // Variables globales
         let intervalId = null;
         let currentUserProfile = null;
-        
+
 
         document.addEventListener('DOMContentLoaded', async function () {
             try {
@@ -1864,16 +1870,16 @@ window.guardarGrupo = guardarGrupo;
                 }
     
             });*/
-            
+
             // ================= GRUPOS NUEVOS =================
-    await cargarGrupos(); // 👈 esta función debe obtener y llenar `gruposData`
+            await cargarGrupos(); // 👈 esta función debe obtener y llenar `gruposData`
 
-    gruposData.forEach((grupo, index) => {
-        const participantesGrupo = grupo.participantes_grupos?.length || 0;
-        const colorClass = coloresDeportes[index % coloresDeportes.length];
-        console.log(grupo.id)
+            gruposData.forEach((grupo, index) => {
+                const participantesGrupo = grupo.participantes_grupos?.length || 0;
+                const colorClass = coloresDeportes[index % coloresDeportes.length];
+                console.log(grupo.id)
 
-        container.innerHTML += `
+                container.innerHTML += `
             <div class="stat-card ${colorClass}" style="cursor: pointer; transition: transform 0.2s ease;"
                  onclick="tomarAsistenciaGrupo('${grupo.id}')"
                  onmouseover="this.style.transform='scale(1.05)'"
@@ -1883,7 +1889,7 @@ window.guardarGrupo = guardarGrupo;
                 <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 0.5rem;">📝 Click para tomar asistencia</div>
             </div>
         `;
-    });
+            });
 
             // Tarjeta de Total Asistencias (siempre se muestra al final)
             container.innerHTML += `
@@ -2224,7 +2230,7 @@ window.guardarGrupo = guardarGrupo;
                 const asistencias = await obtenerAsistencias();
 
                 await actualizarResumen(datos);
-                
+
 
                 // Actualizar timestamp
                 const ahora = new Date().toLocaleString('es-ES', {
@@ -2678,7 +2684,7 @@ window.guardarGrupo = guardarGrupo;
                     });
                 });
 
-                
+
                 // Sección de estadísticas generales
                 let yPosition = 70;
                 doc.setFontSize(14);
@@ -2928,26 +2934,38 @@ window.guardarGrupo = guardarGrupo;
             checkboxes.forEach(cb => cb.checked = false);
         }
 
-        
- window.tomarAsistenciaGrupo = async function(grupoId) {
-  console.log("Tomando asistencia para el grupo:", grupoId);
-  grupoSeleccionado = grupoId;
 
-  const asistenciasDelGrupo = await cargarAsistenciasPorGrupo(grupoId);
-  mostrarParticipantesParaAsistencia(asistenciasDelGrupo);
+        window.tomarAsistenciaGrupo = async function (grupoId) {
+            console.log("Tomando asistencia para el grupo:", grupoId);
 
-  document.getElementById('modalParticipantesGrupo').style.display = 'block';
-}
+            // Obtener información del grupo
+            const { data: grupo, error: errorGrupo } = await supabaseClient
+                .from('grupos')
+                .select('*')
+                .eq('id', grupoId)
+                .single();
 
+            if (errorGrupo) {
+                console.error('Error obteniendo grupo:', errorGrupo);
+                return;
+            }
 
+            // Guardar información del grupo en localStorage para el modal
+            localStorage.setItem('grupoSeleccionadoAsistencia', JSON.stringify({
+                id: grupoId,
+                nombre: grupo.nombre,
+                deporte: grupo.deporte
+            }));
 
-
+            // Redirigir al formulario con parámetros específicos del grupo
+            window.location.href = `formulario_excel.html?autoAbrir=asistencia&grupo=${grupoId}&deporte=${grupo.deporte}`;
+        }
 
         // Exponer funciones de gestión de participantes globalmente
-window.gestionarParticipantesGrupo = gestionarParticipantesGrupo;
-window.agregarParticipanteAGrupo = agregarParticipanteAGrupo;
-window.removerParticipanteDeGrupo = removerParticipanteDeGrupo;
-window.cerrarModalParticipantes = cerrarModalParticipantes;
+        window.gestionarParticipantesGrupo = gestionarParticipantesGrupo;
+        window.agregarParticipanteAGrupo = agregarParticipanteAGrupo;
+        window.removerParticipanteDeGrupo = removerParticipanteDeGrupo;
+        window.cerrarModalParticipantes = cerrarModalParticipantes;
     </script>
 
     <script src="script.js"></script>

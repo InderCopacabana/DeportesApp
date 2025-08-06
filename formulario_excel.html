@@ -515,20 +515,20 @@
           <span class="arrow-left">←</span> Volver
         </a>
 
-      <!--
+        <!--
 
         <button onclick="abrirModalAsistencia()" class="btn-evidence"
           style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
           📋 Tomar Asistencia
         </button>
         Botón de Evidencias -->
-        
+
         <button onclick="abrirModalEvidencias()" class="btn-evidence">
           📸 Evidencias Fotográficas
         </button>
       </div>
-         
-     
+
+
 
       <div class="form-container">
         <h2 id="form-title">Agregar Nuevo Participante</h2>
@@ -1332,31 +1332,58 @@
 
     async function cargarParticipantesDeporte() {
       try {
-        const username = userProfile?.username || '';
-        // Verificar si viene un deporte específico desde el dashboard
+        const grupoParam = obtenerParametroURL('grupo');
         const deporteParam = obtenerParametroURL('deporte');
-        let deportesAsignados;
 
-        if (deporteParam) {
-          // Si viene un deporte específico, solo usar ese
-          deportesAsignados = [deporteParam];
+        let participantes = [];
+
+        if (grupoParam) {
+          // Si viene un grupo específico, cargar solo participantes de ese grupo
+          console.log("Cargando participantes del grupo:", grupoParam);
+
+          const { data: participantesGrupo, error } = await supabaseClient
+            .from('participantes_grupos')
+            .select(`
+                    participante_id,
+                    participantes(*)
+                `)
+            .eq('grupo_id', grupoParam)
+            .eq('activo', true);
+
+          if (error) throw error;
+
+          // Extraer los datos de participantes
+          participantes = participantesGrupo.map(pg => pg.participantes);
+
+          // Actualizar el título para mostrar que es un grupo específico
+          const grupoInfo = JSON.parse(localStorage.getItem('grupoSeleccionadoAsistencia') || '{}');
+          if (grupoInfo.nombre) {
+            document.getElementById('deporte-instructor').textContent = grupoInfo.nombre;
+          }
+
         } else {
-          // Si no, usar todos los deportes del instructor
-          deportesAsignados = userProfile.username
-            .split(',')
-            .map(d => d.trim().toLowerCase());
+          // Lógica original para deportes completos
+          const username = userProfile?.username || '';
+          let deportesAsignados;
+          if (deporteParam) {
+            deportesAsignados = [deporteParam];
+          } else {
+            deportesAsignados = userProfile.username
+              .split(',')
+              .map(d => d.trim().toLowerCase());
+          }
+
+          console.log("Deportes asignados:", deportesAsignados);
+
+          const { data: participantesDeporte, error } = await supabaseClient
+            .from('participantes')
+            .select('*')
+            .in('actividad', deportesAsignados)
+            .order('nombre');
+
+          if (error) throw error;
+          participantes = participantesDeporte || [];
         }
-
-        console.log("Deportes asignados:", deportesAsignados);
-
-        const { data: participantes, error } = await supabaseClient
-          .from('participantes')
-          .select('*')
-          .in('actividad', deportesAsignados)
-          .order('nombre');
-
-
-        if (error) throw error;
 
         const container = document.getElementById('lista-participantes-deporte');
 
@@ -1861,6 +1888,7 @@
 
           // Solo procesar si es nuevo o ha sido modificado
           if (!asistenciaId || participantesModificados.has(participanteId)) {
+            const grupoParam = obtenerParametroURL('grupo');
             const asistenciaData = {
               participante_id: participanteId,
               instructor_id: userProfile.id,
@@ -1868,7 +1896,8 @@
               hora_clase: horaClase,
               actividad: actividad,
               asistio: asistio,
-              observaciones: observacionIndividual
+              observaciones: observacionIndividual,
+
             };
 
             if (asistenciaId) {
@@ -1919,48 +1948,80 @@
       }
     }
 
-    async function cargarAsistenciasHoy(grupoId) {
-  try {
-    const fechaHoy = new Date().toLocaleDateString('en-CA');
+    async function cargarAsistenciasHoy() {
+      try {
+        const fechaHoy = new Date().toLocaleDateString('en-CA');
+        const grupoParam = obtenerParametroURL('grupo');
 
-    let query = supabaseClient
-      .from('asistencias')
-      .select(`
-        *,
-        participantes (nombre, edad, genero)
-      `)
-      .eq('grupo_id', grupoId)
-      .eq('fecha_clase', fechaHoy)
-      .order('hora_clase', { ascending: false });
+        let query = supabaseClient
+          .from('asistencias')
+          .select(`
+    *,
+    participantes (
+      nombre,
+      edad,
+      genero,
+      participantes_grupos (
+        grupo_id
+      )
+    )
+  `)
+          .eq('fecha_clase', fechaHoy)
+          .order('hora_clase', { ascending: false });
+        /*
+        // Filtrar por grupo si existe
+        if (grupoParam) {
+            query = query.eq('grupo_id', grupoParam);
+        }
+        */
+        // Filtrar por instructor si aplica
+        if (userProfile.role === 'instructor') {
+          query = query.eq('instructor_id', userProfile.id);
+        }
 
-    // Filtrar por instructor si aplica
-    if (userProfile.role === 'instructor') {
-      query = query.eq('instructor_id', userProfile.id);
+        const { data, error } = await query;
+        if (error) throw error;
+
+        asistenciasHoy = data || [];
+        mostrarAsistenciasHoy(asistenciasHoy);
+
+      } catch (error) {
+        console.error('Error cargando asistencias:', error);
+        document.getElementById('lista-asistencias-hoy').innerHTML =
+          '<p style="color: #dc3545;">Error al cargar asistencias</p>';
+      }
     }
 
-    const { data, error } = await query;
-    if (error) throw error;
 
-    asistenciasHoy = data || [];
-    mostrarAsistenciasHoy(asistenciasHoy);
-
-  } catch (error) {
-    console.error('Error cargando asistencias:', error);
-    document.getElementById('lista-asistencias-hoy').innerHTML =
-      '<p style="color: #dc3545;">Error al cargar asistencias</p>';
-  }
-}
-
-
+    // Función para mostrar asistencias del día
     // Función para mostrar asistencias del día
     function mostrarAsistenciasHoy(asistencias) {
       const container = document.getElementById('lista-asistencias-hoy');
 
+      // 🟡 Obtener el grupo seleccionado del localStorage
+      const grupoSeleccionado = JSON.parse(localStorage.getItem('grupoSeleccionadoAsistencia'));
+      const grupoIdActual = grupoSeleccionado?.id ? String(grupoSeleccionado.id) : null;
+
+      console.log("✅ Grupo seleccionado:", grupoSeleccionado);
+      console.log("🔎 Grupo ID actual:", grupoIdActual);
+
+      // 🟢 Filtrar asistencias por grupo_id (desde participantes → participantes_grupos[0].grupo_id)
+      if (grupoIdActual) {
+        asistencias = asistencias.filter(a => {
+          const grupoRelacion = a.participantes?.participantes_grupos?.[0];
+          return grupoRelacion?.grupo_id === grupoIdActual;
+        });
+      }
+
+      console.log("📋 Asistencias filtradas:", asistencias);
+
+      // 🛑 Si no hay asistencias para hoy
       if (!asistencias || asistencias.length === 0) {
         container.innerHTML = '<p style="text-align: center; color: #666;">No hay asistencias registradas hoy</p>';
         return;
       }
 
+      // ✅ Construir tabla HTML
       let html = `
     <table style="width: 100%; margin-top: 1rem;">
       <thead>
@@ -1976,14 +2037,16 @@
   `;
 
       asistencias.forEach(asistencia => {
-        const hora = asistencia.hora_clase.slice(0, 5);
-        const participante = asistencia.participantes;
+        const hora = asistencia.hora_clase?.slice(0, 5) || '--:--';
+        const participante = asistencia.participantes || {};
 
         html += `
       <tr>
         <td>${hora}</td>
-        <td>${participante.nombre}<br><small>${participante.edad} años - ${participante.genero}</small></td>
-        <td>${asistencia.actividad}</td>
+        <td>${participante.nombre || 'Sin nombre'}<br>
+            <small>${participante.edad || 'Edad no registrada'} años - ${participante.genero || 'Sin género'}</small>
+        </td>
+        <td>${asistencia.actividad || '-'}</td>
         <td>${asistencia.asistio ? '✅ Sí' : '❌ No'}</td>
         <td>${asistencia.observaciones || '-'}</td>
       </tr>
@@ -1993,6 +2056,8 @@
       html += '</tbody></table>';
       container.innerHTML = html;
     }
+
+
 
     // Función para limpiar formulario de asistencia
     function limpiarFormularioAsistencia() {
