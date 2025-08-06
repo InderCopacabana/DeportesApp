@@ -8,8 +8,7 @@
     <link rel="stylesheet" href="estilos.css">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -331,34 +330,7 @@
             animation: spin 1s linear infinite;
         }
 
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .chart-container {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-
-        .chart-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #333;
-            text-align: center;
-        }
-
-        .chart-canvas {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
+       
 
         .stats-overview {
             display: grid;
@@ -547,6 +519,13 @@
                     <option value="Mujer">Solo Mujeres</option>
                 </select>
             </div>
+
+            <!-- Resumen de Estadísticas Dinámicas -->
+            <div class="stats-overview" id="stats-container">
+                <!-- Las tarjetas se generarán dinámicamente aquí -->
+            </div>
+
+            
             <!-- Sección de Gestión de Grupos -->
 <div class="grupos-section" style="margin: 2rem 0;">
     <div class="grupos-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -620,45 +599,9 @@
 </div>
 
 
-            <!-- Resumen de Estadísticas Dinámicas -->
-            <div class="stats-overview" id="stats-container">
-                <!-- Las tarjetas se generarán dinámicamente aquí -->
-            </div>
+            
 
-            <!-- Gráficos Principales -->
-            <div class="charts-grid">
-                <!-- Gráfico de Distribución por Edad -->
-                <div class="chart-container">
-                    <h3 class="chart-title">Distribución por Edad</h3>
-                    <div class="chart-canvas">
-                        <canvas id="chart-edades"></canvas>
-                    </div>
-                </div>
-
-                <!-- Gráfico de Distribución por Género -->
-                <div class="chart-container">
-                    <h3 class="chart-title">Distribución por Género</h3>
-                    <div class="chart-canvas">
-                        <canvas id="chart-genero"></canvas>
-                    </div>
-                </div>
-
-                <!-- Gráfico de Actividades Más Populares -->
-                <div class="chart-container">
-                    <h3 class="chart-title">Actividades Más Populares</h3>
-                    <div class="chart-canvas">
-                        <canvas id="chart-actividades"></canvas>
-                    </div>
-                </div>
-
-                <!-- Gráfico de Asistencias -->
-                <div class="chart-container">
-                    <h3 class="chart-title">Estadísticas de Asistencia</h3>
-                    <div class="chart-canvas">
-                        <canvas id="chart-asistencias"></canvas>
-                    </div>
-                </div>
-            </div>
+           
 
             <div class="update-info">
                 <p id="ultima-actualizacion">Última actualización: Cargando...</p>
@@ -831,6 +774,187 @@ let gruposData = [];
 let grupoEditando = null;
 let grupoSeleccionado = null;
 
+// Función para gestionar participantes de un grupo específico
+async function gestionarParticipantesGrupo(grupoId) {
+    try {
+        grupoSeleccionado = grupoId;
+        
+        // Obtener información del grupo
+        const { data: grupo, error: errorGrupo } = await supabaseClient
+            .from('grupos')
+            .select('*')
+            .eq('id', grupoId)
+            .single();
+            
+        if (errorGrupo) throw errorGrupo;
+        
+        // Actualizar título del modal
+        document.getElementById('titulo-participantes-grupo').textContent = 
+            `👥 Gestionar Participantes - ${grupo.nombre}`;
+            console.log('📌 Deporte del grupo:', grupo.deporte);
+
+        
+        // Obtener participantes del deporte específico del grupo
+        const { data: participantesDelDeporte, error: errorParticipantes } = await supabaseClient
+            .from('participantes')
+            .select('*')
+            .eq('actividad', grupo.deporte)
+            
+            .order('nombre');
+            
+        if (errorParticipantes) throw errorParticipantes;
+        
+        // Obtener participantes ya asignados al grupo
+        const { data: participantesGrupo, error: errorAsignados } = await supabaseClient
+            .from('participantes_grupos')
+            .select(`
+                participante_id,
+                participantes(id, nombre, edad, genero)
+            `)
+            .eq('grupo_id', grupoId)
+            .eq('activo', true);
+            
+        if (errorAsignados) throw errorAsignados;
+        
+        const participantesAsignadosIds = participantesGrupo.map(pg => pg.participante_id);
+        
+        // Renderizar participantes disponibles (del mismo deporte, no asignados)
+        const participantesDisponibles = participantesDelDeporte.filter(p => 
+            !participantesAsignadosIds.includes(p.id)
+        );
+        
+        renderizarParticipantesDisponibles(participantesDisponibles);
+        renderizarParticipantesEnGrupo(participantesGrupo);
+        
+        // Mostrar modal
+        document.getElementById('modalParticipantesGrupo').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error gestionando participantes:', error);
+        alert('❌ Error al cargar participantes del grupo');
+    }
+}
+
+// Renderizar participantes disponibles del deporte
+function renderizarParticipantesDisponibles(participantes) {
+    const container = document.getElementById('participantes-disponibles');
+    
+    if (participantes.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; color: #666; padding: 2rem;">
+                <p>No hay participantes disponibles de este deporte</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = participantes.map(participante => `
+        <div class="participante-item" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; border: 1px solid #ddd; margin-bottom: 0.5rem; border-radius: 4px;">
+            <div>
+                <strong>${participante.nombre}</strong><br>
+                <small>${participante.edad} años - ${participante.genero}</small>
+            </div>
+            <button onclick="agregarParticipanteAGrupo('${participante.id}')" 
+                    class="btn-small" style="background: #28a745; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer;">
+                ➕ Agregar
+            </button>
+        </div>
+    `).join('');
+}
+
+
+
+// Renderizar participantes ya en el grupo
+function renderizarParticipantesEnGrupo(participantesGrupo) {
+    const participantesActivos = participantesGrupo.filter(pg => pg.activo !== false);
+    const container = document.getElementById('participantes-grupo');
+    
+    if (participantesGrupo.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; color: #666; padding: 2rem;">
+                <p>No hay participantes en este grupo</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = participantesActivos.map(pg => {
+        const participante = pg.participantes;
+        return `
+            <div class="participante-item" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; border: 1px solid #ddd; margin-bottom: 0.5rem; border-radius: 4px; background-color: #f8f9fa;">
+                <div>
+                    <strong>${participante.nombre}</strong><br>
+                    <small>${participante.edad} años - ${participante.genero}</small>
+                </div>
+                <button onclick="removerParticipanteDeGrupo('${participante.id}')" 
+                        class="btn-small" style="background: #dc3545; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer;">
+                    ❌ Remover
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+async function agregarParticipanteAGrupo(participanteId) {
+    try {
+        // Siempre eliminar cualquier relación previa (si existe)
+        await supabaseClient
+            .from('participantes_grupos')
+            .delete()
+            .eq('participante_id', participanteId)
+            .eq('grupo_id', grupoSeleccionado);
+
+        // Ahora insertar nuevamente
+        const { error: errorInsert } = await supabaseClient
+            .from('participantes_grupos')
+            .insert([{
+                participante_id: participanteId,
+                grupo_id: grupoSeleccionado,
+                fecha_asignacion: new Date().toISOString(),
+                activo: true
+            }]);
+        if (errorInsert) throw errorInsert;
+
+        // Recargar listas visuales
+        await gestionarParticipantesGrupo(grupoSeleccionado);
+        
+    } catch (error) {
+        console.error('Error agregando participante:', error);
+        alert('❌ Error al agregar participante al grupo');
+    }
+}
+
+
+// Remover participante del grupo
+async function removerParticipanteDeGrupo(participanteId) {
+    if (!confirm('¿Está seguro de remover este participante del grupo?')) {
+        return;
+    }
+    
+    try {
+        const { error } = await supabaseClient
+    .from('participantes_grupos')
+    .delete()
+    .eq('participante_id', participanteId)
+    .eq('grupo_id', grupoSeleccionado);
+
+            
+        if (error) throw error;
+        
+        // Recargar listas
+        await gestionarParticipantesGrupo(grupoSeleccionado);
+        
+    } catch (error) {
+        console.error('Error removiendo participante:', error);
+        alert('❌ Error al remover participante del grupo');
+    }
+}
+
+// Cerrar modal de participantes
+function cerrarModalParticipantes() {
+    document.getElementById('modalParticipantesGrupo').style.display = 'none';
+    grupoSeleccionado = null;
+}
+
 // Cargar grupos del instructor
 async function cargarGrupos() {
     try {
@@ -898,9 +1022,7 @@ function renderizarGrupos() {
                     <button onclick="gestionarParticipantesGrupo('${grupo.id}')" class="btn-small btn-manage">
                         👥 Gestionar
                     </button>
-                    <button onclick="tomarAsistenciaGrupo('${grupo.id}')" class="btn-small btn-manage">
-                        📝 Asistencia
-                    </button>
+                    
                     <button onclick="editarGrupo('${grupo.id}')" class="btn-small btn-manage">
                         ✏️ Editar
                     </button>
@@ -1000,7 +1122,7 @@ window.guardarGrupo = guardarGrupo;
         // Variables globales
         let intervalId = null;
         let currentUserProfile = null;
-        let chartEdades, chartGenero, chartActividades, chartAsistencias;
+        
 
         document.addEventListener('DOMContentLoaded', async function () {
             try {
@@ -1707,8 +1829,10 @@ window.guardarGrupo = guardarGrupo;
                 const deportesUnicos = [...new Set(datos.map(p => p.actividad))];
                 deportesInstructor = deportesUnicos;
             }
+            const coloresDeportes = ['secondary', 'tertiary', 'quaternary', '', 'secondary', 'tertiary'];
 
             // Generar tarjetas para cada deporte
+            /*
             const coloresDeportes = ['secondary', 'tertiary', 'quaternary', '', 'secondary', 'tertiary'];
             deportesInstructor.forEach((deporte, index) => {
                 const participantesDeporte = datos.filter(p =>
@@ -1738,13 +1862,16 @@ window.guardarGrupo = guardarGrupo;
         </div>
     `;
                 }
-            });
+    
+            });*/
+            
             // ================= GRUPOS NUEVOS =================
     await cargarGrupos(); // 👈 esta función debe obtener y llenar `gruposData`
 
     gruposData.forEach((grupo, index) => {
         const participantesGrupo = grupo.participantes_grupos?.length || 0;
         const colorClass = coloresDeportes[index % coloresDeportes.length];
+        console.log(grupo.id)
 
         container.innerHTML += `
             <div class="stat-card ${colorClass}" style="cursor: pointer; transition: transform 0.2s ease;"
@@ -2097,10 +2224,7 @@ window.guardarGrupo = guardarGrupo;
                 const asistencias = await obtenerAsistencias();
 
                 await actualizarResumen(datos);
-                actualizarGraficoEdades(datos);
-                actualizarGraficoGenero(datos);
-                actualizarGraficoActividades(datos);
-                actualizarGraficoAsistencias(asistencias);
+                
 
                 // Actualizar timestamp
                 const ahora = new Date().toLocaleString('es-ES', {
@@ -2554,7 +2678,7 @@ window.guardarGrupo = guardarGrupo;
                     });
                 });
 
-                // Sección de estadísticas generales
+                
                 // Sección de estadísticas generales
                 let yPosition = 70;
                 doc.setFontSize(14);
@@ -2770,6 +2894,7 @@ window.guardarGrupo = guardarGrupo;
         }
 
 
+
         // Función para ir a tomar asistencia de un deporte específico
         function irATomarAsistencia(deporte) {
             // Guardar el deporte seleccionado en localStorage para usar en formulario_excel.html
@@ -2802,6 +2927,27 @@ window.guardarGrupo = guardarGrupo;
             const checkboxes = document.querySelectorAll('#modalDescargaPDF input[type="checkbox"]');
             checkboxes.forEach(cb => cb.checked = false);
         }
+
+        
+ window.tomarAsistenciaGrupo = async function(grupoId) {
+  console.log("Tomando asistencia para el grupo:", grupoId);
+  grupoSeleccionado = grupoId;
+
+  const asistenciasDelGrupo = await cargarAsistenciasPorGrupo(grupoId);
+  mostrarParticipantesParaAsistencia(asistenciasDelGrupo);
+
+  document.getElementById('modalParticipantesGrupo').style.display = 'block';
+}
+
+
+
+
+
+        // Exponer funciones de gestión de participantes globalmente
+window.gestionarParticipantesGrupo = gestionarParticipantesGrupo;
+window.agregarParticipanteAGrupo = agregarParticipanteAGrupo;
+window.removerParticipanteDeGrupo = removerParticipanteDeGrupo;
+window.cerrarModalParticipantes = cerrarModalParticipantes;
     </script>
 
     <script src="script.js"></script>

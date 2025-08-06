@@ -1919,38 +1919,38 @@
       }
     }
 
-    // Función para cargar asistencias del día
-    async function cargarAsistenciasHoy() {
-      try {
-        const fechaHoy = new Date().toLocaleDateString('en-CA');
+    async function cargarAsistenciasHoy(grupoId) {
+  try {
+    const fechaHoy = new Date().toLocaleDateString('en-CA');
 
-
-        let query = supabaseClient
-          .from('asistencias')
-          .select(`
+    let query = supabaseClient
+      .from('asistencias')
+      .select(`
         *,
         participantes (nombre, edad, genero)
       `)
-          .eq('fecha_clase', fechaHoy)
-          .order('hora_clase', { ascending: false });
+      .eq('grupo_id', grupoId)
+      .eq('fecha_clase', fechaHoy)
+      .order('hora_clase', { ascending: false });
 
-        // Si es instructor, solo mostrar sus asistencias
-        if (userProfile.role === 'instructor') {
-          query = query.eq('instructor_id', userProfile.id);
-        }
-
-        const { data, error } = await query;
-        if (error) throw error;
-
-        asistenciasHoy = data || [];
-        mostrarAsistenciasHoy(asistenciasHoy);
-
-      } catch (error) {
-        console.error('Error cargando asistencias:', error);
-        document.getElementById('lista-asistencias-hoy').innerHTML =
-          '<p style="color: #dc3545;">Error al cargar asistencias</p>';
-      }
+    // Filtrar por instructor si aplica
+    if (userProfile.role === 'instructor') {
+      query = query.eq('instructor_id', userProfile.id);
     }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    asistenciasHoy = data || [];
+    mostrarAsistenciasHoy(asistenciasHoy);
+
+  } catch (error) {
+    console.error('Error cargando asistencias:', error);
+    document.getElementById('lista-asistencias-hoy').innerHTML =
+      '<p style="color: #dc3545;">Error al cargar asistencias</p>';
+  }
+}
+
 
     // Función para mostrar asistencias del día
     function mostrarAsistenciasHoy(asistencias) {
