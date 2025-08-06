@@ -1852,6 +1852,49 @@
       }
     });
 
+   async function verificarFaltasConsecutivas(supabase, participanteId) {
+  const { data, error } = await supabase
+    .from('asistencias')
+    .select('fecha_clase, asistio')
+    .eq('participante_id', participanteId)
+    .order('fecha_clase', { ascending: false })
+    .limit(10); // solo miramos las últimas 10 por eficiencia
+
+  if (error || !data) return false;
+
+  // Convertimos a fechas únicas por día y revisamos faltas consecutivas
+  const faltasConsecutivas = data
+    .filter(reg => reg.asistio === false)
+    .map(reg => reg.fecha_clase)
+    .filter((fecha, index, self) => self.indexOf(fecha) === index); // eliminar duplicados por día
+
+  // Ahora verificamos si hay al menos 3 faltas en días consecutivos
+  let contador = 0;
+  let ultimoDia = null;
+
+  for (const fechaStr of faltasConsecutivas) {
+    const fecha = new Date(fechaStr);
+    if (!ultimoDia) {
+      contador = 1;
+    } else {
+      const diferenciaDias = (ultimoDia - fecha) / (1000 * 60 * 60 * 24);
+      if (diferenciaDias === 1) {
+        contador++;
+      } else {
+        contador = 1;
+      }
+    }
+
+    if (contador >= 3) return true;
+
+    ultimoDia = new Date(fechaStr);
+  }
+
+  return false;
+}
+
+
+
     async function guardarAsistencia(e) {
       e.preventDefault();
 
@@ -1983,6 +2026,25 @@
         if (error) throw error;
 
         asistenciasHoy = data || [];
+        // Calcular faltas acumuladas antes de hoy
+const { data: faltasAcumuladas, error: errorFaltas } = await supabaseClient
+  .from('asistencias')
+  .select('participante_id, asistio')
+  .lt('fecha_clase', new Date().toISOString().split('T')[0]) // solo antes de hoy
+  .eq('instructor_id', userProfile.id); // si aplica filtro por instructor
+
+if (errorFaltas) throw errorFaltas;
+
+// Contar faltas por participante
+const mapaFaltas = new Map();
+
+faltasAcumuladas.forEach(asistencia => {
+  if (!asistencia.asistio) {
+    const id = asistencia.participante_id;
+    mapaFaltas.set(id, (mapaFaltas.get(id) || 0) + 1);
+  }
+});
+
         mostrarAsistenciasHoy(asistenciasHoy);
 
       } catch (error) {
@@ -1994,35 +2056,26 @@
 
 
     // Función para mostrar asistencias del día
-    // Función para mostrar asistencias del día
-    function mostrarAsistenciasHoy(asistencias) {
-      const container = document.getElementById('lista-asistencias-hoy');
+  // Función para mostrar asistencias del día
+async function mostrarAsistenciasHoy(asistencias) {
+  const container = document.getElementById('lista-asistencias-hoy');
 
-      // 🟡 Obtener el grupo seleccionado del localStorage
-      const grupoSeleccionado = JSON.parse(localStorage.getItem('grupoSeleccionadoAsistencia'));
-      const grupoIdActual = grupoSeleccionado?.id ? String(grupoSeleccionado.id) : null;
+  const grupoSeleccionado = JSON.parse(localStorage.getItem('grupoSeleccionadoAsistencia'));
+  const grupoIdActual = grupoSeleccionado?.id ? String(grupoSeleccionado.id) : null;
 
-      console.log("✅ Grupo seleccionado:", grupoSeleccionado);
-      console.log("🔎 Grupo ID actual:", grupoIdActual);
+  if (grupoIdActual) {
+    asistencias = asistencias.filter(a => {
+      const grupoRelacion = a.participantes?.participantes_grupos?.[0];
+      return grupoRelacion?.grupo_id === grupoIdActual;
+    });
+  }
 
-      // 🟢 Filtrar asistencias por grupo_id (desde participantes → participantes_grupos[0].grupo_id)
-      if (grupoIdActual) {
-        asistencias = asistencias.filter(a => {
-          const grupoRelacion = a.participantes?.participantes_grupos?.[0];
-          return grupoRelacion?.grupo_id === grupoIdActual;
-        });
-      }
+  if (!asistencias || asistencias.length === 0) {
+    container.innerHTML = '<p style="text-align: center; color: #666;">No hay asistencias registradas hoy</p>';
+    return;
+  }
 
-      console.log("📋 Asistencias filtradas:", asistencias);
-
-      // 🛑 Si no hay asistencias para hoy
-      if (!asistencias || asistencias.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #666;">No hay asistencias registradas hoy</p>';
-        return;
-      }
-
-      // ✅ Construir tabla HTML
-      let html = `
+  let html = `
     <table style="width: 100%; margin-top: 1rem;">
       <thead>
         <tr>
@@ -2036,26 +2089,34 @@
       <tbody>
   `;
 
-      asistencias.forEach(asistencia => {
-        const hora = asistencia.hora_clase?.slice(0, 5) || '--:--';
-        const participante = asistencia.participantes || {};
+  for (const asistencia of asistencias) {
+    const hora = asistencia.hora_clase?.slice(0, 5) || '--:--';
+    const participante = asistencia.participantes || {};
+    const participanteId = asistencia.participante_id;
 
-        html += `
+    // Verificar si faltó a 3 clases seguidas
+    const alertaFaltas = await verificarFaltasConsecutivas(supabaseClient, participanteId);
+
+    html += `
       <tr>
         <td>${hora}</td>
-        <td>${participante.nombre || 'Sin nombre'}<br>
-            <small>${participante.edad || 'Edad no registrada'} años - ${participante.genero || 'Sin género'}</small>
+        <td>
+          <span class="${alertaFaltas ? 'alerta-participante' : ''}">
+            ${alertaFaltas ? '⚠️ ' : ''}${participante.nombre || 'Sin nombre'}
+          </span><br>
+          <small>${participante.edad || 'Edad no registrada'} años - ${participante.genero || 'Sin género'}</small>
         </td>
         <td>${asistencia.actividad || '-'}</td>
         <td>${asistencia.asistio ? '✅ Sí' : '❌ No'}</td>
         <td>${asistencia.observaciones || '-'}</td>
       </tr>
     `;
-      });
+  }
 
-      html += '</tbody></table>';
-      container.innerHTML = html;
-    }
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
 
 
 

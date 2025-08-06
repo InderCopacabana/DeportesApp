@@ -1523,6 +1523,18 @@
     font-size: 0.8rem;
     color: #666;
 }
+.alerta-participante {
+  color: red;
+  font-weight: bold;
+  animation: titilar 1s infinite;
+}
+
+@keyframes titilar {
+  0% { background-color: transparent; }
+  50% { background-color: rgba(255, 0, 0, 0.2); }
+  100% { background-color: transparent; }
+}
+
  
 
 
