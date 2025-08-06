@@ -11,51 +11,123 @@
 <body>
   <!-- Encabezado con navegación -->
   <header>
-    <div class="container header-content">
-      <div class="logo">DeporteApp</div>
-      <nav>
-        <ul>
-          <li class="dropdown"><a href="index.html">Inicio</a></li>
-          <li class="dropdown">
-            <a href="deportes.html" class="dropdown-toggle">Deportes <span class="arrow">▼</span></a>
-            <div class="dropdown-content">
-              <a href="#futbol">Fútbol</a>
-              <a href="#futbol_de_salon">Fútbol de Salón</a>
-              <a href="#futbol_sala">Fútbol Sala</a>
-              <a href="#ajedrez">Ajedrez</a>
-              <a href="#baloncesto">Baloncesto</a>
-              <a href="#balonmano">Balonmano</a>
-              <a href="#natacion">Natación</a>
-              <a href="#atletismo">Atletismo</a>
-              <a href="#patinaje">Patinaje</a>
-              <a href="#rugby">Rugby</a>
-              <a href="#tenis">Tenis</a>
-              <a href="#voleibol">Voleibol</a>
+        <div class="container header-content">
+            <div class="logo">INDER Copacabana</div>
+            <nav>
+                <ul>
+                    <li class="dropdown">
+                        <a href="index.html">Inicio</a>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="deportes.html" class="dropdown-toggle">Deportes Formativo<span
+                                class="arrow">▼</span></a>
+                        <div class="dropdown-content">
+                            <a href="deportes.html#futbol">Fútbol</a>
+                            <a href="deportes.html#futbol_de_salon">Fútbol de Salón</a>
+                            <a href="deportes.html#futbol_sala">Fútbol sala</a>
+                            <a href="deportes.html#ajedrez">Ajedrez</a>
+                            <a href="deportes.html#baloncesto">Baloncesto</a>
+                            <a href="deportes.html#balonmano">Balonmano</a>
+                            <a href="deportes.html#natacion">Natación</a>
+                            <a href="deportes.html#atletismo">Atletismo</a>
+                            <a href="deportes.html#patinaje">Patinaje</a>
+                            <a href="deportes.html#rugby">Rugby</a>
+                            <a href="deportes.html#tenis">Tenis de campo</a>
+                            <a href="deportes.html#voleibol">Voleibol</a>
+                            <a href="deportes.html#tenis">Tenis de Mesa</a>
+                            <a href="deportes.html">BMX</a>
+                            <a href="deportes.html#boxeo">Boxeo</a>
+                            <a href="deportes.html#gimnasia">Gimnasia</a>
+                            <a href="deportes.html#jiu_jitsu">Jiu Jitsu</a>
+                            <a href="deportes.html#levantamiento_de_pesas">Levantamiento de Pesas</a>
+                            <a href="deportes.html#taekwondo">Taekwondo</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="actividades.html" class="dropdown-toggle">Actividades Físicas <span
+                                class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="actividades.html#gimnasio_municipal">Gimnasio Municipal</a>
+                            <a href="actividades.html#descubre_tu_talento">Descubre tu Talento</a>
+                            <a href="actividades.html#nadadores_activos">Nadadores Activos</a>
+                            <a href="actividades.html#yoga">Yoga</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="recreacion.html" class="dropdown-toggle">Recreación<span class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="recreacion.html">Rumba Aeróbica</a>
+                            <a href="recreacion.html">Hidroaerobicos</a>
+
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="eventos_institucionales.html" class="dropdown-toggle">Eventos Institucionales<span
+                                class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="eventos_institucionales.html">Vacaciones Recreativas</a>
+                            <a href="eventos_institucionales.html">Celebración del Deporte y Cultura</a>
+
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="torneos_festivales.html" class="dropdown-toggle">Torneos y Festivales
+                            Institucionales<span class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="torneos_festivales.html">Master</a>
+                            <a href="torneos_festivales.html">Open</a>
+                            <a href="torneos_festivales.html">Gran Master</a>
+                            <a href="torneos_festivales.html">Libre</a>
+                            <a href="torneos_festivales.html">Prebenjamines</a>
+                            <a href="torneos_festivales.html">Benjamines</a>
+                            <a href="torneos_festivales.html">Baby</a>
+                            <a href="torneos_festivales.html">BabyFútbol</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="juegos_institucionales.html" class="dropdown-toggle">Juegos Institucionales<span
+                                class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="juegos_institucionales.html">Escolares sub-regional</a>
+                            <a href="juegos_institucionales.html">Escolares Departamental</a>
+                            <a href="juegos_institucionales.html">Intercolegiados Municipal</a>
+                            <a href="juegos_institucionales.html">Intercolegiados sub-regional</a>
+                            <a href="juegos_institucionales.html">Intercolegiados Departamental</a>
+                            <a href="juegos_institucionales.html">Mayores sub-regional</a>
+                            <a href="juegos_institucionales.html">Mayores Departamental</a>
+                        </div>
+                    </li>
+
+                    <li><a href="diagrama.html">Estadísticas</a></li>
+                </ul>
+            </nav>
+            <!-- Navegación dinámica basada en autenticación -->
+            <div id="auth-navigation">
+                <a href="inicio_de_sesion.html" class="btn btn-secondary" id="login-btn">Iniciar Sesión</a>
+                <div id="user-menu" style="display: none;">
+                    <span id="user-name-header">Usuario</span>
+                    <a href="Dashboard.html" class="btn btn-primary" id="dashboard-btn">Dashboard</a>
+                    <button id="logout-btn" class="btn btn-secondary">Cerrar Sesión</button>
+
+                </div>
+                <button id="menu-toggle" class="menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
-          </li>
-          <li class="dropdown">
-            <a href="actividades.html" class="dropdown-toggle">Actividades Físicas <span class="arrow">▼</span></a>
-            <div class="dropdown-content">
-              <a href="#bmx">BMX</a>
-              <a href="#boxeo">Boxeo</a>
-              <a href="#descubre_tu_talento">Descubre tu Talento</a>
-              <a href="#gimnasia">Gimnasia</a>
-              <a href="#jiu_jitsu">Jiu Jitsu</a>
-              <a href="#gimnasio">Gimnasio</a>
-              <a href="#levantamiento_de_pesas">Levantamiento de Pesas</a>
-              <a href="#tiro_con_arco">Tiro con Arco</a>
-              <a href="#tackwondo">Tackwondo</a>
-            </div>
-          </li>
-          <li><a href="diagrama.html">Diagrama</a></li>
-        </ul>
-      </nav>
-      <a href="index.html" class="btn btn-secondary">Inicio</a>
-      <button id="menu-toggle" class="menu-toggle">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </header>
+    </header>
 
   <!-- Contenido principal -->
   <main>
