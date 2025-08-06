@@ -740,7 +740,7 @@
                         <button onclick="seleccionarTodosMesesPDF()" class="btn btn-outline">Seleccionar Todos</button>
                         <button onclick="limpiarSeleccionMesesPDF()" class="btn btn-outline">Limpiar Selección</button>
                         <select id="filter-deporte-descarga" class="filter-dropdown" style="min-width: 200px;">
-                            <option value="todos">Todos los Deportes</option>
+                            <option value="todos">Grupos</option>
                         </select>
                     </div>
                     <div style="display: flex; gap: 1rem;">
@@ -776,6 +776,14 @@
 
     <script type="module">
         // Variables globales para grupos
+
+        let grupoIdEditando = null;
+
+
+
+
+
+
         let gruposData = [];
         let grupoEditando = null;
         let grupoSeleccionado = null;
@@ -1041,6 +1049,79 @@
             }).join('');
         }
 
+
+        async function editarGrupo(grupoId) {
+            const grupo = gruposData.find(g => g.id === grupoId);
+            if (!grupo) {
+                alert('❌ Grupo no encontrado');
+                return;
+            } a
+
+            grupoEditando = grupoId;
+
+            document.getElementById('titulo-modal-grupo').innerText = '✏️ Editar Grupo';
+
+            // ⚠️ Espera a llenar las opciones antes de asignar el valor
+            await llenarSelectorDeportes();
+
+            // Ahora sí llenar los campos
+            document.getElementById('grupo-nombre').value = grupo.nombre;
+            document.getElementById('grupo-deporte').value = grupo.deporte; // Ya debe existir esta opción
+            document.getElementById('grupo-descripcion').value = grupo.descripcion || '';
+            document.getElementById('grupo-color').value = grupo.color || '#667eea';
+
+            document.getElementById('modalGrupo').style.display = 'block';
+        }
+
+
+
+        // 👇 Haz esto si usas "type=module"
+        window.eliminarGrupo = async function (grupoId) {
+            try {
+                const { data: grupo, error } = await supabaseClient
+                    .from('grupos')
+                    .select('id, nombre, participantes_grupos (id)')
+                    .eq('id', grupoId)
+                    .single();
+
+                if (error) {
+                    console.error('Error consultando el grupo:', error.message);
+                    alert('Error al consultar el grupo.');
+                    return;
+                }
+
+                const tieneParticipantes = grupo.participantes_grupos && grupo.participantes_grupos.length > 0;
+
+                if (tieneParticipantes) {
+                    alert('❌ No se puede eliminar el grupo porque tiene participantes.');
+                    return;
+                }
+
+                const confirmar = confirm(`¿Estás segura de que quieres eliminar el grupo "${grupo.nombre}"? Esta acción no se puede deshacer.`);
+                if (!confirmar) return;
+
+                const { error: deleteError } = await supabaseClient
+                    .from('grupos')
+                    .delete()
+                    .eq('id', grupoId);
+
+                if (deleteError) {
+                    console.error('Error al eliminar grupo:', deleteError.message);
+                    alert('Error al eliminar el grupo.');
+                    return;
+                }
+
+                // dentro de tu función eliminarGrupo
+                alert('✅ Grupo eliminado exitosamente.');
+                location.reload(); // 👈 esto asegura que se vean los cambios
+                // o como se llame tu función para recargar grupos
+            } catch (err) {
+                console.error('Error general al eliminar grupo:', err.message);
+                alert('Ocurrió un error al eliminar el grupo.');
+            }
+        }
+
+
         // Abrir modal para crear grupo
         async function abrirModalCrearGrupo() {
             grupoEditando = null;
@@ -1202,16 +1283,27 @@
 
         async function cargarDeportesEnSelector() {
             try {
-                const { data: participantes, error } = await supabaseClient
-                    .from('participantes')
-                    .select('actividad')
-                    .order('actividad');
+                const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+                if (sessionError) throw sessionError;
 
-                if (error) throw error;
+                const user = sessionData?.session?.user;
+                if (!user) {
+                    console.warn('No se pudo obtener el usuario autenticado');
+                    return;
+                }
 
-                // Obtener deportes únicos
-                const deportesUnicos = [...new Set(participantes.map(p => p.actividad))];
+                console.log("Usuario autenticado:", user.email, user.id);
 
+                const { data: grupos, error: gruposError } = await supabaseClient
+                    .from('grupos')
+                    .select('*')
+                    .eq('instructor_id', user.id);
+
+                if (gruposError) throw gruposError;
+
+                console.log("Grupos encontrados:", grupos);
+
+                const deportesUnicos = [...new Set(grupos.map(g => g.deporte))];
                 const selector = document.getElementById('filter-deporte-descarga');
                 let options = '<option value="todos">Todos los Deportes</option>';
 
@@ -1222,9 +1314,11 @@
 
                 selector.innerHTML = options;
             } catch (error) {
-                console.error('Error cargando deportes:', error);
+                console.error('Error cargando deportes:', error.message);
             }
         }
+
+
 
 
         // Función para configurar el avatar del usuario
@@ -2966,6 +3060,7 @@
         window.agregarParticipanteAGrupo = agregarParticipanteAGrupo;
         window.removerParticipanteDeGrupo = removerParticipanteDeGrupo;
         window.cerrarModalParticipantes = cerrarModalParticipantes;
+        window.editarGrupo = editarGrupo;
     </script>
 
     <script src="script.js"></script>
