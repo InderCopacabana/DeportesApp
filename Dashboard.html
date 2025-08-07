@@ -12,6 +12,16 @@
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <!-- jQuery (primero) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Select2 JS (después de jQuery) -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
     <style>
         .dashboard-container {
             padding: 2rem 0;
@@ -691,11 +701,6 @@
                 </div>
             </div>
 
-
-
-
-
-
             <div class="update-info">
                 <p id="ultima-actualizacion">Última actualización: Cargando...</p>
                 <p><small>Los datos se actualizan automáticamente cada 30 segundos</small></p>
@@ -751,9 +756,12 @@
                     <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
                         <button onclick="seleccionarTodosMeses()" class="btn btn-outline">Seleccionar Todos</button>
                         <button onclick="limpiarSeleccionMeses()" class="btn btn-outline">Limpiar Selección</button>
-                        <select id="filter-deporte-descarga" class="filter-dropdown" style="min-width: 200px;">
-                            <option value="todos">Todos los Deportes</option>
+
+
+                        <select id="filter-grupo-descarga" class="filter-dropdown" style="min-width: 200px;">
+                            <option value="todos">Todos los Grupos</option>
                         </select>
+
                     </div>
 
                     <div style="display: flex; gap: 1rem;">
@@ -862,6 +870,16 @@
     </footer>
 
     <script type="module">
+        $(document).ready(function () {
+            console.log("jQuery está funcionando");
+            console.log("typeof $.fn.select2:", typeof $.fn.select2); // Aquí debe decir "function"
+
+            $('#filter-grupo-descarga').select2({
+                placeholder: "🔍 Buscar grupo por nombre...",
+                allowClear: true
+            });
+        });
+
         // Variables globales para grupos
 
         let grupoIdEditando = null;
@@ -1661,7 +1679,7 @@
         async function configurarSelectorInstructor(profile) {
             const selectorInstructor = document.getElementById('filter-instructor');
             // Mostrar selector de deporte solo para administradores
-            const selectorDeporte = document.getElementById('filter-deporte-descarga');
+            const selectorDeporte = document.getElementById('filter-grupo-descarga');
             if (profile.role === 'admin') {
                 selectorDeporte.style.display = 'inline-block';
             } else {
@@ -2107,7 +2125,69 @@
         // Funciones para descarga de estadísticas        
         window.abrirModalDescarga = async function () {
             document.getElementById('modalDescarga').style.display = 'block';
-            await cargarDeportesEnSelector(); // AGREGAR ESTA LÍNEA
+            if (currentUserProfile.role === 'admin') {
+                await cargarGruposEnSelectorExcel();
+            } else {
+                await cargarDeportesEnSelector(); // Mantener para instructores
+            }
+        }
+
+        async function cargarGruposEnSelectorExcel() {
+            try {
+                // Admin puede ver todos los grupos
+                const { data: grupos, error } = await supabaseClient
+                    .from('grupos')
+                    .select(`
+                id, nombre, deporte, instructor_id,
+                profiles(full_name, username)
+            `)
+                    .eq('activo', true)
+                    .order('nombre');
+
+                if (error) throw error;
+
+                // Guardar grupos globalmente para filtrado
+                window.todosLosGrupos = grupos || [];
+
+                // Renderizar todos los grupos inicialmente
+                renderizarGruposEnSelector(window.todosLosGrupos);
+
+            } catch (error) {
+                console.error('Error cargando grupos:', error);
+            }
+        }
+
+        function renderizarGruposEnSelector(grupos) {
+            const selector = document.getElementById('filter-grupo-descarga');
+            let options = '<option value="todos">Todos los Grupos</option>';
+
+            grupos.forEach(grupo => {
+                const instructorNombre = grupo.profiles?.full_name || grupo.profiles?.username || 'Sin instructor';
+                const deporteFormateado = grupo.deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                options += `<option value="${grupo.id}">
+            ${grupo.nombre} - ${deporteFormateado} (${instructorNombre})
+        </option>`;
+            });
+
+            selector.innerHTML = options;
+        }
+
+        function filtrarGruposEnSelector() {
+            const filtro = document.getElementById('filtro-busqueda-grupos').value.toLowerCase();
+
+            if (!window.todosLosGrupos) return;
+
+            const gruposFiltrados = window.todosLosGrupos.filter(grupo => {
+                const instructorNombre = grupo.profiles?.full_name || grupo.profiles?.username || '';
+                const deporteFormateado = grupo.deporte.replace(/_/g, ' ');
+
+                return grupo.nombre.toLowerCase().includes(filtro) ||
+                    deporteFormateado.toLowerCase().includes(filtro) ||
+                    instructorNombre.toLowerCase().includes(filtro);
+            });
+
+            renderizarGruposEnSelector(gruposFiltrados);
         }
 
         window.cerrarModalDescarga = function () {
@@ -2166,9 +2246,27 @@
                 // FILTRAR PARTICIPANTES POR DEPORTE SELECCIONADO
                 let queryParticipantes = supabaseClient.from('participantes').select('*');
 
-                const deporteSeleccionado = document.getElementById('filter-deporte-descarga').value;
-                if (deporteSeleccionado !== 'todos') {
-                    queryParticipantes = queryParticipantes.eq('actividad', deporteSeleccionado);
+                if (currentUserProfile.role === 'admin') {
+                    const grupoSeleccionado = document.getElementById('filter-grupo-descarga').value;
+                    if (grupoSeleccionado !== 'todos') {
+                        // Obtener participantes del grupo específico
+                        const { data: participantesGrupo, error: errorGrupo } = await supabaseClient
+                            .from('participantes_grupos')
+                            .select('participante_id')
+                            .eq('grupo_id', grupoSeleccionado)
+                            .eq('activo', true);
+
+                        if (!errorGrupo && participantesGrupo) {
+                            const participanteIds = participantesGrupo.map(pg => pg.participante_id);
+                            queryParticipantes = queryParticipantes.in('id', participanteIds);
+                        }
+                    }
+                } else {
+                    // Lógica original para instructores
+                    const deporteSeleccionado = document.getElementById('filter-deporte-descarga').value;
+                    if (deporteSeleccionado !== 'todos') {
+                        queryParticipantes = queryParticipantes.eq('actividad', deporteSeleccionado);
+                    }
                 }
 
                 const { data: todosParticipantes, error: errorParticipantes } = await queryParticipantes;
@@ -2448,30 +2546,47 @@
 
         function obtenerTituloReporte() {
             let titulo = '';
+
+            // Si no hay perfil cargado aún, no hagas nada ni lances error
+            if (typeof currentUserProfile !== 'object' || currentUserProfile === null) {
+                return '';
+            }
+
             if (currentUserProfile.role === 'instructor') {
                 titulo = `INSTRUCTOR: ${currentUserProfile.full_name || currentUserProfile.username || 'INSTRUCTOR'}`;
             } else if (currentUserProfile.role === 'admin') {
-                const filterInstructor = document.getElementById('filter-instructor').value;
+                const filterInstructor = document.getElementById('filter-instructor')?.value;
                 if (filterInstructor === 'todos') {
                     titulo = 'REPORTE GENERAL - TODOS LOS INSTRUCTORES';
                 } else {
                     const selectorInstructor = document.getElementById('filter-instructor');
-                    const instructorSeleccionado = selectorInstructor.options[selectorInstructor.selectedIndex].text;
+                    const instructorSeleccionado = selectorInstructor?.options[selectorInstructor.selectedIndex]?.text || '';
                     titulo = `INSTRUCTOR: ${instructorSeleccionado}`;
                 }
             } else {
                 titulo = 'ADMINISTRADOR';
             }
 
-            // AGREGAR FILTRO POR DEPORTE
-            const deporteSeleccionado = document.getElementById('filter-deporte-descarga').value;
-            if (deporteSeleccionado !== 'todos') {
+            // Filtro por deporte
+            const deporteSeleccionado = document.getElementById('filter-grupo-descarga')?.value;
+            if (deporteSeleccionado && deporteSeleccionado !== 'todos') {
                 const deporteFormateado = deporteSeleccionado.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 titulo += ` - DEPORTE: ${deporteFormateado}`;
             }
 
+            // Filtro por grupo (solo si es admin)
+            if (currentUserProfile.role === 'admin') {
+                const grupoSeleccionado = document.getElementById('filter-grupo-descarga')?.value;
+                if (grupoSeleccionado && grupoSeleccionado !== 'todos') {
+                    const selectorGrupo = document.getElementById('filter-grupo-descarga');
+                    const grupoTexto = selectorGrupo?.options[selectorGrupo.selectedIndex]?.text || '';
+                    titulo += ` - GRUPO: ${grupoTexto}`;
+                }
+            }
+
             return titulo;
         }
+
 
         // Función para iniciar actualización automática
         function iniciarActualizacionAutomatica() {
@@ -2976,12 +3091,9 @@
 
                 if (error) throw error;
 
-                // Calcular estadísticas
                 // Obtener estadísticas por grupo
                 const estadisticasPorGrupo = await obtenerEstadisticasPorGrupo(datos);
 
-                // Calcular estadísticas generales
-                // Obtener participantes únicos del grupo seleccionado
                 // Obtener participantes únicos del grupo seleccionado
                 const grupoSeleccionado = document.getElementById('filter-grupo-descarga-pdf').value;
                 const participantesUnicos = new Set();
@@ -3196,8 +3308,6 @@
                 // Después de doc.autoTable() de asistencias
                 yPosition = doc.lastAutoTable.finalY + 20; // Obtener posición final de la tabla + espacio
 
-                // Sección de evidencias fotográficas
-                // Sección de evidencias fotográficas
                 // Verificar si hay espacio suficiente para el título y al menos una fila
                 if (yPosition > 250) {
                     doc.addPage();
@@ -3210,7 +3320,7 @@
                 yPosition += 10;
 
                 try {
-                    // Obtener evidencias del instructor
+
                     // Obtener evidencias según el rol
                     let queryEvidencias = supabaseClient.from('evidencias').select('*');
 
@@ -3317,8 +3427,6 @@
 
         }
 
-
-
         // Función para ir a tomar asistencia de un deporte específico
         function irATomarAsistencia(deporte) {
             // Guardar el deporte seleccionado en localStorage para usar en formulario_excel.html
@@ -3386,6 +3494,8 @@
         window.removerParticipanteDeGrupo = removerParticipanteDeGrupo;
         window.cerrarModalParticipantes = cerrarModalParticipantes;
         window.editarGrupo = editarGrupo;
+        window.cargarGruposEnSelectorExcel = cargarGruposEnSelectorExcel;
+        window.filtrarGruposEnSelector = filtrarGruposEnSelector;
     </script>
 
     <script src="script.js"></script>
