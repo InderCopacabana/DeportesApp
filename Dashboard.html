@@ -8,17 +8,11 @@
     <link rel="stylesheet" href="estilos.css">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <!-- jQuery (primero) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
-    <!-- Select2 JS (después de jQuery) -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 
@@ -495,8 +489,8 @@
                         <a href="recreacion.html" class="dropdown-toggle">Recreación<span class="arrow">▼</span></a>
 
                         <div class="dropdown-content">
-                            <a href="recreacion.html">Rumba Aeróbica</a>
-                            <a href="recreacion.html">Hidroaerobicos</a>
+                            <a href="recreacion.html#rumba_aerobica">Rumba Aeróbica</a>
+                            <a href="recreacion.html#hidroaerobicos">Hidroaerobicos</a>
 
                         </div>
                     </li>
@@ -506,8 +500,9 @@
                                 class="arrow">▼</span></a>
 
                         <div class="dropdown-content">
-                            <a href="eventos_institucionales.html">Vacaciones Recreativas</a>
-                            <a href="eventos_institucionales.html">Celebración del Deporte y Cultura</a>
+                            <a href="eventos_institucionales.html#vacaciones_recreativas">Vacaciones Recreativas</a>
+                            <a href="eventos_institucionales.html#celebracion_deporte_cultura">Celebración del Deporte y
+                                Cultura</a>
 
                         </div>
                     </li>
@@ -517,14 +512,14 @@
                             Institucionales<span class="arrow">▼</span></a>
 
                         <div class="dropdown-content">
-                            <a href="torneos_festivales.html">Master</a>
-                            <a href="torneos_festivales.html">Open</a>
-                            <a href="torneos_festivales.html">Gran Master</a>
-                            <a href="torneos_festivales.html">Libre</a>
-                            <a href="torneos_festivales.html">Prebenjamines</a>
-                            <a href="torneos_festivales.html">Benjamines</a>
-                            <a href="torneos_festivales.html">Baby</a>
-                            <a href="torneos_festivales.html">BabyFútbol</a>
+                            <a href="torneos_festivales.html#master">Master</a>
+                            <a href="torneos_festivales.html#open">Open</a>
+                            <a href="torneos_festivales.html#gran_master">Gran Master</a>
+                            <a href="torneos_festivales.html#libre">Libre</a>
+                            <a href="torneos_festivales.html#prebenjamines">Prebenjamines</a>
+                            <a href="torneos_festivales.html#benjamines">Benjamines</a>
+                            <a href="torneos_festivales.html#baby">Baby</a>
+                            <a href="torneos_festivales.html#babyfutbol">BabyFútbol</a>
                         </div>
                     </li>
 
@@ -533,13 +528,16 @@
                                 class="arrow">▼</span></a>
 
                         <div class="dropdown-content">
-                            <a href="juegos_institucionales.html">Escolares sub-regional</a>
-                            <a href="juegos_institucionales.html">Escolares Departamental</a>
-                            <a href="juegos_institucionales.html">Intercolegiados Municipal</a>
-                            <a href="juegos_institucionales.html">Intercolegiados sub-regional</a>
-                            <a href="juegos_institucionales.html">Intercolegiados Departamental</a>
-                            <a href="juegos_institucionales.html">Mayores sub-regional</a>
-                            <a href="juegos_institucionales.html">Mayores Departamental</a>
+                            <a href="juegos_institucionales.html#escolares_subregional">Escolares Sub_Regional</a>
+                            <a href="juegos_institucionales.html#escolares_departamental">Escolares Departamental</a>
+                            <a href="juegos_institucionales.html#intercolegiados_municipal">Intercolegiados
+                                Municipal</a>
+                            <a href="juegos_institucionales.html#intercolegiados_subregional">Intercolegiados
+                                Sub_Regional</a>
+                            <a href="juegos_institucionales.html#intercolegiados_departamental">Intercolegiados
+                                Departamental</a>
+                            <a href="juegos_institucionales.html#mayores_subregional">Mayores sub_regional</a>
+                            <a href="juegos_institucionales.html#mayores_departamental">Mayores Departamental</a>
                         </div>
                     </li>
 
@@ -602,9 +600,8 @@
 
 
 
-            <!-- Controles del Dashboard -->
-            <div class="dashboard-controls"
-                style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+
+            <div class="dashboard-controls" style="display: none;">
                 <select id="filter-tipo" class="filter-dropdown">
                     <option value="todos">Todas las Actividades</option>
                     <option value="deporte">Solo Deportes</option>
@@ -1074,7 +1071,6 @@
             grupoSeleccionado = null;
         }
 
-        // Cargar grupos del instructor
         async function cargarGrupos() {
             try {
                 let query = supabaseClient
@@ -1090,6 +1086,12 @@
 
                 if (currentUserProfile.role === 'instructor') {
                     query = query.eq('instructor_id', currentUserProfile.id);
+                } else if (currentUserProfile.role === 'admin') {
+                    // Si es admin, verificar si hay un instructor específico seleccionado
+                    const filterInstructor = document.getElementById('filter-instructor')?.value;
+                    if (filterInstructor && filterInstructor !== 'todos') {
+                        query = query.eq('instructor_id', filterInstructor);
+                    }
                 }
 
                 const { data, error } = await query;
@@ -1369,9 +1371,7 @@
                     }
                 });
 
-                // Agregar event listeners para filtros
-                document.getElementById('filter-tipo').addEventListener('change', actualizarEstadisticas);
-                document.getElementById('filter-genero').addEventListener('change', actualizarEstadisticas);
+
 
                 await cargarGrupos();
 
@@ -1706,8 +1706,27 @@
                         });
                         selectorInstructor.innerHTML = options;
 
-                        // Agregar event listener
-                        selectorInstructor.addEventListener('change', actualizarEstadisticas);
+
+                        selectorInstructor.addEventListener('change', async function () {
+                            // Mostrar indicador de carga
+                            const refreshBtn = document.getElementById('btn-refresh');
+                            const originalText = refreshBtn.textContent;
+                            refreshBtn.textContent = '🔄 Actualizando...';
+                            refreshBtn.disabled = true;
+
+                            try {
+                                // Primero cargar grupos del instructor seleccionado
+                                await cargarGrupos();
+                                // Luego actualizar todas las estadísticas
+                                await actualizarEstadisticas();
+                            } catch (error) {
+                                console.error('Error al cambiar instructor:', error);
+                            } finally {
+                                // Restaurar botón
+                                refreshBtn.textContent = originalText;
+                                refreshBtn.disabled = false;
+                            }
+                        });
                     }
 
                 } catch (error) {
@@ -1720,8 +1739,8 @@
         }
         async function obtenerDatos() {
             try {
-                const filterTipo = document.getElementById('filter-tipo').value;
-                const filterGenero = document.getElementById('filter-genero').value;
+                const filterTipo = 'todos';
+                const filterGenero = 'todos';
                 const filterInstructor = document.getElementById('filter-instructor').value;
 
                 let query = supabaseClient.from('participantes').select('*');
@@ -1791,8 +1810,7 @@
                     }
                 }
 
-                // 5. Filtro por actividades según el rol del usuario
-                // 5. Filtro por actividades según el rol del usuario
+
                 let deportesInstructor = [];
 
                 if (currentUserProfile.role === 'instructor' && currentUserProfile.username) {
@@ -2088,7 +2106,7 @@
             });*/
 
             // ================= GRUPOS NUEVOS =================
-            await cargarGrupos(); // 👈 esta función debe obtener y llenar `gruposData`
+
 
             gruposData.forEach((grupo, index) => {
                 const participantesGrupo = grupo.participantes_grupos?.length || 0;
@@ -2831,13 +2849,14 @@
 
         async function obtenerEstadisticasPorGrupo(datosAsistencias) {
             try {
-                // Obtener todos los grupos del instructor
+
                 // Filtrar por grupo específico si está seleccionado
                 const grupoSeleccionado = document.getElementById('filter-grupo-descarga-pdf').value;
                 let query = supabaseClient
                     .from('grupos')
                     .select(`
         *,
+        
         participantes_grupos(
             participante_id,
             activo,
@@ -3048,6 +3067,12 @@
         <p><strong>Nota:</strong> El PDF incluirá estadísticas detalladas, lista de asistencias y evidencias fotográficas.</p>
     `;
         }
+        function ajustarFechaUTC(fechaOriginal) {
+            const fecha = new Date(fechaOriginal);
+            fecha.setHours(fecha.getHours() + 5); // Ajustar de UTC a Colombia (UTC-5)
+            return fecha.toLocaleDateString('es-ES');
+        }
+
         window.descargarPDF = async function () {
             const datos = await obtenerDatosPorMesesPDF();
             if (!datos || datos.length === 0) {
@@ -3173,77 +3198,125 @@
                 doc.setFontSize(14);
                 doc.setTextColor(0, 0, 0);
                 doc.text('RESUMEN ESTADÍSTICO COMPLETO', 20, yPosition);
-
                 yPosition += 15;
-                doc.setFontSize(10);
-                doc.text(`Total de participantes únicos: ${totalParticipantesUnicos}`, 25, yPosition);
-                yPosition += 8;
-                doc.text(`Total de registros de asistencia: ${totalAsistencias}`, 25, yPosition);
-                yPosition += 8;
-                doc.text(`Asistencias confirmadas: ${asistieron} (${totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) : 0}%)`, 25, yPosition);
-                yPosition += 8;
-                doc.text(`Asistencias no confirmadas: ${noAsistieron} (${totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) : 0}%)`, 25, yPosition);
+
+                // Crear tabla de resumen estadístico
+                const resumenData = [
+                    ['Total de participantes únicos', totalParticipantesUnicos.toString(), '100%'],
+                    ['Total de registros de asistencia', totalAsistencias.toString(), '-'],
+                    ['Asistencias confirmadas', asistieron.toString(), `${totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) : 0}%`],
+                    ['Asistencias no confirmadas', noAsistieron.toString(), `${totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) : 0}%`]
+                ];
+
+                doc.autoTable({
+                    startY: yPosition,
+                    head: [['CONCEPTO', 'CANTIDAD', 'PORCENTAJE']],
+                    body: resumenData,
+                    styles: { fontSize: 10 },
+                    headStyles: { fillColor: [67, 97, 238], textColor: [255, 255, 255] },
+                    alternateRowStyles: { fillColor: [245, 245, 245] },
+                    margin: { left: 20, right: 20 }
+                });
+
+                yPosition = doc.lastAutoTable.finalY + 15;
                 // Estadísticas por grupo
-                yPosition += 20;
-                if (yPosition > 250) {
+                if (yPosition > 200) {
                     doc.addPage();
                     yPosition = 20;
                 }
                 doc.setFontSize(14);
                 doc.text('ESTADÍSTICAS POR GRUPO', 20, yPosition);
-                yPosition += 10;
+                yPosition += 15;
 
+                // Crear tabla consolidada de estadísticas por grupo
+                const gruposTableData = [];
                 Object.entries(estadisticasPorGrupo).forEach(([grupoId, stats]) => {
-                    if (yPosition > 220) {
+                    const asistenciasGrupo = stats.asistencias.length;
+                    const asistieronGrupo = stats.asistencias.filter(a => a.asistio).length;
+                    const porcentajeAsistencia = asistenciasGrupo > 0 ? Math.round((asistieronGrupo / asistenciasGrupo) * 100) : 0;
+
+                    gruposTableData.push([
+                        stats.nombre,
+                        stats.deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                        stats.totalParticipantes.toString(),
+                        stats.hombres.toString(),
+                        stats.mujeres.toString(),
+                        asistenciasGrupo.toString(),
+                        `${asistieronGrupo} (${porcentajeAsistencia}%)`
+                    ]);
+                });
+
+                doc.autoTable({
+                    startY: yPosition,
+                    head: [['GRUPO', 'DEPORTE', 'PARTICIPANTES', 'HOMBRE', 'MUJER', 'ASISTENCIAS', 'CONFIRMADAS']],
+                    body: gruposTableData,
+                    styles: { fontSize: 9 },
+                    headStyles: { fillColor: [67, 97, 238], textColor: [255, 255, 255] },
+                    alternateRowStyles: { fillColor: [245, 245, 245] },
+                    margin: { left: 20, right: 20 },
+                    columnStyles: {
+                        0: { cellWidth: 30 }, // Grupo
+                        1: { cellWidth: 25 }, // Deporte
+                        2: { cellWidth: 30 }, // Participantes
+                        3: { cellWidth: 15 }, // H/M
+                        4: { cellWidth: 15 }, // H/M
+                        5: { cellWidth: 25 }, // Asistencias
+                        6: { cellWidth: 30 }  // Confirmadas
+                    }
+                });
+
+                yPosition = doc.lastAutoTable.finalY + 15;
+
+                // Agregar tabla de distribución por edades si hay datos
+                if (Object.keys(estadisticasPorGrupo).length > 0) {
+                    if (yPosition > 200) {
                         doc.addPage();
                         yPosition = 20;
                     }
 
-                    // Título del grupo
                     doc.setFontSize(12);
-                    doc.setTextColor(67, 97, 238);
-                    doc.text(`GRUPO: ${stats.nombre}`, 25, yPosition);
-                    yPosition += 8;
+                    doc.text('DISTRIBUCIÓN POR EDADES Y BARRIOS', 20, yPosition);
+                    yPosition += 10;
 
-                    doc.setFontSize(10);
-                    doc.setTextColor(0, 0, 0);
-                    doc.text(`Deporte: ${stats.deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`, 30, yPosition);
-                    yPosition += 6;
-                    doc.text(`Total participantes: ${stats.totalParticipantes}`, 30, yPosition);
-                    yPosition += 6;
-                    doc.text(`Hombres: ${stats.hombres} (${stats.totalParticipantes > 0 ? Math.round((stats.hombres / stats.totalParticipantes) * 100) : 0}%)`, 30, yPosition);
-                    yPosition += 6;
-                    doc.text(`Mujeres: ${stats.mujeres} (${stats.totalParticipantes > 0 ? Math.round((stats.mujeres / stats.totalParticipantes) * 100) : 0}%)`, 30, yPosition);
-                    yPosition += 8;
+                    const distribucionData = [];
+                    Object.entries(estadisticasPorGrupo).forEach(([grupoId, stats]) => {
 
-                    // Asistencias del grupo
-                    const asistenciasGrupo = stats.asistencias.length;
-                    const asistieronGrupo = stats.asistencias.filter(a => a.asistio).length;
-                    doc.text(`Asistencias registradas: ${asistenciasGrupo}`, 30, yPosition);
-                    yPosition += 6;
-                    doc.text(`Asistieron: ${asistieronGrupo} (${asistenciasGrupo > 0 ? Math.round((asistieronGrupo / asistenciasGrupo) * 100) : 0}%)`, 30, yPosition);
-                    yPosition += 8;
+                        // Construir cadena con todas las edades
+                        const edadesStr = Object.entries(stats.edades)
+                            .sort(([, a], [, b]) => b - a) // ordenar por cantidad descendente
+                            .map(([edad, cantidad]) => `${edad}: ${cantidad}`)
+                            .join('\n'); // salto de línea en la celda
 
-                    // Distribución por edad
-                    doc.text('Distribución por edad:', 30, yPosition);
-                    yPosition += 6;
-                    Object.entries(stats.edades).forEach(([rango, cantidad]) => {
-                        if (cantidad > 0) {
-                            doc.text(`  ${rango}: ${cantidad}`, 35, yPosition);
-                            yPosition += 5;
+                        // Construir cadena con todos los barrios
+                        const barriosStr = Object.entries(stats.barrios)
+                            .sort(([, a], [, b]) => b - a)
+                            .map(([barrio, cantidad]) => `${barrio}: ${cantidad}`)
+                            .join('\n');
+
+                        distribucionData.push([
+                            stats.nombre || 'Sin nombre',
+                            edadesStr || 'Sin datos',
+                            barriosStr || 'Sin datos'
+                        ]);
+                    });
+
+                    doc.autoTable({
+                        startY: yPosition,
+                        head: [['GRUPO', 'DISTRIBUCIÓN POR EDAD', 'DISTRIBUCIÓN POR BARRIOS']],
+                        body: distribucionData,
+                        styles: { fontSize: 9, cellPadding: 3, valign: 'top' },
+                        headStyles: { fillColor: [52, 152, 219], textColor: [255, 255, 255] },
+                        alternateRowStyles: { fillColor: [245, 245, 245] },
+                        margin: { left: 20, right: 20 },
+                        columnStyles: {
+                            1: { cellWidth: 60 }, // ancho columna edades
+                            2: { cellWidth: 60 }  // ancho columna barrios
                         }
                     });
-                    yPosition += 3;
 
-                    // Distribución por barrios
-                    doc.text('Distribución por barrios:', 30, yPosition);
-                    yPosition += 6;
-                    Object.entries(stats.barrios).forEach(([barrio, cantidad]) => {
-                        doc.text(`  ${barrio}: ${cantidad}`, 35, yPosition);
-                        yPosition += 5;
-                    });
-                    yPosition += 15;
-                });
+                    yPosition = doc.lastAutoTable.finalY + 15;
+                }
+
 
                 // Tabla de asistencias detallada
                 yPosition += 20;
@@ -3270,7 +3343,8 @@
                         if (asistenciasParticipante.length > 0) {
                             // Si tiene asistencias, mostrar cada una
                             asistenciasParticipante.forEach(asistencia => {
-                                const fecha = new Date(asistencia.fecha_clase || asistencia.created_at).toLocaleDateString('es-ES');
+                                const fecha = ajustarFechaUTC(asistencia.fecha_clase || asistencia.created_at);
+
                                 tableData.push([
                                     fecha,
                                     stats.nombre,

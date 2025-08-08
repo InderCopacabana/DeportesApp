@@ -1113,30 +1113,37 @@
 }
     
   
-    .dropdown-content {
-  position: static;
-  box-shadow: none;
-  display: none !important; /* ← Forzar oculto por defecto */
-  width: 100%;
-  transform: none;
-  opacity: 1;
-  background-color: var(--color-light-medium);
-  border-radius: 6px;
-  margin-top: 0.5rem;
-}
-
-.dropdown.active .dropdown-content {
-  display: block !important; /* ← Solo mostrar cuando tenga clase active */
-}
-
-/* ← NUEVO: Desactivar hover en móvil */
-.dropdown:hover .dropdown-content {
-  display: none !important;
+    @media (max-width: 768px) {
+  .dropdown-content {
+    position: static;
+    box-shadow: none;
+    display: none;
+    width: 100%;
+    transform: none;
+    opacity: 1;
+    background-color: var(--color-light-medium);
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    z-index: 999;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .dropdown.active .dropdown-content {
+    display: block;
+  }
+  
+  /* CRÍTICO: Desactivar hover completamente en móvil */
+  .dropdown:hover .dropdown-content {
+    display: none;
+  }
+  
+  .dropdown:hover .arrow {
+    transform: none !important;
+  }
 }
   
-    .menu-toggle {
-      display: block !important;
-    }
+    
   
     .cards-container {
       grid-template-columns: 1fr;
@@ -1207,7 +1214,7 @@
   position: absolute;
   top: 100%;
   left: 0;
-  z-index: 999; /* suficiente para estar encima del nav, pero no encima del menú móvil */
+  z-index: 1001; /* Mayor que el menú móvil *//* suficiente para estar encima del nav, pero no encima del menú móvil */
   background-color: white;
   max-height: 200px;
   overflow-y: auto;
