@@ -442,6 +442,48 @@
       color: #666;
     }
 
+    /* Estilos para alertas de asistencia */
+    .alerta-participante {
+      color: #dc3545 !important;
+      font-weight: bold !important;
+      animation: parpadeo 1.5s infinite;
+    }
+
+    @keyframes parpadeo {
+
+      0%,
+      50% {
+        opacity: 1;
+      }
+
+      51%,
+      100% {
+        opacity: 0.6;
+      }
+    }
+
+    .fila-alerta {
+      background-color: #fff5f5 !important;
+      border-left: 4px solid #dc3545 !important;
+    }
+
+    .banner-alerta {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .banner-alerta .icono {
+      font-size: 1.2rem;
+      animation: parpadeo 2s infinite;
+    }
+
     /* Estilos responsivos adicionales */
     @media (max-width: 768px) {
 
@@ -469,6 +511,7 @@
         font-weight: bold !important;
         color: var(--color-primary) !important;
       }
+
     }
   </style>
 </head>
@@ -1521,47 +1564,78 @@
           });
         }
 
-        participantes.forEach(participante => {
+        // Verificar participantes con alertas ANTES del forEach
+        const participantesConAlertas = [];
+        for (const participante of participantes) {
+          const tieneAlerta = await verificarFaltasConsecutivasDetallado(participante.id, userProfile.id);
+          if (tieneAlerta) {
+            participantesConAlertas.push(participante.nombre);
+          }
+        }
+
+        // Mostrar banner de alerta si hay participantes con 3+ faltas
+        if (participantesConAlertas.length > 0) {
+          html += `
+    <div class="banner-alerta">
+      <span class="icono">⚠️</span>
+      <div>
+        <strong>¡ATENCIÓN!</strong> Los siguientes participantes tienen 3 o más faltas consecutivas: 
+        <strong>${participantesConAlertas.join(', ')}</strong>
+      </div>
+    </div>
+  `;
+        }
+
+        // Ahora generar las filas de participantes
+        for (const participante of participantes) {
           // Verificar si ya tiene asistencia registrada
           const asistenciaExistente = mapaAsistencias[participante.id];
           const yaAsistio = asistenciaExistente ? asistenciaExistente.asistio : false;
           const yaNoAsistio = asistenciaExistente ? !asistenciaExistente.asistio : true;
+
           // Obtener observación existente si la hay
           const observacionExistente = asistenciaExistente ? (asistenciaExistente.observaciones || '') : '';
 
+          // Verificar si tiene alerta de faltas
+          const tieneAlerta = await verificarFaltasConsecutivasDetallado(participante.id, userProfile.id);
+
           html += `
-  <tr id="fila-participante-${participante.id}">
-    <td style="padding: 0.5rem; border: 1px solid #ddd;">
-      <strong>${participante.nombre}</strong><br>
-      <small>${participante.edad} años - ${participante.genero} - ${participante.barrio}</small>
-      ${asistenciaExistente ? '<br><span style="color: #28a745; font-size: 0.8rem;">✓ Ya registrado</span>' : ''}
-    </td>
-    <td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">
-      <input type="radio" name="asistencia_${participante.id}" value="true" 
-             data-participante-id="${participante.id}"
-             data-asistencia-id="${asistenciaExistente ? asistenciaExistente.id : ''}"
-             ${yaAsistio ? 'checked' : ''}
-             onchange="marcarCambioParticipante('${participante.id}')">
-    </td>
-    <td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">
-      <input type="radio" name="asistencia_${participante.id}" value="false" 
-             data-participante-id="${participante.id}"
-             data-asistencia-id="${asistenciaExistente ? asistenciaExistente.id : ''}"
-             ${yaNoAsistio ? 'checked' : ''}
-             onchange="marcarCambioParticipante('${participante.id}')">
-    </td>
-    <td style="padding: 0.5rem; border: 1px solid #ddd;">
-      <textarea 
-        id="observacion_${participante.id}" 
-        data-participante-id="${participante.id}"
-        placeholder="Observaciones..."
-        style="width: 100%; min-height: 60px; border: 1px solid #ddd; border-radius: 4px; padding: 0.25rem; font-size: 0.8rem; resize: vertical;"
-        onchange="marcarCambioParticipante('${participante.id}')"
-      >${observacionExistente}</textarea>
-    </td>
-  </tr>
-`;
-        });
+    <tr id="fila-participante-${participante.id}" ${tieneAlerta ? 'class="fila-alerta"' : ''}>
+      <td style="padding: 0.5rem; border: 1px solid #ddd;">
+        <span ${tieneAlerta ? 'class="alerta-participante"' : ''}>
+          ${tieneAlerta ? '⚠️ ' : ''}
+          <strong>${participante.nombre}</strong>
+        </span><br>
+        <small>${participante.edad} años - ${participante.genero} - ${participante.barrio}</small>
+        ${asistenciaExistente ? '<br><span style="color: #28a745; font-size: 0.8rem;">✓ Ya registrado</span>' : ''}
+        ${tieneAlerta ? '<br><small style="color: #dc3545; font-weight: bold; font-size: 0.7rem;">⚠️ 3+ faltas consecutivas</small>' : ''}
+      </td>
+      <td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">
+        <input type="radio" name="asistencia_${participante.id}" value="true"
+               data-participante-id="${participante.id}"
+               data-asistencia-id="${asistenciaExistente ? asistenciaExistente.id : ''}"
+               ${yaAsistio ? 'checked' : ''}
+               onchange="marcarCambioParticipante('${participante.id}')">
+      </td>
+      <td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">
+        <input type="radio" name="asistencia_${participante.id}" value="false"
+               data-participante-id="${participante.id}"
+               data-asistencia-id="${asistenciaExistente ? asistenciaExistente.id : ''}"
+               ${yaNoAsistio ? 'checked' : ''}
+               onchange="marcarCambioParticipante('${participante.id}')">
+      </td>
+      <td style="padding: 0.5rem; border: 1px solid #ddd;">
+        <textarea 
+          id="observacion_${participante.id}"
+          data-participante-id="${participante.id}"
+          placeholder="Observaciones..."
+          style="width: 100%; min-height: 60px; border: 1px solid #ddd; border-radius: 4px; padding: 0.25rem; font-size: 0.8rem; resize: vertical;"
+          onchange="marcarCambioParticipante('${participante.id}')"
+        >${observacionExistente}</textarea>
+      </td>
+    </tr>
+  `;
+        }
 
         html += '</tbody></table>';
         container.innerHTML = html;
@@ -1937,6 +2011,48 @@
         formAsistencia.addEventListener('submit', guardarAsistencia);
       }
     });
+    async function verificarFaltasConsecutivasDetallado(participanteId, instructorId) {
+      try {
+        // Obtener últimas 15 asistencias del participante con este instructor
+        const { data, error } = await supabaseClient
+          .from('asistencias')
+          .select('fecha_clase, asistio')
+          .eq('participante_id', participanteId)
+          .eq('instructor_id', instructorId)
+          .order('fecha_clase', { ascending: false })
+          .limit(15);
+
+        if (error || !data || data.length < 3) return false;
+
+        // Agrupar por fecha (eliminar duplicados del mismo día)
+        const fechasUnicas = [...new Set(data.map(r => r.fecha_clase))].sort((a, b) => new Date(b) - new Date(a));
+
+        // Verificar faltas consecutivas
+        let faltasConsecutivas = 0;
+
+        for (let i = 0; i < fechasUnicas.length; i++) {
+          const fecha = fechasUnicas[i];
+          const registrosDia = data.filter(r => r.fecha_clase === fecha);
+          const faltoEseDia = registrosDia.every(r => !r.asistio);
+
+          if (faltoEseDia) {
+            faltasConsecutivas++;
+            if (faltasConsecutivas >= 3) {
+              console.log(`Participante ${participanteId} tiene ${faltasConsecutivas} faltas consecutivas`);
+              return true;
+            }
+          } else {
+            // Si asistió, reiniciar contador
+            faltasConsecutivas = 0;
+          }
+        }
+
+        return false;
+      } catch (error) {
+        console.error('Error verificando faltas:', error);
+        return false;
+      }
+    }
 
     async function verificarFaltasConsecutivas(supabase, participanteId) {
       const { data, error } = await supabase
@@ -2175,23 +2291,49 @@
       <tbody>
   `;
 
+      // Verificar participantes con alertas ANTES del bucle
+      const participantesConAlertasHoy = [];
+      for (const asistencia of asistencias) {
+        const participanteId = asistencia.participante_id;
+        const tieneAlerta = await verificarFaltasConsecutivasDetallado(participanteId, userProfile.id);
+        if (tieneAlerta) {
+          const participante = asistencia.participantes || {};
+          participantesConAlertasHoy.push(participante.nombre || 'Sin nombre');
+        }
+      }
+
+      // Mostrar banner de alerta si hay participantes con 3+ faltas
+      if (participantesConAlertasHoy.length > 0) {
+        const participantesUnicos = [...new Set(participantesConAlertasHoy)];
+        html += `
+    <div class="banner-alerta" style="margin-bottom: 1rem;">
+      <span class="icono">⚠️</span>
+      <div>
+        <strong>¡ATENCIÓN!</strong> Participantes con 3+ faltas consecutivas detectados en la asistencia de hoy: 
+        <strong>${participantesUnicos.join(', ')}</strong>
+      </div>
+    </div>
+  `;
+      }
+
       for (const asistencia of asistencias) {
         const hora = asistencia.hora_clase?.slice(0, 5) || '--:--';
         const participante = asistencia.participantes || {};
         const participanteId = asistencia.participante_id;
 
         // Verificar si faltó a 3 clases seguidas
-        const alertaFaltas = await verificarFaltasConsecutivas(supabaseClient, participanteId);
+        const alertaFaltas = await verificarFaltasConsecutivasDetallado(participanteId, userProfile.id);
 
         html += `
-      <tr>
-        <td>${hora}</td>
-        <td>
-          <span class="${alertaFaltas ? 'alerta-participante' : ''}">
-            ${alertaFaltas ? '⚠️ ' : ''}${participante.nombre || 'Sin nombre'}
-          </span><br>
-          <small>${participante.edad || 'Edad no registrada'} años - ${participante.genero || 'Sin género'}</small>
-        </td>
+  <tr ${alertaFaltas ? 'class="fila-alerta"' : ''}>
+    <td>${hora}</td>
+    <td>
+      <span class="${alertaFaltas ? 'alerta-participante' : ''}">
+        ${alertaFaltas ? '⚠️ ' : ''}${participante.nombre || 'Sin nombre'}
+      </span><br>
+      <small>${participante.edad || 'Edad no registrada'} años - ${participante.genero || 'Sin género'}</small>
+      ${alertaFaltas ? '<br><small style="color: #dc3545; font-weight: bold; font-size: 0.7rem;">⚠️ 3+ faltas consecutivas</small>' : ''}
+    </td>
         <td>${asistencia.actividad || '-'}</td>
         <td>${asistencia.asistio ? '✅ Sí' : '❌ No'}</td>
         <td>${asistencia.observaciones || '-'}</td>
