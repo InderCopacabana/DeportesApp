@@ -271,3 +271,29 @@ export async function protectPage(allowedRoles = []) {
 
 // ✅ Exportar cliente
 export { supabaseClient }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

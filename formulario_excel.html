@@ -1927,7 +1927,12 @@
 
       // Establecer fecha y hora actual
       const ahora = new Date();
-      document.getElementById('fecha-clase').value = ahora.toISOString().split('T')[0];
+      const año = ahora.getFullYear();
+      const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+      const dia = String(ahora.getDate()).padStart(2, '0');
+      const fechaLocal = `${año}-${mes}-${dia}`;
+      document.getElementById('fecha-clase').value = fechaLocal;
+
       document.getElementById('hora-clase').value = ahora.toTimeString().slice(0, 5);
 
       // NUEVO: Configurar deporte del instructor
@@ -2083,7 +2088,7 @@
       try {
         // Cargar asistencias del día
 
-       
+
         // Primero obtener los participantes del grupo
         const { data: participantesGrupo, error: errorPG } = await supabaseClient
           .from('participantes_grupos')
@@ -2116,7 +2121,7 @@
         if (errorAsistencias) throw errorAsistencias;
 
         // Cargar evidencias del día
-        
+
         const { data: evidencias, error: errorEvidencias } = await supabaseClient
           .from('evidencias')
           .select('*')
@@ -2484,7 +2489,8 @@
 
     async function cargarAsistenciasHoy() {
       try {
-        const fechaHoy = new Date().toLocaleDateString('en-CA');
+
+        const fechaHoy = new Date().toISOString().split('T')[0];
         const grupoParam = obtenerParametroURL('grupo');
 
         let query = supabaseClient
