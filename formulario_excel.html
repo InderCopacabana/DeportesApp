@@ -2474,9 +2474,16 @@
             fila.style.border = '';
           });
 
+          // <CHANGE> Asegurar que el localStorage tenga el grupo correcto
+          const grupoParam = obtenerParametroURL('grupo');
+          if (grupoParam) {
+            const grupoSeleccionado = { id: grupoParam };
+            localStorage.setItem('grupoSeleccionadoAsistencia', JSON.stringify(grupoSeleccionado));
+          }
+
           // Recargar asistencias y lista de participantes
           await cargarAsistenciasHoy();
-          await cargarParticipantesDeporte(); // Actualizar la lista con los nuevos estados
+          await cargarParticipantesDeporte();
         } else {
           alert('ℹ️ No hay cambios para guardar');
         }
@@ -2489,23 +2496,23 @@
 
     async function cargarAsistenciasHoy() {
       try {
-
-        const fechaHoy = new Date().toISOString().split('T')[0];
+        // <CHANGE> Usar el mismo formato de fecha que funcionaba antes
+        const fechaHoy = new Date().toLocaleDateString('en-CA');
         const grupoParam = obtenerParametroURL('grupo');
 
         let query = supabaseClient
           .from('asistencias')
           .select(`
-    *,
-    participantes (
-      nombre,
-      edad,
-      genero,
-      participantes_grupos (
-        grupo_id
-      )
-    )
-  `)
+        *,
+        participantes (
+          nombre,
+          edad,
+          genero,
+          participantes_grupos (
+            grupo_id
+          )
+        )
+      `)
           .eq('fecha_clase', fechaHoy)
           .order('hora_clase', { ascending: false });
         /*
@@ -2553,12 +2560,23 @@
 
 
     // Función para mostrar asistencias del día
-    // Función para mostrar asistencias del día
+    
     async function mostrarAsistenciasHoy(asistencias) {
       const container = document.getElementById('lista-asistencias-hoy');
 
-      const grupoSeleccionado = JSON.parse(localStorage.getItem('grupoSeleccionadoAsistencia'));
-      const grupoIdActual = grupoSeleccionado?.id ? String(grupoSeleccionado.id) : null;
+      // <CHANGE> Usar parámetro URL como fallback si no hay grupo en localStorage
+      let grupoSeleccionado = JSON.parse(localStorage.getItem('grupoSeleccionadoAsistencia'));
+      let grupoIdActual = grupoSeleccionado?.id ? String(grupoSeleccionado.id) : null;
+
+      // Si no hay grupo en localStorage, usar el parámetro URL
+      if (!grupoIdActual) {
+        const grupoParam = obtenerParametroURL('grupo');
+        if (grupoParam) {
+          grupoIdActual = String(grupoParam);
+          // Actualizar localStorage para futuras consultas
+          localStorage.setItem('grupoSeleccionadoAsistencia', JSON.stringify({ id: grupoParam }));
+        }
+      }
 
       if (grupoIdActual) {
         asistencias = asistencias.filter(a => {
