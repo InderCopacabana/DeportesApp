@@ -512,6 +512,34 @@
         color: var(--color-primary) !important;
       }
 
+      #modalHistorialAsistencias .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      #lista-asistencia-historial table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      #lista-asistencia-historial th,
+      #lista-asistencia-historial td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      #lista-asistencia-historial th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+      }
+
+      #evidencias-historial img:hover {
+        opacity: 0.8;
+        transform: scale(1.02);
+        transition: all 0.2s ease;
+      }
+
     }
   </style>
 </head>
@@ -1892,6 +1920,10 @@
     // Función para abrir modal de asistencia
     window.abrirModalAsistencia = async function () {
       await inicializarPerfil();
+      if (userProfile.role === 'admin') {
+        await abrirHistorialAsistencias();
+        return;
+      }
 
       // Establecer fecha y hora actual
       const ahora = new Date();
@@ -1906,6 +1938,263 @@
 
       document.getElementById('modalAsistencia').style.display = 'block';
       await cargarAsistenciasHoy();
+    }
+
+    // Nueva función para administradores - ver historial de asistencias
+    window.abrirHistorialAsistencias = async function () {
+      // Crear modal específico para historial
+      const modalHTML = `
+        <div id="modalHistorialAsistencias" class="modal" style="display: block;">
+            <div class="modal-content" style="max-width: 900px;">
+                <span class="close" onclick="cerrarHistorialAsistencias()">&times;</span>
+                <h2>📋 Historial de Asistencias</h2>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label>Seleccionar Grupo:</label>
+                    <select id="grupo-historial" onchange="cargarFechasDisponibles()">
+                        <option value="">Seleccione un grupo...</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+    <label>Seleccionar Fecha:</label>
+    <input type="date" id="fecha-historial" onchange="cargarAsistenciaFecha()" 
+           style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 200px;" />
+    <div id="fechas-disponibles" style="margin-top: 0.5rem; font-size: 0.8rem; color: #666;"></div>
+</div>
+                
+                <div id="contenido-historial" style="display: none;">
+                    <div style="display: grid; grid-template-columns: 1fr 300px; gap: 2rem;">
+                        <div>
+                            <h4>Lista de Asistencia</h4>
+                            <div id="lista-asistencia-historial"></div>
+                        </div>
+                        <div>
+                            <h4>Evidencias del Día</h4>
+                            <div id="evidencias-historial"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+      // Agregar modal al DOM si no existe
+      if (!document.getElementById('modalHistorialAsistencias')) {
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+      } else {
+        document.getElementById('modalHistorialAsistencias').style.display = 'block';
+      }
+
+      await cargarGruposHistorial();
+      // Al final de la función abrirHistorialAsistencias, después de await cargarGruposHistorial();
+      document.getElementById('fecha-historial').value = '';
+      document.getElementById('fechas-disponibles').innerHTML = '';
+      document.getElementById('contenido-historial').style.display = 'none';
+    }
+    // Función para cargar grupos en el selector
+    async function cargarGruposHistorial() {
+      try {
+        const { data: grupos, error } = await supabaseClient
+          .from('grupos')
+          .select('*')
+          .eq('activo', true)
+          .order('nombre');
+
+        if (error) throw error;
+
+        const select = document.getElementById('grupo-historial');
+        select.innerHTML = '<option value="">Seleccione un grupo...</option>';
+
+        grupos.forEach(grupo => {
+          select.innerHTML += `<option value="${grupo.id}">${grupo.nombre}</option>`;
+        });
+      } catch (error) {
+        console.error('Error cargando grupos:', error);
+      }
+    }
+
+    // Función para cargar fechas disponibles del grupo seleccionado
+    window.cargarFechasDisponibles = async function () {
+      const grupoId = document.getElementById('grupo-historial').value;
+      if (!grupoId) {
+        document.getElementById('fechas-disponibles').innerHTML = '';
+        return;
+      }
+
+      try {
+        // Paso 1: obtener participantes del grupo
+        const { data: participantesGrupo, error: errorPG } = await supabaseClient
+          .from('participantes_grupos')
+          .select('participante_id')
+          .eq('grupo_id', grupoId);
+
+        if (errorPG) throw errorPG;
+
+        const participanteIds = participantesGrupo.map(pg => pg.participante_id);
+
+        if (participanteIds.length === 0) {
+          document.getElementById('fechas-disponibles').innerHTML = '⚠️ No hay participantes en este grupo';
+          return;
+        }
+
+        // Paso 2: obtener fechas de asistencias para esos participantes
+        const { data: asistencias, error } = await supabaseClient
+          .from('asistencias')
+          .select('fecha_clase')
+          .in('participante_id', participanteIds)
+          .order('fecha_clase', { ascending: false });
+
+        if (error) throw error;
+
+        // Paso 3: procesar fechas únicas y mostrar en UI
+        const fechasUnicas = [...new Set(asistencias.map(a => a.fecha_clase))].sort();
+
+        if (fechasUnicas.length > 0) {
+          const fechaMin = fechasUnicas[0];
+          const fechaMax = fechasUnicas[fechasUnicas.length - 1];
+
+          const inputFecha = document.getElementById('fecha-historial');
+          inputFecha.min = fechaMin;
+          inputFecha.max = fechaMax;
+
+          document.getElementById('fechas-disponibles').innerHTML =
+            `📅 Fechas disponibles: ${new Date(fechaMin).toLocaleDateString('es-ES')} - ${new Date(fechaMax).toLocaleDateString('es-ES')} (${fechasUnicas.length} registros)`;
+        } else {
+          document.getElementById('fechas-disponibles').innerHTML = '⚠️ No hay registros de asistencia para este grupo';
+        }
+
+        window.fechasDisponibles = fechasUnicas;
+
+      } catch (error) {
+        console.error('Error cargando fechas:', error);
+        document.getElementById('fechas-disponibles').innerHTML = '❌ Error cargando fechas disponibles';
+      }
+    };
+
+
+    // Función para cargar asistencia de fecha específica
+    window.cargarAsistenciaFecha = async function () {
+      const grupoId = document.getElementById('grupo-historial').value;
+      const fecha = document.getElementById('fecha-historial').value;
+
+      if (!grupoId || !fecha) return;
+
+      try {
+        // Cargar asistencias del día
+
+       
+        // Primero obtener los participantes del grupo
+        const { data: participantesGrupo, error: errorPG } = await supabaseClient
+          .from('participantes_grupos')
+          .select('participante_id')
+          .eq('grupo_id', grupoId)
+          .eq('activo', true);
+
+        if (errorPG) throw errorPG;
+
+        const participanteIds = participantesGrupo.map(pg => pg.participante_id);
+
+        // Luego obtener asistencias solo de esos participantes
+        const { data: asistencias, error: errorAsistencias } = await supabaseClient
+          .from('asistencias')
+          .select(`
+            id,
+            fecha_clase,
+            asistio,
+            observaciones,
+            participantes (
+            nombre,
+            documento_identidad
+    )
+  `)
+          .in('participante_id', participanteIds)
+          .eq('fecha_clase', fecha);
+
+
+
+        if (errorAsistencias) throw errorAsistencias;
+
+        // Cargar evidencias del día
+        
+        const { data: evidencias, error: errorEvidencias } = await supabaseClient
+          .from('evidencias')
+          .select('*')
+          .gte('fecha_subida', fecha + 'T00:00:00')
+          .lt('fecha_subida', fecha + 'T23:59:59');
+
+        if (errorEvidencias) throw errorEvidencias;
+
+
+        mostrarAsistenciaHistorial(asistencias, evidencias);
+        document.getElementById('contenido-historial').style.display = 'block';
+
+      } catch (error) {
+        console.error('Error cargando asistencia:', error);
+      }
+    }
+
+    // Función para mostrar la asistencia y evidencias
+    function mostrarAsistenciaHistorial(asistencias, evidencias) {
+      // Mostrar lista de asistencia
+      const listaContainer = document.getElementById('lista-asistencia-historial');
+      let asistieron = 0;
+      let noAsistieron = 0;
+
+      let html = '<table style="width: 100%; border-collapse: collapse;">';
+      html += '<tr><th>Participante</th><th>Estado</th><th>Observaciónes</th></tr>';
+
+      asistencias.forEach(asistencia => {
+        const estado = asistencia.asistio ? 'Asistió' : 'No Asistió';
+        const color = asistencia.asistio ? '#28a745' : '#dc3545';
+
+        if (asistencia.asistio) asistieron++;
+        else noAsistieron++;
+
+        html += `
+            <tr>
+                
+                <td>${asistencia.participantes.nombre || ''}</td>
+                <td style="color: ${color}; font-weight: bold;">${estado}</td>
+                
+                <td>${asistencia.observaciones || '-'}</td>
+            </tr>
+        `;
+      });
+
+      html += '</table>';
+      html += `<div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+        <strong>Resumen:</strong> ${asistieron} asistieron, ${noAsistieron} no asistieron
+    </div>`;
+
+      listaContainer.innerHTML = html;
+
+      // Mostrar evidencias
+      const evidenciasContainer = document.getElementById('evidencias-historial');
+      if (evidencias.length === 0) {
+        evidenciasContainer.innerHTML = '<p>No hay evidencias para esta fecha.</p>';
+      } else {
+        let evidenciasHTML = '';
+        evidencias.forEach(evidencia => {
+          evidenciasHTML += `
+                <div style="margin-bottom: 1rem; border: 1px solid #ddd; border-radius: 5px; overflow: hidden;">
+                    <img src="${evidencia.archivo_url}" alt="Evidencia"
+                         style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;"
+                         onclick="abrirImagenModal('${evidencia.archivo_url}')" />
+                    <div style="padding: 0.5rem; font-size: 0.8rem;">
+                        <strong>Hora:</strong> ${new Date(evidencia.fecha_subida).toLocaleTimeString()}<br>
+                        <strong>Ubicación:</strong> ${evidencia.ubicacion || 'No disponible'}
+                    </div>
+                </div>
+            `;
+        });
+        evidenciasContainer.innerHTML = evidenciasHTML;
+      }
+    }
+
+    // Función para cerrar el modal de historial
+    window.cerrarHistorialAsistencias = function () {
+      document.getElementById('modalHistorialAsistencias').style.display = 'none';
     }
 
     // Función para cerrar modal de asistencia
