@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Ejecutar animación al cargar la página y al hacer scroll
   window.addEventListener("scroll", animateOnScroll)
-  animateOnScroll() // Ejecutar una vez al cargar la página
+  animateOnScroll() 
 
   // Manejo del formulario de login
   const loginForm = document.getElementById("login-form")

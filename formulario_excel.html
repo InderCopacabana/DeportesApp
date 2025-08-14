@@ -882,8 +882,6 @@
                   </select>
                 </td>
 
-
-
               </tr>
             </tbody>
 
@@ -911,7 +909,6 @@
                     <option value="No">No</option>
                   </select>
                 </td>
-
 
           </table>
 
@@ -1111,8 +1108,7 @@
 
       if (deporteParam && autoAbrir === 'asistencia') {
         console.log(`Auto-abriendo modal de asistencia para deporte: ${deporteParam}`);
-
-        // Esperar un momento para que la página se cargue completamente
+        
         setTimeout(async () => {
           // Abrir directamente el modal de asistencia
           await abrirModalAsistencia();
@@ -1465,7 +1461,7 @@
 
       // Configurar el select de actividad
       const selectActividad = document.getElementById('actividad-asistencia');
-      selectActividad.innerHTML = ''; // limpiar
+      selectActividad.innerHTML = ''; 
 
       if (deporteParam) {
         // Si viene un deporte específico, solo mostrar ese
@@ -1944,7 +1940,6 @@
       document.getElementById('modalAsistencia').style.display = 'block';
       await cargarAsistenciasHoy();
     }
-
     // Nueva función para administradores - ver historial de asistencias
     window.abrirHistorialAsistencias = async function () {
       // Crear modal específico para historial
@@ -1962,11 +1957,11 @@
                 </div>
                 
                 <div style="margin-bottom: 1rem;">
-    <label>Seleccionar Fecha:</label>
-    <input type="date" id="fecha-historial" onchange="cargarAsistenciaFecha()" 
-           style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 200px;" />
-    <div id="fechas-disponibles" style="margin-top: 0.5rem; font-size: 0.8rem; color: #666;"></div>
-</div>
+                <label>Seleccionar Fecha:</label>
+                <input type="date" id="fecha-historial" onchange="cargarAsistenciaFecha()" 
+                style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 200px;" />
+                <div id="fechas-disponibles" style="margin-top: 0.5rem; font-size: 0.8rem; color: #666;"></div>
+              </div>
                 
                 <div id="contenido-historial" style="display: none;">
                     <div style="display: grid; grid-template-columns: 1fr 300px; gap: 2rem;">
@@ -1992,7 +1987,7 @@
       }
 
       await cargarGruposHistorial();
-      // Al final de la función abrirHistorialAsistencias, después de await cargarGruposHistorial();
+      
       document.getElementById('fecha-historial').value = '';
       document.getElementById('fechas-disponibles').innerHTML = '';
       document.getElementById('contenido-historial').style.display = 'none';
@@ -2028,7 +2023,7 @@
       }
 
       try {
-        // Paso 1: obtener participantes del grupo
+        
         const { data: participantesGrupo, error: errorPG } = await supabaseClient
           .from('participantes_grupos')
           .select('participante_id')
@@ -2043,7 +2038,7 @@
           return;
         }
 
-        // Paso 2: obtener fechas de asistencias para esos participantes
+        
         const { data: asistencias, error } = await supabaseClient
           .from('asistencias')
           .select('fecha_clase')
@@ -2052,7 +2047,7 @@
 
         if (error) throw error;
 
-        // Paso 3: procesar fechas únicas y mostrar en UI
+        
         const fechasUnicas = [...new Set(asistencias.map(a => a.fecha_clase))].sort();
 
         if (fechasUnicas.length > 0) {
@@ -2076,8 +2071,6 @@
         document.getElementById('fechas-disponibles').innerHTML = '❌ Error cargando fechas disponibles';
       }
     };
-
-
     // Función para cargar asistencia de fecha específica
     window.cargarAsistenciaFecha = async function () {
       const grupoId = document.getElementById('grupo-historial').value;
@@ -2085,8 +2078,7 @@
 
       if (!grupoId || !fecha) return;
 
-      try {
-        // Cargar asistencias del día
+      try {       
 
 
         // Primero obtener los participantes del grupo
@@ -2100,7 +2092,7 @@
 
         const participanteIds = participantesGrupo.map(pg => pg.participante_id);
 
-        // Luego obtener asistencias solo de esos participantes
+        // obtener asistencias solo de esos participantes
         const { data: asistencias, error: errorAsistencias } = await supabaseClient
           .from('asistencias')
           .select(`
@@ -2354,7 +2346,7 @@
         .select('fecha_clase, asistio')
         .eq('participante_id', participanteId)
         .order('fecha_clase', { ascending: false })
-        .limit(10); // solo miramos las últimas 10 por eficiencia
+        .limit(10); 
 
       if (error || !data) return false;
 
@@ -2362,7 +2354,7 @@
       const faltasConsecutivas = data
         .filter(reg => reg.asistio === false)
         .map(reg => reg.fecha_clase)
-        .filter((fecha, index, self) => self.indexOf(fecha) === index); // eliminar duplicados por día
+        .filter((fecha, index, self) => self.indexOf(fecha) === index); 
 
       // Ahora verificamos si hay al menos 3 faltas en días consecutivos
       let contador = 0;
@@ -2389,8 +2381,6 @@
       return false;
     }
 
-
-
     async function guardarAsistencia(e) {
       e.preventDefault();
 
@@ -2403,8 +2393,7 @@
         alert('Por favor, complete todos los campos obligatorios');
         return;
       }
-
-      // NUEVO: Solo procesar participantes modificados o nuevos
+      
       const radiosAsistencia = document.querySelectorAll('input[type="radio"]:checked[data-participante-id]');
 
       if (radiosAsistencia.length === 0) {
@@ -2415,8 +2404,7 @@
       try {
         const operaciones = [];
         let participantesProcesados = 0;
-
-        // NUEVO: Procesar solo los que han cambiado o son nuevos
+        
         for (const radio of radiosAsistencia) {
           const participanteId = radio.getAttribute('data-participante-id');
           const asistenciaId = radio.getAttribute('data-asistencia-id');
@@ -2496,7 +2484,7 @@
 
     async function cargarAsistenciasHoy() {
       try {
-        // <CHANGE> Usar el mismo formato de fecha que funcionaba antes
+        
         const fechaHoy = new Date().toLocaleDateString('en-CA');
         const grupoParam = obtenerParametroURL('grupo');
 
@@ -2534,8 +2522,8 @@
         const { data: faltasAcumuladas, error: errorFaltas } = await supabaseClient
           .from('asistencias')
           .select('participante_id, asistio')
-          .lt('fecha_clase', new Date().toISOString().split('T')[0]) // solo antes de hoy
-          .eq('instructor_id', userProfile.id); // si aplica filtro por instructor
+          .lt('fecha_clase', new Date().toISOString().split('T')[0]) 
+          .eq('instructor_id', userProfile.id); 
 
         if (errorFaltas) throw errorFaltas;
 
@@ -2557,9 +2545,7 @@
           '<p style="color: #dc3545;">Error al cargar asistencias</p>';
       }
     }
-
-
-    // Función para mostrar asistencias del día
+      // Función para mostrar asistencias del día
     
     async function mostrarAsistenciasHoy(asistencias) {
       const container = document.getElementById('lista-asistencias-hoy');
@@ -2658,15 +2644,12 @@
       container.innerHTML = html;
     }
 
-
-
-
     // Función para limpiar formulario de asistencia
     function limpiarFormularioAsistencia() {
-      // NUEVO: Limpiar marcadores de cambio
+      // Limpiar marcadores de cambio
       participantesModificados.clear();
 
-      // NUEVO: Remover resaltado visual
+      //  Remover resaltado visual
       document.querySelectorAll('[id^="fila-participante-"]').forEach(fila => {
         fila.style.backgroundColor = '';
         fila.style.border = '';
@@ -2875,9 +2858,6 @@
         'intercolegiados_subregional': 'Intercolegiados Sub-Regional',
         'mayores_subregional': 'Mayores Sub-Regional',
         'mayores_departamental': 'Mayores Departamental'
-
-
-
       };
 
       return casosEspeciales[actividad] || actividad.charAt(0).toUpperCase() + actividad.slice(1);
@@ -3099,14 +3079,13 @@
 
           if (coincide) {
             participantesVisibles++;
-
-            // Resaltar texto coincidente
+            
             if (searchTerm.length > 0) {
               const textoOriginal = nombreCell.textContent;
               const regex = new RegExp(`(${searchTerm})`, 'gi');
               nombreCell.innerHTML = textoOriginal.replace(regex, '<mark style="background-color: yellow; padding: 0.1rem;">$1</mark>');
             } else {
-              nombreCell.innerHTML = nombreCell.textContent; // Restaurar texto original
+              nombreCell.innerHTML = nombreCell.textContent; 
             }
           }
         }
@@ -3215,8 +3194,7 @@
           searchInput.select();
         }
       }
-
-      // Escape para limpiar búsqueda
+      
       if (e.key === 'Escape') {
         limpiarBusqueda();
       }

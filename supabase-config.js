@@ -83,7 +83,7 @@ export async function signOut() {
   }
 }
 
-// ✅ Envía enlace de recuperación de contraseña - CORREGIDO
+// ✅ Envía enlace de recuperación de contraseña 
 export async function resetPassword(email) {
   try {
     // Obtener la URL base actual
@@ -106,7 +106,7 @@ export async function resetPassword(email) {
   }
 }
 
-// ✅ Actualiza la contraseña (para usar después del reset) - CORREGIDO
+// ✅ Actualiza la contraseña (para usar después del reset) 
 export async function updatePassword(newPassword) {
   try {
     console.log("Actualizando contraseña...")
@@ -205,7 +205,7 @@ export async function deleteAvatar(filePath) {
   }
 }
 
-// ✅ Redirige según el rol del perfil - CORREGIDO
+// ✅ Redirige según el rol del perfil 
 export async function redirectBasedOnRole() {
   try {
     const profile = await getUserProfile()
@@ -225,7 +225,7 @@ export async function redirectBasedOnRole() {
         console.log("Usuario autorizado, redirigiendo a Dashboard")
         // Corregir la verificación de URL - quitar la barra inicial
         if (!window.location.href.includes("Dashboard.html")) {
-          window.location.href = "Dashboard.html" // Sin barra inicial
+          window.location.href = "Dashboard.html" 
         }
         break
       default:
@@ -271,29 +271,4 @@ export async function protectPage(allowedRoles = []) {
 
 // ✅ Exportar cliente
 export { supabaseClient }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

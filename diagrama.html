@@ -315,7 +315,6 @@
             </div>
     </header>
 
-
     <!-- Contenido principal -->
     <main>
         <div class="page-header">
@@ -484,7 +483,7 @@
         // Variables globales para los gráficos
         let chartEdades, chartGenero, chartActividades, chartTipos;
 
-        // Reemplazar la variable deportesListado existente con:
+        
         const categoriasActividades = {
             deportes: ['futbol', 'futbol_de_salon', 'futbol_sala', 'ajedrez', 'baloncesto', 'balonmano', 'natacion', 'atletismo', 'patinaje', 'rugby', 'tenis_de_campo', 'voleibol', 'tenis_de_mesa', 'bmx', 'boxeo', 'gimnasia', 'jiu_jitsu', 'levantamiento_de_pesas', 'taekwondo'],
 
@@ -499,7 +498,7 @@
             juegos_institucionales: ['escolares_subregional', 'escolares_departamental', 'intercolegiados_municipal', 'intercolegiados_subregional', 'intercolegiados_departamental', 'mayores_subregional', 'mayores_departamental']
         };
 
-        // Función para obtener datos filtrados - AHORA PÚBLICO
+        // Función para obtener datos filtrados
         async function obtenerDatos() {
             try {
                 const filterTipo = document.getElementById('filter-tipo').value;
@@ -507,7 +506,7 @@
                 const filterUbicacion = document.getElementById('filter-ubicacion').value;
                 const filterGenero = document.getElementById('filter-genero').value;
 
-                // 👇 Ya no filtramos por género en la consulta
+            
                 let query = supabaseClient.from('participantes').select('*');
 
                 const { data, error } = await query;
@@ -558,8 +557,7 @@
                     });
                 }
 
-                // Filtro por tipo de actividad
-                // Reemplazar el bloque existente de filtro por tipo:
+                // Filtro por tipo de actividad               
                 if (filterTipo !== 'todos') {
                     datosFiltrados = datosFiltrados.filter(p => {
                         const actividadLower = p.actividad?.toLowerCase();
@@ -789,7 +787,6 @@
             });
         }
 
-
         // Función para actualizar gráfico de tipos
         function actualizarGraficoTipos(datos) {
             const conteoTipos = {
@@ -835,7 +832,7 @@
                             '#364b8a',
                             '#4a5cb0',
                             '#9966FF',
-                            '#7084d1'  // Juegos Institucionales
+                            '#7084d1'  
                         ],
                         borderWidth: 3,
                         borderColor: '#fff'
@@ -879,8 +876,6 @@
             if (categoriasActividades.juegos_institucionales.includes(actividadLower)) return 'juegos_institucionales';
             return 'otro';
         }
-
-
 
         // Función para actualizar tabla detallada
         function actualizarTablaDetallada(datos) {
@@ -1059,8 +1054,6 @@
             }
         });
 
-
-
     </script>
 
     <script src="script.js"></script>
@@ -1110,7 +1103,6 @@
         }
 
         updateNavigation();
-
 
     </script>
 
