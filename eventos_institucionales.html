@@ -147,7 +147,7 @@
     </div>
 
     <section class="container">
-      <div class="cards-container">        
+      <div class="cards-container">
         <!-- Vacaciones Recreativas -->
         <div id="vacaciones_recreativas" class="card" data-actividad="vacaciones_recreativas">
           <div class="card-image">
@@ -186,6 +186,13 @@
                   <span>Mujeres</span>
                 </div>
               </div>
+            </div>
+
+            <!-- <CHANGE> Agregar botón de inscripción pública -->
+            <div class="public-registration" style="margin-top: 1rem; text-align: center;">
+              <button onclick="abrirInscripcionPublica('vacaciones_recreativas')" class="btn btn-primary">
+                📝 Inscribir
+              </button>
             </div>
 
           </div>
@@ -246,7 +253,248 @@
     </div>
   </footer>
 
+  <!-- <CHANGE> Modal de inscripción pública -->
+  <div id="modalInscripcionPublica" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 600px;">
+      <span class="close" onclick="cerrarInscripcionPublica()">&times;</span>
+      <h2 id="tituloInscripcion">📝 Inscripción al Evento</h2>
+
+      <form id="formInscripcionPublica" onsubmit="enviarInscripcionPublica(event)">
+        <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="documento">Documento *</label>
+            <input type="text" id="documento_identidad" name="documento_identidad" required placeholder="CC/TI">
+          </div>
+
+          <div class="form-group">
+            <label for="nombre">Nombre Completo *</label>
+            <input type="text" id="nombre" name="nombre" required placeholder="Nombre completo">
+          </div>
+
+          <div class="form-group">
+            <label for="edad">Edad *</label>
+            <input type="number" id="edad" name="edad" required min="1" max="100">
+          </div>
+
+          <div class="form-group">
+            <label for="genero">Género *</label>
+            <select id="genero" name="genero" required>
+              <option value="">Seleccionar...</option>
+              <option value="Hombre">Hombre</option>
+              <option value="Mujer">Mujer</option>
+            </select>
+          </div>
+
+          <!-- Actividad -->
+          <div class="form-group">
+            <label for="actividad">Actividad *</label>
+            <select id="actividad" name="actividad" required>
+              <option value="">Seleccionar</option>
+
+              <optgroup label="Eventos Institucionales">
+                <option value="vacaciones_recreativas">Vacaciones Recreativas</option>
+                
+              </optgroup>
+
+            </select>
+          </div>
+
+          <!-- Barrio -->
+          <div class="form-group">
+            <label for="barrio">Barrio *</label>
+            <select id="barrio" name="barrio" required>
+              <option value="">Barrio/Vereda...</option>
+              <option value="La Veta">La Veta</option>
+              <option value="Zarzal La Luz">Zarzal La Luz</option>
+              <option value="Zarzal Curazao">Zarzal Curazao</option>
+              <option value="Ancon">Ancon</option>
+              <option value="El Noral">El Noral</option>
+              <option value="El Salado">El Salado</option>
+              <option value="Sabaneta">Sabaneta</option>
+              <option value="Quebrada Arriba">Quebrada Arriba</option>
+              <option value="Alvarado">Alvarado</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="telefono">Teléfono *</label>
+            <input type="tel" id="telefono" name="telefono" required placeholder="Ej: 3001234567">
+          </div>
+
+          <div class="form-group">
+            <label for="correo">Correo Electrónico *</label>
+            <input type="email" id="correo" name="correo" required placeholder="correo@ejemplo.com">
+          </div>
+
+
+
+          <div class="form-group">
+            <label for="vereda">Vereda</label>
+            <select id="vereda" name="vereda">
+              <option value="">Seleccionar...</option>
+              <option value="Si">Sí</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- LGBTQ+ -->
+        <div class="form-group">
+          <label for="lgbtq">LGBTQ+</label>
+          <select id="lgbtq" name="lgbtq">
+            <option value="">Seleccionar...</option>
+            <option value="Sí">Sí</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+
+        <!-- Discapacidad -->
+        <div class="form-group">
+          <label for="discapacidad">Discapacidad</label>
+          <select id="discapacidad" name="discapacidad">
+            <option value="">Seleccionar...</option>
+            <option value="Sí">Sí</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+
+        <!-- Víctima -->
+        <div class="form-group">
+          <label for="victima">Víctima</label>
+          <select id="victima" name="victima">
+            <option value="">Seleccionar...</option>
+            <option value="Sí">Sí</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+
+        <!-- Madre Cabeza Hogar -->
+        <div class="form-group">
+          <label for="madre_cabeza">Madre Cabeza Hogar</label>
+          <select id="madre_cabeza" name="madre_cabeza">
+            <option value="">Seleccionar...</option>
+            <option value="Sí">Sí</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+
+        <!-- Desplazado -->
+        <div class="form-group">
+          <label for="desplazado">Desplazado</label>
+          <select id="desplazado" name="desplazado">
+            <option value="">Seleccionar...</option>
+            <option value="Sí">Sí</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+
+
+        <div class="form-actions" style="margin-top: 2rem; text-align: center;">
+          <button type="button" onclick="cerrarInscripcionPublica()" class="btn btn-secondary">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" id="btnEnviarInscripcion">
+            ✅ Inscribirse
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script type="module">
+
+    // Exponer función al botón
+    window.actualizarEstadisticas = actualizarEstadisticas;
+
+    // <CHANGE> Funciones para inscripción pública
+    let actividadSeleccionada = '';
+
+    window.abrirInscripcionPublica = function (actividad) {
+      actividadSeleccionada = actividad;
+      const modal = document.getElementById('modalInscripcionPublica');
+      const titulo = document.getElementById('tituloInscripcion');
+
+      // Personalizar título según la actividad
+      const titulos = {
+        'vacaciones_recreativas': '📝 Inscripción - Vacaciones Recreativas',
+        'celebracion_deporte_cultura': '📝 Inscripción - Celebración del Deporte y Cultura'
+      };
+
+      titulo.textContent = titulos[actividad] || '📝 Inscripción al Evento';
+      modal.style.display = 'block';
+
+      // Limpiar formulario
+      document.getElementById('formInscripcionPublica').reset();
+    }
+
+    window.cerrarInscripcionPublica = function () {
+      document.getElementById('modalInscripcionPublica').style.display = 'none';
+      actividadSeleccionada = '';
+    }
+
+    window.enviarInscripcionPublica = async function (event) {
+      event.preventDefault();
+
+      const btnEnviar = document.getElementById('btnEnviarInscripcion');
+      btnEnviar.textContent = '⏳ Enviando...';
+      btnEnviar.disabled = true;
+
+      try {
+        const formData = new FormData(event.target);
+        const participante = {
+          documento_identidad: formData.get('documento_identidad'),
+          nombre: formData.get('nombre'),
+          edad: parseInt(formData.get('edad')),
+          genero: formData.get('genero'),
+          actividad: actividadSeleccionada,
+          telefono: formData.get('telefono'),
+          correo: formData.get('correo'),
+          barrio: formData.get('barrio'),
+          vereda: formData.get('vereda') || 'No',
+          lgbtq: formData.get('lgbtq') || 'No',
+          discapacidad: formData.get('discapacidad') || 'No',
+          victima: formData.get('victima') || 'No',
+          madrecabezahogar: formData.get('madre_cabeza') || 'No',
+          desplazado: formData.get('desplazado') || 'No',
+          fecha_registro: new Date().toISOString()
+        };
+
+        const { data, error } = await supabaseClient
+          .from('participantes')
+          .insert([participante]);
+
+        if (error) throw error;
+
+        alert('¡Inscripción exitosa! Te has registrado correctamente al evento.');
+        cerrarInscripcionPublica();
+
+        // Actualizar estadísticas
+        setTimeout(() => {
+          actualizarEstadisticas();
+        }, 1000);
+
+      } catch (error) {
+        console.error('Error al inscribir:', error);
+        alert('Error al procesar la inscripción. Por favor, intenta nuevamente.');
+      } finally {
+        btnEnviar.textContent = '✅ Inscribirse';
+        btnEnviar.disabled = false;
+      }
+    }
+
+    // Cerrar modal con Escape
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        cerrarInscripcionPublica();
+      }
+    });
+
+    // Cerrar modal al hacer click fuera
+    document.getElementById('modalInscripcionPublica').addEventListener('click', function (e) {
+      if (e.target === this) {
+        cerrarInscripcionPublica();
+      }
+    });
     import {
       supabaseClient,
       isAuthenticated,
@@ -440,7 +688,7 @@
         }
       });
     }
-    
+
     document.addEventListener('DOMContentLoaded', setupMobileDropdowns);
   </script>
 
