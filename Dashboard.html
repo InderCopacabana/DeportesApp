@@ -425,6 +425,7 @@
     </style>
 </head>
 
+
 <body>
     <!-- Menú flotante para acceso rápido al formulario -->
     <div class="floating-menu">
@@ -1138,14 +1139,14 @@
 
             // ⚠️ Espera a llenar las opciones antes de asignar el valor
             await llenarSelectorDeportes();
-            
+
             document.getElementById('grupo-nombre').value = grupo.nombre;
-            document.getElementById('grupo-deporte').value = grupo.deporte; 
+            document.getElementById('grupo-deporte').value = grupo.deporte;
             document.getElementById('grupo-descripcion').value = grupo.descripcion || '';
             document.getElementById('grupo-color').value = grupo.color || '#667eea';
             document.getElementById('modalGrupo').style.display = 'block';
         }
-        
+
         window.eliminarGrupo = async function (grupoId) {
             try {
                 const { data: grupo, error } = await supabaseClient
@@ -1181,7 +1182,7 @@
                     return;
                 }
 
-                
+
                 alert('✅ Grupo eliminado exitosamente.');
                 location.reload();
 
@@ -1297,9 +1298,9 @@
                     if (botonDescarga && profile.role !== 'admin') {
                         botonDescarga.style.display = 'none';
                     } else if (botonDescarga && profile.role === 'admin') {
-                        botonDescarga.style.display = 'inline-block'; 
+                        botonDescarga.style.display = 'inline-block';
                     }
-                    
+
                     const botonDescargaPDF = document.getElementById('btnDescargarPDF');
                     if (botonDescargaPDF && (profile.role === 'instructor' || profile.role === 'admin')) {
                         botonDescargaPDF.style.display = 'inline-block';
@@ -1620,7 +1621,7 @@
         window.subirAvatar = subirAvatar;
         window.eliminarAvatar = eliminarAvatar;
         window.mostrarIniciales = mostrarIniciales;
-        
+
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 cerrarModalAvatar();
@@ -1713,7 +1714,7 @@
                     // Filtrar por las actividades que tiene el instructor asignadas
                     let datosFiltrados = data.filter(p =>
                         deportesInstructor.includes(p.actividad?.toLowerCase())
-                    );                    
+                    );
 
                     console.log('Instructor puede ver:', deportesInstructor);
                     console.log('Actividades en participantes:', datosFiltrados.map(p => p.actividad));
@@ -1773,7 +1774,7 @@
                 } else if (currentUserProfile.role === 'admin') {
                     // Admin: ver todos los deportes (sin filtrar datos)
                     deportesInstructor = [...new Set(datosFiltrados.map(p => p.actividad?.toLowerCase()))].filter(Boolean);
-                    
+
                 }
 
                 // Mostrar en consola lo que puede ver el usuario (para debugging)
@@ -2085,7 +2086,7 @@
             if (currentUserProfile.role === 'admin') {
                 await cargarGruposEnSelectorExcel();
             } else {
-                await cargarDeportesEnSelector(); 
+                await cargarDeportesEnSelector();
             }
         }
 
@@ -2335,7 +2336,7 @@
                     else if (edad >= 27 && edad <= 59) rangos['Adultez (27-59)']++;
                     else if (edad >= 60) rangos['Persona mayor (60+)']++;
                 });
-                
+
                 const actividadesConteo = {};
                 participantes.forEach(p => {
                     const actividad = p.actividad.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
@@ -3025,9 +3026,19 @@
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
 
-                
+                // <CHANGE> Mejorando posición del logo para verse más profesional
+                const img = new Image();
+                img.src = 'imagenes/logo.png';
+                img.onload = function () {
+                    // Logo más grande y mejor posicionado en la esquina superior derecha
+                    doc.addImage(img, 'PNG', 160, 8, 35, 25); // x, y, ancho, alto optimizado
 
-                
+                    // Línea decorativa debajo del header
+                    doc.setDrawColor(67, 97, 238); // Color azul corporativo
+                    doc.setLineWidth(0.5);
+                    doc.line(20, 55, 190, 55); // línea horizontal debajo del header
+                };
+
 
                 // Configurar fuente
                 doc.setFont('helvetica');
@@ -3076,7 +3087,7 @@
                     });
                 }
 
-                const totalAsistencias = datos.length; 
+                const totalAsistencias = datos.length;
                 const totalParticipantesUnicos = participantesUnicos.size;
 
                 const asistieron = datos.filter(d => d.asistio).length;
@@ -3215,9 +3226,9 @@
 
                         // Construir cadena con todas las edades
                         const edadesStr = Object.entries(stats.edades)
-                            .sort(([, a], [, b]) => b - a) 
+                            .sort(([, a], [, b]) => b - a)
                             .map(([edad, cantidad]) => `${edad}: ${cantidad}`)
-                            .join('\n'); 
+                            .join('\n');
 
                         // Construir cadena con todos los barrios
                         const barriosStr = Object.entries(stats.barrios)
@@ -3310,8 +3321,8 @@
                     headStyles: { fillColor: [67, 97, 238] },
                     alternateRowStyles: { fillColor: [245, 245, 245] }
                 });
-                
-                yPosition = doc.lastAutoTable.finalY + 20; 
+
+                yPosition = doc.lastAutoTable.finalY + 20;
 
                 // Verificar si hay espacio suficiente para el título y al menos una fila
                 if (yPosition > 250) {
@@ -3394,10 +3405,10 @@
                                 headStyles: { fillColor: [220, 53, 69] },
                                 alternateRowStyles: { fillColor: [245, 245, 245] },
                                 columnStyles: {
-                                    4: { cellWidth: 40 } 
+                                    4: { cellWidth: 40 }
                                 }
                             });
-                            
+
                             yPosition = doc.lastAutoTable.finalY + 10;
                         } else {
                             doc.setFontSize(10);
@@ -3415,8 +3426,6 @@
 
                 // Generar nombre del archivo
                 const nombreArchivo = `Reporte_${currentUserProfile.full_name || 'Instructor'}_${mesesSeleccionados.join('-')}_${año}.pdf`;
-
-
 
                 // Descargar PDF
                 doc.save(nombreArchivo);
@@ -3448,7 +3457,7 @@
         // Funciones para el modal PDF
         window.abrirModalDescargaPDF = async function () {
             document.getElementById('modalDescargaPDF').style.display = 'block';
-            await cargarGruposEnSelectorPDF(); 
+            await cargarGruposEnSelectorPDF();
         }
 
         window.cerrarModalDescargaPDF = function () {
