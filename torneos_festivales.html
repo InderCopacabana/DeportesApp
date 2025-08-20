@@ -196,6 +196,13 @@
                             </div>
                         </div>
 
+                        <!-- Agregar botón de inscripción grupal para cada torneo -->
+                        <div class="group-registration" style="margin-top: 1rem; text-align: center;">
+                            <button onclick="abrirInscripcionGrupal('master')" class="btn btn-primary">
+                                👥 Inscribir Grupo
+                            </button>
+                        </div>
+
                     </div>
                 </div>
 
@@ -241,6 +248,13 @@
                             </div>
                         </div>
 
+                        <!-- Agregar botón de inscripción grupal para Open -->
+                        <div class="group-registration" style="margin-top: 1rem; text-align: center;">
+                            <button onclick="abrirInscripcionGrupal('open')" class="btn btn-primary">
+                                👥 Inscribir Grupo
+                            </button>
+                        </div>
+
                     </div>
                 </div>
 
@@ -282,6 +296,13 @@
                                     <span>Mujeres</span>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Agregar botón de inscripción grupal para Gran Master -->
+                        <div class="group-registration" style="margin-top: 1rem; text-align: center;">
+                            <button onclick="abrirInscripcionGrupal('gran_master')" class="btn btn-primary">
+                                👥 Inscribir Grupo
+                            </button>
                         </div>
 
                     </div>
@@ -328,6 +349,13 @@
                             </div>
                         </div>
 
+                        <!-- Agregar botón de inscripción grupal para Libre -->
+                        <div class="group-registration" style="margin-top: 1rem; text-align: center;">
+                            <button onclick="abrirInscripcionGrupal('libre')" class="btn btn-primary">
+                                👥 Inscribir Grupo
+                            </button>
+                        </div>
+
                     </div>
                 </div>
 
@@ -372,6 +400,13 @@
                             </div>
                         </div>
 
+                        <!-- Agregar botón de inscripción grupal para Prebenjamines -->
+                        <div class="group-registration" style="margin-top: 1rem; text-align: center;">
+                            <button onclick="abrirInscripcionGrupal('prebenjamines')" class="btn btn-primary">
+                                👥 Inscribir Grupo
+                            </button>
+                        </div>
+
                     </div>
                 </div>
                 <!-- Benjamines -->
@@ -413,6 +448,14 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Agregar botón de inscripción grupal para Benjamines -->
+                        <div class="group-registration" style="margin-top: 1rem; text-align: center;">
+                            <button onclick="abrirInscripcionGrupal('benjamines')" class="btn btn-primary">
+                                👥 Inscribir Grupo
+                            </button>
+                        </div>
+
                     </div>
                 </div>
 
@@ -456,6 +499,13 @@
                                     <span>Mujeres</span>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Agregar botón de inscripción grupal para Baby -->
+                        <div class="group-registration" style="margin-top: 1rem; text-align: center;">
+                            <button onclick="abrirInscripcionGrupal('baby')" class="btn btn-primary">
+                                👥 Inscribir Grupo
+                            </button>
                         </div>
 
                     </div>
@@ -502,6 +552,13 @@
                             </div>
                         </div>
 
+                        <!-- Agregar botón de inscripción grupal para Baby Fútbol -->
+                        <div class="group-registration" style="margin-top: 1rem; text-align: center;">
+                            <button onclick="abrirInscripcionGrupal('baby_futbol')" class="btn btn-primary">
+                                👥 Inscribir Grupo
+                            </button>
+                        </div>
+
                     </div>
                 </div>
 
@@ -519,6 +576,144 @@
             <p>© 2025 INDER Copacabana. Todos los Derechos Reservados.</p>
         </div>
     </footer>
+
+    <!-- Modal de inscripción grupal para torneos -->
+    <div id="modalInscripcionGrupal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <span class="close" onclick="cerrarInscripcionGrupal()">&times;</span>
+            <h2 id="tituloInscripcionGrupal">👥 Inscripción Grupal al Torneo</h2>
+
+            <form id="formInscripcionGrupal" onsubmit="agregarParticipante(event)">
+                <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="documento_grupal">Documento *</label>
+                        <input type="text" id="documento_grupal" name="documento_identidad" required placeholder="CC/TI">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nombre_grupal">Nombre Completo *</label>
+                        <input type="text" id="nombre_grupal" name="nombre" required placeholder="Nombre completo">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edad_grupal">Edad *</label>
+                        <input type="number" id="edad_grupal" name="edad" required min="1" max="100">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="genero_grupal">Género *</label>
+                        <select id="genero_grupal" name="genero" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="Hombre">Hombre</option>
+                            <option value="Mujer">Mujer</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="barrio_grupal">Barrio *</label>
+                        <select id="barrio_grupal" name="barrio" required>
+                            <option value="">Barrio/Vereda...</option>
+                            <option value="La Veta">La Veta</option>
+                            <option value="Zarzal La Luz">Zarzal La Luz</option>
+                            <option value="Zarzal Curazao">Zarzal Curazao</option>
+                            <option value="Ancon">Ancon</option>
+                            <option value="El Noral">El Noral</option>
+                            <option value="El Salado">El Salado</option>
+                            <option value="Sabaneta">Sabaneta</option>
+                            <option value="Quebrada Arriba">Quebrada Arriba</option>
+                            <option value="Alvarado">Alvarado</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono_grupal">Teléfono *</label>
+                        <input type="tel" id="telefono_grupal" name="telefono" required placeholder="Ej: 3001234567">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="correo_grupal">Correo Electrónico *</label>
+                        <input type="email" id="correo_grupal" name="correo" required placeholder="correo@ejemplo.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vereda_grupal">Vereda</label>
+                        <select id="vereda_grupal" name="vereda">
+                            <option value="">Seleccionar...</option>
+                            <option value="Si">Sí</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Campos adicionales en una sola fila -->
+                <div class="form-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-top: 1rem;">
+                    <div class="form-group">
+                        <label for="lgbtq_grupal">LGBTQ+</label>
+                        <select id="lgbtq_grupal" name="lgbtq">
+                            <option value="No">No</option>
+                            <option value="Sí">Sí</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="discapacidad_grupal">Discapacidad</label>
+                        <select id="discapacidad_grupal" name="discapacidad">
+                            <option value="No">No</option>
+                            <option value="Sí">Sí</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="victima_grupal">Víctima</label>
+                        <select id="victima_grupal" name="victima">
+                            <option value="No">No</option>
+                            <option value="Sí">Sí</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="madre_cabeza_grupal">Madre Cabeza Hogar</label>
+                        <select id="madre_cabeza_grupal" name="madre_cabeza">
+                            <option value="No">No</option>
+                            <option value="Sí">Sí</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="desplazado_grupal">Desplazado</label>
+                        <select id="desplazado_grupal" name="desplazado">
+                            <option value="No">No</option>
+                            <option value="Sí">Sí</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions" style="margin-top: 2rem; text-align: center;">
+                    <button type="submit" class="btn btn-primary" id="btnAgregarParticipante">
+                        ➕ Agregar Participante
+                    </button>
+                </div>
+            </form>
+
+            <!-- Lista de participantes agregados -->
+            <div id="listaParticipantes" style="margin-top: 2rem;">
+                <h3>👥 Participantes Agregados (<span id="contadorParticipantes">0</span>)</h3>
+                <div id="participantesContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; background-color: #f9f9f9;">
+                    <p id="sinParticipantes" style="text-align: center; color: #666; margin: 0;">No hay participantes agregados aún</p>
+                </div>
+            </div>
+
+            <!-- Botones finales -->
+            <div class="form-actions" style="margin-top: 2rem; text-align: center; gap: 1rem; display: flex; justify-content: center;">
+                <button type="button" onclick="cerrarInscripcionGrupal()" class="btn btn-secondary">
+                    Cancelar
+                </button>
+                <button type="button" onclick="guardarGrupoCompleto()" class="btn btn-success" id="btnGuardarGrupo" disabled>
+                    💾 Guardar Grupo Completo
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import {
@@ -678,6 +873,168 @@
 
         // Exponer función al botón
         window.actualizarEstadisticas = actualizarEstadisticas;
+
+        let actividadGrupalSeleccionada = '';
+        let participantesGrupo = [];
+
+        window.abrirInscripcionGrupal = function(actividad) {
+            actividadGrupalSeleccionada = actividad;
+            participantesGrupo = [];
+            
+            const modal = document.getElementById('modalInscripcionGrupal');
+            const titulo = document.getElementById('tituloInscripcionGrupal');
+            
+            const titulos = {
+                'master': '👥 Inscripción Grupal - Master',
+                'open': '👥 Inscripción Grupal - Open', 
+                'gran_master': '👥 Inscripción Grupal - Gran Master',
+                'libre': '👥 Inscripción Grupal - Libre',
+                'prebenjamines': '👥 Inscripción Grupal - Prebenjamines',
+                'benjamines': '👥 Inscripción Grupal - Benjamines',
+                'baby': '👥 Inscripción Grupal - Baby',
+                'baby_futbol': '👥 Inscripción Grupal - Baby Fútbol'
+            };
+            
+            titulo.textContent = titulos[actividad] || '👥 Inscripción Grupal al Torneo';
+            modal.style.display = 'block';
+            
+            // Limpiar formulario y lista
+            document.getElementById('formInscripcionGrupal').reset();
+            actualizarListaParticipantes();
+        }
+
+        window.cerrarInscripcionGrupal = function() {
+            document.getElementById('modalInscripcionGrupal').style.display = 'none';
+            actividadGrupalSeleccionada = '';
+            participantesGrupo = [];
+        }
+
+        window.agregarParticipante = function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const participante = {
+                documento_identidad: formData.get('documento_identidad'),
+                nombre: formData.get('nombre'),
+                edad: parseInt(formData.get('edad')),
+                genero: formData.get('genero'),
+                actividad: actividadGrupalSeleccionada,
+                tipo_actividad: 'Torneos y Festivales',
+                telefono: formData.get('telefono'),
+                correo: formData.get('correo'),
+                barrio: formData.get('barrio'),
+                vereda: formData.get('vereda') || 'No',
+                lgbtq: formData.get('lgbtq') || 'No',
+                discapacidad: formData.get('discapacidad') || 'No',
+                victima: formData.get('victima') || 'No',
+                madrecabezahogar: formData.get('madre_cabeza') || 'No',
+                desplazado: formData.get('desplazado') || 'No',
+                fecha_registro: new Date().toISOString()
+            };
+            
+            // Verificar si el documento ya existe en el grupo
+            if (participantesGrupo.some(p => p.documento_identidad === participante.documento_identidad)) {
+                alert('Este documento ya está registrado en el grupo');
+                return;
+            }
+            
+            participantesGrupo.push(participante);
+            document.getElementById('formInscripcionGrupal').reset();
+            actualizarListaParticipantes();
+            
+            // Mostrar mensaje de confirmación
+            const btnAgregar = document.getElementById('btnAgregarParticipante');
+            const textoOriginal = btnAgregar.textContent;
+            btnAgregar.textContent = '✅ Agregado!';
+            btnAgregar.style.backgroundColor = '#28a745';
+            
+            setTimeout(() => {
+                btnAgregar.textContent = textoOriginal;
+                btnAgregar.style.backgroundColor = '';
+            }, 1500);
+        }
+
+        function actualizarListaParticipantes() {
+            const container = document.getElementById('participantesContainer');
+            const contador = document.getElementById('contadorParticipantes');
+            const btnGuardar = document.getElementById('btnGuardarGrupo');
+            
+            contador.textContent = participantesGrupo.length;
+            
+            if (participantesGrupo.length === 0) {
+                btnGuardar.disabled = true;
+                container.innerHTML = '<p id="sinParticipantes" style="text-align: center; color: #666; margin: 0;">No hay participantes agregados aún</p>';
+            } else {
+                btnGuardar.disabled = false;
+                
+                container.innerHTML = participantesGrupo.map((p, index) => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; border-bottom: 1px solid #eee; background: white; margin-bottom: 0.5rem; border-radius: 4px;">
+                        <div>
+                            <strong>${p.nombre}</strong> - ${p.documento_identidad} 
+                            <span style="color: #666;">(${p.genero}, ${p.edad} años)</span>
+                        </div>
+                        <button onclick="eliminarParticipante(${index})" class="btn btn-sm" style="background: #dc3545; color: white; padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                            🗑️ Eliminar
+                        </button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        window.eliminarParticipante = function(index) {
+            if (confirm('¿Estás seguro de eliminar este participante?')) {
+                participantesGrupo.splice(index, 1);
+                actualizarListaParticipantes();
+            }
+        }
+
+        window.guardarGrupoCompleto = async function() {
+            if (participantesGrupo.length === 0) {
+                alert('Debes agregar al menos un participante');
+                return;
+            }
+            
+            const btnGuardar = document.getElementById('btnGuardarGrupo');
+            btnGuardar.textContent = '⏳ Guardando...';
+            btnGuardar.disabled = true;
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('participantes')
+                    .insert(participantesGrupo);
+                
+                if (error) throw error;
+                
+                alert(`¡Inscripción grupal exitosa! Se han registrado ${participantesGrupo.length} participantes al torneo.`);
+                cerrarInscripcionGrupal();
+                
+                // Actualizar estadísticas
+                setTimeout(() => {
+                    actualizarEstadisticas();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Error al guardar grupo:', error);
+                alert('Error al procesar la inscripción grupal. Por favor, intenta nuevamente.');
+            } finally {
+                btnGuardar.textContent = '💾 Guardar Grupo Completo';
+                btnGuardar.disabled = false;
+            }
+        }
+
+        // Cerrar modal con Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                cerrarInscripcionGrupal();
+            }
+        });
+
+        // Cerrar modal al hacer click fuera
+        document.getElementById('modalInscripcionGrupal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarInscripcionGrupal();
+            }
+        });
 
         // Manejar dropdowns en móvil
         function setupMobileDropdowns() {
