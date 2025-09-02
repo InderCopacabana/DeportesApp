@@ -1,0 +1,3208 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión de Participantes - INDER Copacabana</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="estilos.css">
+  <!-- Añadir Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import { protectPage, signOut } from './supabase-config.js';
+    document.addEventListener('DOMContentLoaded', async function () {
+      // Proteger esta página - solo para administradores
+      await protectPage(['admin', 'instructor']);
+      // Configurar botón de cierre de sesión
+      document.getElementById('logout-btn').addEventListener('click', async function () {
+        try {
+          await signOut();
+          window.location.href = 'index.html';
+        } catch (error) {
+          console.error('Error al cerrar sesión:', error);
+          alert('Error al cerrar sesión. Intente nuevamente.');
+        }
+      });
+    });
+  </script>
+  <style>
+    .form-container {
+      background-color: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #ddd;
+      border-collapse: collapse;
+      padding: 10px;
+    }
+
+    table {
+      width: 100%;
+      margin-bottom: 1rem;
+      background-color: white;
+    }
+
+    th {
+      background-color: var(--color-primary);
+      color: white;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    tr.selected {
+      background-color: #e3f2fd !important;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    input:focus,
+    select:focus {
+      outline: 2px solid var(--color-primary-light);
+      border-color: var(--color-primary);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      /* Centrar en móviles */
+    }
+
+    @media (max-width: 768px) {
+      .button-group {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .button-group .btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    .results-container {
+      background-color: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    .checkbox-column {
+      width: 40px;
+      text-align: center;
+    }
+
+    .edit-mode {
+      background-color: #fff3cd !important;
+      border: 2px solid #ffc107 !important;
+    }
+
+    @media (max-width: 768px) {
+      .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .action-buttons .btn {
+        width: 100%;
+        margin: 0;
+      }
+
+      /* Barra de búsqueda responsiva */
+      #search-participante {
+        min-width: 100% !important;
+        margin-bottom: 1rem;
+      }
+    }
+
+    .btn-edit {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background-color: #218838;
+    }
+
+    .btn-delete {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background-color: #c82333;
+    }
+
+    /* Estilos para el modal de evidencias */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 1% auto !important;
+      padding: 0.5rem !important;
+      border-radius: 12px;
+      width: 99%;
+      max-width: 1000px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+    }
+
+    .close:hover {
+      color: #000;
+    }
+
+    .upload-area {
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .upload-area:hover {
+      border-color: var(--color-primary);
+      background-color: #f8f9ff;
+    }
+
+    .upload-area.dragover {
+      border-color: var(--color-primary);
+      background-color: #e3f2fd;
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .evidence-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .evidence-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .evidence-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    .evidence-info {
+      padding: 1rem;
+    }
+
+    .evidence-instructor {
+      font-weight: bold;
+      color: var(--color-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .evidence-datetime {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .evidence-location {
+      color: #888;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .evidence-coordinates {
+      color: #999;
+      font-size: 0.7rem;
+      font-style: italic;
+    }
+
+    .btn-evidence {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-evidence:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid var(--color-primary);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .evidence-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--color-primary);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .filter-controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-controls select,
+    .filter-controls input {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      width: auto;
+      min-width: 150px;
+    }
+
+    .image-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    .image-modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 90%;
+      max-height: 90%;
+    }
+
+    .image-modal img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .btn-delete-evidence {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-delete-evidence:hover {
+      background-color: #c82333;
+    }
+
+    .location-info {
+      background-color: #f8f9fa;
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-top: 1rem;
+      border-left: 4px solid var(--color-primary);
+    }
+
+    .location-address {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.25rem;
+    }
+
+    .location-coords {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    /* Estilos para alertas de asistencia */
+    .alerta-participante {
+      color: #dc3545 !important;
+      font-weight: bold !important;
+      animation: parpadeo 1.5s infinite;
+    }
+
+    @keyframes parpadeo {
+
+      0%,
+      50% {
+        opacity: 1;
+      }
+
+      51%,
+      100% {
+        opacity: 0.6;
+      }
+    }
+
+    .fila-alerta {
+      background-color: #fff5f5 !important;
+      border-left: 4px solid #dc3545 !important;
+    }
+
+    .banner-alerta {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .banner-alerta .icono {
+      font-size: 1.2rem;
+      animation: parpadeo 2s infinite;
+    }
+
+    /* Estilos responsivos adicionales */
+    @media (max-width: 768px) {
+
+      /* Contenedor de controles responsivo */
+      div[style*="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 1rem !important;
+      }
+
+      /* Asegurar que los datos se muestren en móvil */
+      #tablaResultado table td {
+        display: block !important;
+        text-align: right !important;
+        padding-left: 50% !important;
+        position: relative !important;
+      }
+
+      #tablaResultado table td:before {
+        content: attr(data-label) ": " !important;
+        position: absolute !important;
+        left: 6px !important;
+        width: 45% !important;
+        text-align: left !important;
+        font-weight: bold !important;
+        color: var(--color-primary) !important;
+      }
+
+      #modalHistorialAsistencias .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      #lista-asistencia-historial table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      #lista-asistencia-historial th,
+      #lista-asistencia-historial td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      #lista-asistencia-historial th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+      }
+
+      #evidencias-historial img:hover {
+        opacity: 0.8;
+        transform: scale(1.02);
+        transition: all 0.2s ease;
+      }
+
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Encabezado con navegación -->
+  <header>
+    <div class="container header-content">
+      <div class="logo">INDER Copacabana</div>
+      <nav>
+        <ul>
+          <li class="dropdown">
+            <a href="index.html">Inicio</a>
+          </li>
+
+          <li class="dropdown">
+            <a href="deportes.html" class="dropdown-toggle">Deportes Formativo<span class="arrow">▼</span></a>
+            <div class="dropdown-content">
+              <a href="deportes.html#futbol">Fútbol</a>
+              <a href="deportes.html#futbol_de_salon">Fútbol de Salón</a>
+              <a href="deportes.html#futbol_sala">Fútbol sala</a>
+              <a href="deportes.html#ajedrez">Ajedrez</a>
+              <a href="deportes.html#baloncesto">Baloncesto</a>
+              <a href="deportes.html#balonmano">Balonmano</a>
+              <a href="deportes.html#natacion">Natación</a>
+              <a href="deportes.html#atletismo">Atletismo</a>
+              <a href="deportes.html#patinaje">Patinaje</a>
+              <a href="deportes.html#rugby">Rugby</a>
+              <a href="deportes.html#tenis">Tenis de campo</a>
+              <a href="deportes.html#voleibol">Voleibol</a>
+              <a href="deportes.html#tenis">Tenis de Mesa</a>
+              <a href="deportes.html">BMX</a>
+              <a href="deportes.html#boxeo">Boxeo</a>
+              <a href="deportes.html#gimnasia">Gimnasia</a>
+              <a href="deportes.html#jiu_jitsu">Jiu Jitsu</a>
+              <a href="deportes.html#levantamiento_de_pesas">Levantamiento de Pesas</a>
+              <a href="deportes.html#taekwondo">Taekwondo</a>
+            </div>
+          </li>
+
+          <li class="dropdown">
+            <a href="actividades.html" class="dropdown-toggle">Actividades Físicas <span class="arrow">▼</span></a>
+
+            <div class="dropdown-content">
+              <a href="actividades.html#gimnasio_municipal">Gimnasio Municipal</a>
+              <a href="actividades.html#descubre_tu_talento">Descubre tu Talento</a>
+              <a href="actividades.html#nadadores_activos">Nadadores Activos</a>
+              <a href="actividades.html#yoga">Yoga</a>
+            </div>
+          </li>
+
+          <li class="dropdown">
+            <a href="recreacion.html" class="dropdown-toggle">Recreación<span class="arrow">▼</span></a>
+
+            <div class="dropdown-content">
+              <a href="recreacion.html#rumba_aerobica">Rumba Aeróbica</a>
+              <a href="recreacion.html#hidroaerobicos">Hidroaerobicos</a>
+
+            </div>
+          </li>
+
+          <li class="dropdown">
+            <a href="eventos_institucionales.html" class="dropdown-toggle">Eventos Institucionales<span
+                class="arrow">▼</span></a>
+
+            <div class="dropdown-content">
+              <a href="eventos_institucionales.html#vacaciones_recreativas">Vacaciones Recreativas</a>
+              <a href="eventos_institucionales.html#celebracion_de_deporte_y_cultura">Celebración del Deporte y
+                Cultura</a>
+
+            </div>
+          </li>
+
+          <li class="dropdown">
+            <a href="torneos_festivales.html" class="dropdown-toggle">Torneos y Festivales
+              Institucionales<span class="arrow">▼</span></a>
+
+            <div class="dropdown-content">
+              <a href="torneos_festivales.html#master">Master</a>
+              <a href="torneos_festivales.html#open">Open</a>
+              <a href="torneos_festivales.html#gran_master">Gran Master</a>
+              <a href="torneos_festivales.html#libre">Libre</a>
+              <a href="torneos_festivales.html#prebenjamines">Prebenjamines</a>
+              <a href="torneos_festivales.html#benjamines">Benjamines</a>
+              <a href="torneos_festivales.html#baby">Baby</a>
+              <a href="torneos_festivales.html#babyfutbol">BabyFútbol</a>
+            </div>
+          </li>
+
+          <li class="dropdown">
+            <a href="juegos_institucionales.html" class="dropdown-toggle">Juegos Institucionales<span
+                class="arrow">▼</span></a>
+
+            <div class="dropdown-content">
+              <a href="juegos_institucionales.html#escolares_subregional">Escolares Sub_Regional</a>
+              <a href="juegos_institucionales.html#escolares_departamental">Escolares Departamental</a>
+              <a href="juegos_institucionales.html#intercolegiados_municipal">Intercolegiados Municipal</a>
+              <a href="juegos_institucionales.html#intercolegiados_subregional">Intercolegiados Sub_Regional</a>
+              <a href="juegos_institucionales.html#intercolegiados_departamental">Intercolegiados Departamental</a>
+              <a href="juegos_institucionales.html#mayores_subregional">Mayores sub_regional</a>
+              <a href="juegos_institucionales.html#mayores_departamental">Mayores Departamental</a>
+            </div>
+          </li>
+
+          <li><a href="diagrama.html">Estadísticas</a></li>
+        </ul>
+      </nav>
+      <button id="logout-btn" class="btn btn-secondary">Cerrar Sesión</button>
+      <button id="menu-toggle" class="menu-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <main>
+    <div class="page-header">
+      <div class="container">
+        <h1>Gestión de Participantes</h1>
+        <p>Administre los datos de participantes en actividades</p>
+      </div>
+    </div>
+
+    <div class="container">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <a href="Dashboard.html" class="back-link btn btn-outline">
+          <span class="arrow-left">←</span> Volver
+        </a>
+
+        <!--
+
+        <button onclick="abrirModalAsistencia()" class="btn-evidence"
+          style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+          📋 Tomar Asistencia
+        </button>
+        Botón de Evidencias -->
+
+        <button onclick="abrirModalEvidencias()" class="btn-evidence">
+          📸 Evidencias Fotográficas
+        </button>
+      </div>
+
+
+
+      <div class="form-container">
+        <h2 id="form-title">Agregar Nuevo Participante</h2>
+        <form id="formExcel">
+          <table id="tablaFormulario">
+            <thead>
+              <tr>
+                <th>Documento</th>
+                <th>Nombre</th>
+                <th>Edad</th>
+                <th>Género</th>
+                <th>Actividad</th>
+                <th>Barrio</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td data-label="Documento">
+                  <input type="text" name="documento_identidad" placeholder="CC/ID" required>
+                </td>
+                <td data-label="Nombre">
+                  <input type="text" name="nombre" placeholder="Nombre completo" required>
+                </td>
+                <td data-label="Edad">
+                  <input type="number" name="edad" placeholder="Edad" min="5" max="99" required>
+                </td>
+                <td data-label="Género">
+                  <select name="genero" required>
+                    <option value="">Seleccionar...</option>
+                    <option value="Hombre">Hombre</option>
+                    <option value="Mujer">Mujer</option>
+                  </select>
+                </td>
+                <td data-label="Actividad">
+                  <select name="actividad" required>
+                    <option value="">Seleccionar</option>
+
+                    <optgroup label="Deportes">
+                      <option value="futbol">Fútbol</option>
+                      <option value="futbol_de_salon">Fútbol de Salón</option>
+                      <option value="futbol_sala">Fútbol sala</option>
+                      <option value="ajedrez">Ajedrez</option>
+                      <option value="baloncesto">Baloncesto</option>
+                      <option value="balonmano">Balonmano</option>
+                      <option value="natacion">Natación</option>
+                      <option value="atletismo">Atletismo</option>
+                      <option value="patinaje">Patinaje</option>
+                      <option value="rugby">Rugby</option>
+                      <option value="tenis">Tenis de campo</option>
+                      <option value="tenis_mesa">Tenis de Mesa</option>
+                      <option value="bmx">BMX</option>
+                      <option value="boxeo">Boxeo</option>
+                      <option value="gimnasia">Gimnasia</option>
+                      <option value="jiu_jitsu">Jiu Jitsu</option>
+                      <option value="levantamiento_de_pesas">Levantamiento de Pesas</option>
+                      <option value="taekwondo">Taekwondo</option>
+                    </optgroup>
+
+                    <optgroup label="Actividades Físicas">
+                      <option value="gimnasio_municipal">Gimnasio Municipal</option>
+                      <option value="descubre_tu_talento">Descubre tu Talento</option>
+                      <option value="nadadores_activos">Nadadores Activos</option>
+                      <option value="yoga">Yoga</option>
+                    </optgroup>
+
+                    <optgroup label="Recreación">
+                      <option value="rumba_aerobica">Rumba Aeróbica</option>
+                      <option value="hidroaerobicos">Hidroaeróbicos</option>
+                    </optgroup>
+
+                    <optgroup label="Eventos Institucionales">
+                      <option value="vacaciones_recreativas">Vacaciones Recreativas</option>
+                      <option value="celebracion_deporte_cultura">Celebración del Deporte y Cultura</option>
+                    </optgroup>
+
+                    <optgroup label="Torneos y Festivales">
+                      <option value="master">Master</option>
+                      <option value="open">Open</option>
+                      <option value="gran_master">Gran Master</option>
+                      <option value="libre">Libre</option>
+                      <option value="prebenjamines">Prebenjamines</option>
+                      <option value="benjamines">Benjamines</option>
+                      <option value="baby">Baby</option>
+                      <option value="baby_futbol">BabyFútbol</option>
+                    </optgroup>
+
+                    <optgroup label="Juegos Institucionales">
+                      <option value="escolares_subregional">Escolares Sub-regional</option>
+                      <option value="escolares_departamental">Escolares Departamental</option>
+                      <option value="intercolegiados_municipal">Intercolegiados Municipal</option>
+                      <option value="intercolegiados_subregional">Intercolegiados Sub-regional</option>
+                      <option value="intercolegiados_departamental">Intercolegiados Departamental</option>
+                      <option value="mayores_subregional">Mayores Sub-regional</option>
+                      <option value="mayores_departamental">Mayores Departamental</option>
+                    </optgroup>
+
+                  </select>
+                </td>
+
+
+                <td data-label="Barrio"><select name="barrio" required>
+                    <option value="">Barrio/Vereda...</option>
+                    <option value="La Veta">La Veta</option>
+                    <option value="Zarzal La Luz">Zarzal La Luz</option>
+                    <option value="Zarzal Curazao">Zarzal Curazao</option>
+                    <option value="Ancon">Ancon</option>
+                    <option value="El Noral">El Noral</option>
+                    <option value="El Salado">El Salado</option>
+                    <option value="Sabaneta">Sabaneta</option>
+                    <option value="Quebrada Arriba">Quebrada Arriba</option>
+                    <option value="Alvarado">Alvarado</option>
+                    <option value="Montañita">Montañita</option>
+                    <option value="Peñolcito">Peñolcito</option>
+                    <option value="Cabuyal">Cabuyal</option>
+                    <option value="Granizal">Granizal</option>
+                    <option value="El Convento">El Convento</option>
+                    <option value="Fontidueño">Fontidueño</option>
+                    <option value="Cristo Rey">Cristo Rey</option>
+                    <option value="Simon Bolivar">Simon Bolivar</option>
+                    <option value="Obrero">Obrero</option>
+                    <option value="Yarumito">Yarumito</option>
+                    <option value="Las Vegas">Las Vegas</option>
+                    <option value="Tobon Quintero">Tobon Quintero</option>
+                    <option value="La Asunción">La Asunción</option>
+                    <option value="La Azulita">La Azulita</option>
+                    <option value="El Porvenir">El Porvenir</option>
+                    <option value="Villanueva">Villanueva</option>
+                    <option value="El Recreo">El Recreo</option>
+                    <option value="El Remanso">El Remanso</option>
+                    <option value="Pedregal">Pedregal</option>
+                    <option value="La Misericordia">La Misericordia</option>
+                    <option value="Machado">Machado</option>
+                    <option value="San Juan">San Juan</option>
+                    <option value="Maria">Maria</option>
+                    <option value="Tablazo-Canoas">Tablazo-Canoas</option>
+                    <option value="El Mojon">El Mojon</option>
+                    <option value="Fatima">Fatima</option>
+                    <option value="Pedrera">Pedrera</option>
+                    <option value="San Francisco">San Francisco</option>
+                    <option value="Miraflores">Miraflores</option>
+                    </optgroup>
+                  </select>
+                </td>
+                </td>
+
+              </tr>
+            </tbody>
+            <thead>
+              <tr>
+                <th>Teléfono</th>
+                <th>Correo</th>
+                <th>Vereda</th>
+                <th>LGBTQ+</th>
+                <th>Discapacidad</th>
+                <th>Victima</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="Teléfono">
+                  <input type="tel" name="telefono" placeholder="Ej: 3001234567" required>
+                </td>
+                <td data-label="Correo">
+                  <input type="email" name="correo" placeholder="Ej: correo@ejemplo.com">
+                </td>
+                <td data-label="Vereda">
+                  <select name="vereda">
+                    <option value="">Seleccionar...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                  </select>
+                </td>
+                <td data-label="LGBTQ+">
+                  <select name="lgbtq">
+                    <option value="">Seleccionar...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                  </select>
+                </td>
+                <td data-label="Discapacidad">
+                  <select name="discapacidad">
+                    <option value="">Seleccionar...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                  </select>
+                </td>
+                <td data-label="Víctima">
+                  <select name="victima">
+                    <option value="">Seleccionar...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                  </select>
+                </td>
+
+              </tr>
+            </tbody>
+
+            <thead>
+              <tr>
+                <th>Madre Cabeza Hogar</th>
+                <th>Desplazado</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+
+                <td data-label="Madre Cabeza Hogar">
+                  <select name="madre_cabeza">
+                    <option value="">Seleccionar...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                  </select>
+                </td>
+                <td data-label="Desplazado">
+                  <select name="desplazado">
+                    <option value="">Seleccionar...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                  </select>
+                </td>
+
+          </table>
+
+          <div class="button-group">
+            <button type="submit" class="btn btn-primary" id="btn-guardar">Guardar</button>
+            <button type="button" onclick="cancelarEdicion()" class="btn btn-outline" id="btn-cancelar"
+              style="display: none;">Cancelar</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="results-container">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+          <h3>Participantes Registrados:</h3>
+          <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <!-- Barra de búsqueda -->
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="text" id="search-participante" placeholder="🔍 Buscar participante..."
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; min-width: 200px;"
+                onkeyup="filtrarParticipantes()">
+              <button onclick="limpiarBusqueda()" class="btn btn-outline" style="padding: 0.5rem;">✖️</button>
+            </div>
+            <!-- Botones de acción -->
+            <div class="action-buttons">
+              <button onclick="editarSeleccionados()" class="btn btn-edit" id="btn-editar">✏️ Editar</button>
+              <button onclick="eliminarSeleccionados()" class="btn btn-delete" id="btn-eliminar">🗑️ Eliminar</button>
+              <button onclick="seleccionarTodos()" class="btn btn-outline" id="btn-seleccionar">☑️ Seleccionar
+                Todos</button>
+            </div>
+          </div>
+        </div>
+        <div id="tablaResultado"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de Evidencias -->
+  <div id="modalEvidencias" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="cerrarModalEvidencias()">&times;</span>
+      <h2>📸 Evidencias Fotográficas</h2>
+
+      <!-- Estadísticas de evidencias -->
+      <div class="evidence-stats" id="evidenceStats">
+        <div class="stat-item">
+          <div class="stat-number" id="totalEvidencias">0</div>
+          <div class="stat-label">Total Evidencias</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="evidenciasHoy">0</div>
+          <div class="stat-label">Hoy</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="evidenciasSemana">0</div>
+          <div class="stat-label">Esta Semana</div>
+        </div>
+      </div>
+
+      <!-- Área de subida -->
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📷</div>
+        <h3>Subir Nueva Evidencia</h3>
+        <p>Haz clic aquí o arrastra una imagen para subirla</p>
+        <p style="font-size: 0.8rem; color: #666;">Se capturará automáticamente la ubicación y hora</p>
+        <input type="file" id="fileInput" accept="image/*" style="display: none;"
+          onchange="subirEvidencia(this.files[0])">
+
+        <!-- Información de ubicación mejorada -->
+        <div class="location-info" id="locationInfo" style="display: none;">
+          <div class="location-address" id="ubicacion-evidencia">📍 Obteniendo ubicación...</div>
+          <div class="location-coords" id="coordenadas-evidencia"></div>
+        </div>
+      </div>
+
+      <!-- Controles de filtro -->
+      <div class="filter-controls">
+        <select id="filterinstructor" onchange="filtrarEvidencias()">
+          <option value="">Todos los instructores</option>
+        </select>
+        <input type="date" id="filterFecha" onchange="filtrarEvidencias()">
+        <button onclick="limpiarFiltros()" class="btn btn-outline">Limpiar Filtros</button>
+      </div>
+
+      <!-- Grid de evidencias -->
+      <div id="evidenceGrid" class="evidence-grid">
+        <div style="text-align: center; padding: 2rem;">
+          <div class="loading-spinner"></div>
+          <p>Cargando evidencias...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para ver imagen completa -->
+  <div id="imageModal" class="image-modal" onclick="cerrarImagenModal()">
+    <div class="image-modal-content">
+      <img id="modalImage" src="/placeholder.svg" alt="Imagen de evidencia" />
+    </div>
+  </div>
+
+  <!-- Modal de Asistencia -->
+  <div id="modalAsistencia" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="cerrarModalAsistencia()">&times;</span>
+      <h2>📋 Tomar Asistencia</h2>
+
+      <!-- Formulario de asistencia -->
+      <div class="form-container" style="margin-bottom: 2rem;">
+        <form id="formAsistencia">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <label for="fecha-clase">📅 Fecha de Clase:</label>
+              <input type="date" id="fecha-clase" required>
+            </div>
+            <div>
+              <label for="hora-clase">🕐 Hora de Clase:</label>
+              <input type="time" id="hora-clase" required>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <label for="actividad-asistencia">🏃 Actividad/Deporte:</label>
+            <select id="actividad-asistencia" required>
+              <option value="">Seleccionar actividad...</option>
+              <optgroup label="Deportes">
+                <option value="futbol">Fútbol</option>
+                <option value="futbol_de_salon">Fútbol de Salón</option>
+                <option value="futbol_sala">Fútbol sala</option>
+                <option value="ajedrez">Ajedrez</option>
+                <option value="baloncesto">Baloncesto</option>
+                <option value="balonmano">Balonmano</option>
+                <option value="natacion">Natación</option>
+                <option value="atletismo">Atletismo</option>
+                <option value="patinaje">Patinaje</option>
+                <option value="rugby">Rugby</option>
+                <option value="tenis">Tenis</option>
+                <option value="voleibol">Voleibol</option>
+              </optgroup>
+              <optgroup label="Actividades Físicas">
+                <option value="bmx">BMX</option>
+                <option value="boxeo">Boxeo</option>
+                <option value="descubre_tu_talento">Descubre tú Talento</option>
+                <option value="gimnasia">Gimnasia</option>
+                <option value="jiu_jitsu">Jiu Jitsu</option>
+                <option value="gimnasio">Gimnasio</option>
+                <option value="levantamiento_de_pesas">Levantamiento de Pesas</option>
+                <option value="tiro_con_arco">Tiro con Arco</option>
+                <option value="taekwondo">Taekwondo</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <!-- NUEVA: Lista de participantes del deporte -->
+          <div style="margin-bottom: 1rem;">
+            <label>👥 Participantes de <span id="deporte-instructor"></span>:</label>
+            <div id="lista-participantes-deporte"
+              style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; padding: 1rem;">
+              <p style="text-align: center; color: #666;">Cargando participantes...</p>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">💾 Guardar Asistencia</button>
+        </form>
+      </div>
+
+      <!-- Lista de asistencias del día -->
+      <div class="results-container">
+        <h3>📊 Asistencias de Hoy</h3>
+        <div id="lista-asistencias-hoy">
+          <p style="text-align: center; color: #666;">Cargando asistencias...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Pie de página -->
+  <footer>
+    <div class="container">
+      <p>© 2025 INDER Copacabana. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script type="module">
+    // Función para obtener parámetros de la URL
+    function obtenerParametroURL(nombre) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(nombre);
+    }
+
+    // Al cargar la página, verificar si viene un deporte específico
+    document.addEventListener('DOMContentLoaded', async function () {
+      const deporteParam = obtenerParametroURL('deporte');
+      const instructorParam = obtenerParametroURL('instructor');
+      const autoAbrir = obtenerParametroURL('autoAbrir');
+
+      if (deporteParam && autoAbrir === 'asistencia') {
+        console.log(`Auto-abriendo modal de asistencia para deporte: ${deporteParam}`);
+        
+        setTimeout(async () => {
+          // Abrir directamente el modal de asistencia
+          await abrirModalAsistencia();
+
+          // Pre-seleccionar el deporte en el modal
+          const selectActividad = document.getElementById('actividad-asistencia');
+          if (selectActividad) {
+            selectActividad.value = deporteParam;
+            // Disparar evento change para actualizar la lista de participantes
+            selectActividad.dispatchEvent(new Event('change'));
+          }
+        }, 500);
+      }
+    });
+    import { supabaseClient, getUserProfile } from './supabase-config.js';
+
+    // Variables globales
+    let participantesGuardados = [];
+    let modoEdicion = false;
+    let participanteEditando = null;
+    let evidenciasData = [];
+    let userProfile = null;
+
+    // Inicializar perfil de usuario
+    async function inicializarPerfil() {
+      userProfile = await getUserProfile();
+      console.log('Perfil de usuario:', userProfile);
+    }
+
+    // NUEVA: Variable global para rastrear cambios
+    let participantesModificados = new Set();
+
+    // NUEVA: Función para marcar participante como modificado
+    window.marcarCambioParticipante = function (participanteId) {
+      participantesModificados.add(participanteId);
+
+      // Resaltar visualmente la fila modificada
+      const fila = document.getElementById(`fila-participante-${participanteId}`);
+      if (fila) {
+        fila.style.backgroundColor = '#fff3cd'; // Amarillo claro
+        fila.style.border = '2px solid #ffc107';
+      }
+
+      console.log('Participantes modificados:', Array.from(participantesModificados));
+    }
+
+    // obtener dirección desde coordenadas
+    async function obtenerDireccion(latitud, longitud) {
+      try {
+        console.log(`Obteniendo dirección para: ${latitud}, ${longitud}`);
+
+        // Usar API de geocodificación inversa (OpenStreetMap Nominatim - gratuita)
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitud}&lon=${longitud}&addressdetails=1&accept-language=es&zoom=18`
+        );
+
+        if (!response.ok) {
+          throw new Error('Error en la respuesta de la API');
+        }
+
+        const data = await response.json();
+        console.log('Datos de ubicación:', data);
+
+        // Formatear la dirección en formato colombiano
+        let direccion = '';
+
+        if (data.address) {
+          const addr = data.address;
+
+          // Construir dirección en formato colombiano
+          const calle = addr.road || addr.street || '';
+          const numero = addr.house_number || '';
+          const barrio = addr.neighbourhood || addr.suburb || addr.quarter || '';
+          const ciudad = addr.city || addr.town || addr.municipality || 'Copacabana';
+          const departamento = addr.state || 'Antioquia';
+
+          // Formato: Calle # Número, Barrio
+          if (calle) {
+            if (numero) {
+              // Formato colombiano: Calle 111 # 49-25
+              direccion = `${calle} # ${numero}`;
+            } else {
+              direccion = calle;
+            }
+
+            if (barrio && barrio !== calle) {
+              direccion += `, ${barrio}`;
+            }
+
+            // Agregar ciudad si es diferente a Copacabana
+            if (ciudad && ciudad.toLowerCase() !== 'copacabana') {
+              direccion += `, ${ciudad}`;
+            }
+          } else if (barrio) {
+            // Si no hay calle, usar el barrio
+            direccion = barrio;
+            if (ciudad && ciudad.toLowerCase() !== 'copacabana') {
+              direccion += `, ${ciudad}`;
+            }
+          } else {
+            // Usar el display_name como fallback
+            direccion = data.display_name || `Coordenadas: ${latitud}, ${longitud}`;
+          }
+        }
+
+        // Si no se pudo formatear bien, usar display_name
+        if (!direccion || direccion.length < 5) {
+          direccion = data.display_name || `Lat: ${latitud}, Lng: ${longitud}`;
+        }
+
+        // Limpiar la dirección (remover información redundante)
+        direccion = direccion
+          .replace(/,\s*Colombia/gi, '')
+          .replace(/,\s*Antioquia,\s*Copacabana/gi, ', Copacabana')
+          .replace(/,\s*Copacabana,\s*Copacabana/gi, ', Copacabana')
+          .trim();
+
+        return direccion;
+
+      } catch (error) {
+        console.error('Error al obtener dirección:', error);
+        return `Coordenadas: ${latitud.toFixed(6)}, ${longitud.toFixed(6)}`;
+      }
+    }
+
+    // Función para crear tabla de evidencias si no existe
+    async function crearTablaEvidencias() {
+      try {
+        // Verificar si la tabla existe consultándola
+        const { data, error } = await supabaseClient
+          .from('evidencias')
+          .select('id')
+          .limit(1);
+
+        if (error && error.message.includes('does not exist')) {
+          console.log('La tabla evidencias no existe. Debe ser creada manualmente en Supabase.');
+          alert('⚠️ La tabla de evidencias no existe. Contacte al administrador del sistema.');
+        }
+      } catch (error) {
+        console.log('Tabla de evidencias verificada');
+      }
+    }
+
+    // Función mejorada para obtener ubicación
+    async function obtenerUbicacion() {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error('Geolocalización no soportada'));
+          return;
+        }
+
+        // Mostrar información de ubicación - VERIFICAR QUE EXISTAN LOS ELEMENTOS
+        const locationInfo = document.getElementById('locationInfo');
+        const ubicacionElement = document.getElementById('ubicacion-evidencia');
+        const coordenadasElement = document.getElementById('coordenadas-evidencia');
+
+        // Solo mostrar información si los elementos existen
+        if (locationInfo && ubicacionElement && coordenadasElement) {
+          locationInfo.style.display = 'block';
+          ubicacionElement.textContent = '🔄 Obteniendo ubicación...';
+          coordenadasElement.textContent = '';
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const latitud = position.coords.latitude;
+            const longitud = position.coords.longitude;
+            const precision = position.coords.accuracy;
+
+            console.log('Ubicación obtenida:', { latitud, longitud, precision });
+
+            // Mostrar coordenadas solo si los elementos existen
+            if (coordenadasElement) {
+              coordenadasElement.textContent = `Coordenadas: ${latitud.toFixed(6)}, ${longitud.toFixed(6)} (±${Math.round(precision)}m)`;
+            }
+
+            // Obtener la dirección
+            if (ubicacionElement) {
+              ubicacionElement.textContent = '🔄 Obteniendo dirección...';
+            }
+            const direccion = await obtenerDireccion(latitud, longitud);
+
+            // Mostrar la dirección
+            if (ubicacionElement) {
+              ubicacionElement.textContent = `📍 ${direccion}`;
+            }
+
+            resolve({
+              latitud: latitud,
+              longitud: longitud,
+              direccion: direccion,
+              precision: precision
+            });
+          },
+          (error) => {
+            console.error('Error de geolocalización:', error);
+
+            // Solo mostrar error si los elementos existen
+            if (ubicacionElement) {
+              ubicacionElement.textContent = '❌ No se pudo obtener la ubicación';
+            }
+            if (coordenadasElement) {
+              coordenadasElement.textContent = '';
+            }
+
+            let mensaje = 'Error desconocido';
+            switch (error.code) {
+              case error.PERMISSION_DENIED:
+                mensaje = 'Permiso de ubicación denegado';
+                break;
+              case error.POSITION_UNAVAILABLE:
+                mensaje = 'Ubicación no disponible';
+                break;
+              case error.TIMEOUT:
+                mensaje = 'Tiempo de espera agotado';
+                break;
+            }
+
+            reject(new Error(mensaje));
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 60000
+          }
+        );
+      });
+    }
+
+    // Función mejorada para subir evidencia
+    async function subirEvidencia(file) {
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor, seleccione solo archivos de imagen.');
+        return;
+      }
+
+      if (file.size > 5242880) { // 5MB
+        alert('El archivo es demasiado grande. Máximo 5MB.');
+        return;
+      }
+
+      const uploadArea = document.getElementById('uploadArea');
+      const originalContent = uploadArea.innerHTML;
+
+      try {
+        // Mostrar estado de carga
+        uploadArea.innerHTML = `
+        <div class="loading-spinner"></div>
+        <p>Subiendo evidencia...</p>
+        <p style="font-size: 0.8rem;">Obteniendo ubicación y guardando imagen...</p>
+      `;
+
+        // Obtener ubicación
+        const ubicacion = await obtenerUbicacion();
+
+        // Generar nombre único para el archivo
+        const timestamp = new Date().toISOString();
+        const fileName = `evidencia_${userProfile.id}_${Date.now()}.${file.name.split('.').pop()}`;
+
+        // Subir archivo a Supabase Storage
+        const { data: uploadData, error: uploadError } = await supabaseClient.storage
+          .from('evidencias')
+          .upload(fileName, file);
+
+        if (uploadError) throw uploadError;
+
+        // Obtener URL pública del archivo
+        const { data: urlData } = supabaseClient.storage
+          .from('evidencias')
+          .getPublicUrl(fileName);
+
+        console.log('URL generada:', urlData.publicUrl);
+
+        // Guardar información en la base de datos CON LA DIRECCIÓN
+        const evidenciaData = {
+          instructor_id: userProfile.id,
+          instructor_nombre: userProfile.full_name || userProfile.username,
+          archivo_nombre: fileName,
+          archivo_url: urlData.publicUrl,
+          fecha_subida: timestamp,
+          latitud: ubicacion.latitud || null,
+          longitud: ubicacion.longitud || null,
+          direccion: ubicacion.direccion || null,
+          ubicacion_error: ubicacion.error || null
+        };
+
+        const { data: dbData, error: dbError } = await supabaseClient
+          .from('evidencias')
+          .insert([evidenciaData]);
+
+        if (dbError) throw dbError;
+
+        alert('✅ Evidencia subida exitosamente');
+
+        // Recargar evidencias
+        await cargarEvidencias();
+
+      } catch (error) {
+        console.error('Error subiendo evidencia:', error);
+        alert(`❌ Error al subir evidencia: ${error.message}`);
+      } finally {
+        // Restaurar contenido original
+        uploadArea.innerHTML = originalContent;
+        document.getElementById('fileInput').value = '';
+        document.getElementById('locationInfo').style.display = 'none';
+      }
+    }
+
+    // Función para cargar evidencias
+    async function cargarEvidencias() {
+      try {
+        let query = supabaseClient
+          .from('evidencias')
+          .select('*')
+          .order('fecha_subida', { ascending: false });
+
+        // Si es instructor, solo mostrar sus evidencias
+        if (userProfile.role === 'instructor') {
+          query = query.eq('instructor_id', userProfile.id);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        evidenciasData = data || [];
+        mostrarEvidencias(evidenciasData);
+        actualizarEstadisticasEvidencias(evidenciasData);
+        cargarFiltroInstructores(evidenciasData);
+      } catch (error) {
+        console.error('Error cargando evidencias:', error);
+        document.getElementById('evidenceGrid').innerHTML = `
+        <div style="text-align: center; padding: 2rem; color: #dc3545;">
+          <h4>Error al cargar evidencias</h4>
+          <p>${error.message}</p>
+        </div>
+      `;
+      }
+    }
+    async function configurarDeporteInstructor() {
+      // Verificar si viene un deporte específico desde el dashboard
+      const deporteParam = obtenerParametroURL('deporte');
+      const deportesInstructor = userProfile.username?.split(',').map(d => d.trim().toLowerCase()) || [];
+
+      let deporteSeleccionado = deporteParam || deportesInstructor[0];
+
+      // Mostrar el deporte seleccionado
+      document.getElementById('deporte-instructor').textContent = deporteSeleccionado.toUpperCase();
+
+      // Configurar el select de actividad
+      const selectActividad = document.getElementById('actividad-asistencia');
+      selectActividad.innerHTML = ''; 
+
+      if (deporteParam) {
+        // Si viene un deporte específico, solo mostrar ese
+        const opcion = document.createElement('option');
+        opcion.value = deporteParam;
+        opcion.textContent = deporteParam.charAt(0).toUpperCase() + deporteParam.slice(1);
+        selectActividad.appendChild(opcion);
+        selectActividad.disabled = true;
+        selectActividad.style.backgroundColor = '#f8f9fa';
+        selectActividad.style.color = '#6c757d';
+      } else {
+        // Si no viene deporte específico, mostrar todos los deportes del instructor
+        deportesInstructor.forEach(deporte => {
+          const opcion = document.createElement('option');
+          opcion.value = deporte;
+          opcion.textContent = deporte.charAt(0).toUpperCase() + deporte.slice(1);
+          selectActividad.appendChild(opcion);
+        });
+      }
+    }
+
+    async function cargarParticipantesDeporte() {
+      try {
+        const grupoParam = obtenerParametroURL('grupo');
+        const deporteParam = obtenerParametroURL('deporte');
+
+        let participantes = [];
+
+        if (grupoParam) {
+          // Si viene un grupo específico, cargar solo participantes de ese grupo
+          console.log("Cargando participantes del grupo:", grupoParam);
+
+          const { data: participantesGrupo, error } = await supabaseClient
+            .from('participantes_grupos')
+            .select(`
+                    participante_id,
+                    participantes(*)
+                `)
+            .eq('grupo_id', grupoParam)
+            .eq('activo', true);
+
+          if (error) throw error;
+
+          // Extraer los datos de participantes
+          participantes = participantesGrupo.map(pg => pg.participantes);
+
+          // Actualizar el título para mostrar que es un grupo específico
+          const grupoInfo = JSON.parse(localStorage.getItem('grupoSeleccionadoAsistencia') || '{}');
+          if (grupoInfo.nombre) {
+            document.getElementById('deporte-instructor').textContent = grupoInfo.nombre;
+          }
+
+        } else {
+          // Lógica original para deportes completos
+          const username = userProfile?.username || '';
+          let deportesAsignados;
+          if (deporteParam) {
+            deportesAsignados = [deporteParam];
+          } else {
+            deportesAsignados = userProfile.username
+              .split(',')
+              .map(d => d.trim().toLowerCase());
+          }
+
+          console.log("Deportes asignados:", deportesAsignados);
+
+          const { data: participantesDeporte, error } = await supabaseClient
+            .from('participantes')
+            .select('*')
+            .in('actividad', deportesAsignados)
+            .order('nombre');
+
+          if (error) throw error;
+          participantes = participantesDeporte || [];
+        }
+
+        const container = document.getElementById('lista-participantes-deporte');
+
+        if (!participantes || participantes.length === 0) {
+          container.innerHTML = `
+        <p style="text-align: center; color: #666;">
+          No hay participantes registrados para ${deportesAsignados.join(', ')}
+        </p>`;
+          return;
+        }
+
+        // Crear tabla con checkboxes
+        let html = `
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+             <tr style="background-color: #f8f9fa;">
+              <th style="padding: 0.5rem; text-align: left; border: 1px solid #ddd;">Participante</th>
+              <th style="padding: 0.5rem; text-align: center; border: 1px solid #ddd; width: 80px;">Asistió</th>
+              <th style="padding: 0.5rem; text-align: center; border: 1px solid #ddd; width: 80px;">No Asistió</th>
+              <th style="padding: 0.5rem; text-align: left; border: 1px solid #ddd; width: 200px;">Observaciones</th>
+            </tr>
+          </thead>
+         <tbody>
+`;
+
+        // NUEVO: Verificar asistencias existentes del día
+        const ahoraUTC = new Date();
+        const bogotaOffset = -5 * 60; // -5 horas en minutos
+        const ahoraBogota = new Date(ahoraUTC.getTime() + bogotaOffset * 60000);
+        const fechaHoy = ahoraBogota.toISOString().split('T')[0];  // → yyyy-mm-dd
+
+
+        const { data: asistenciasExistentes } = await supabaseClient
+          .from('asistencias')
+          .select('participante_id, asistio, id, observaciones')
+          .eq('instructor_id', userProfile.id)
+          .eq('fecha_clase', fechaHoy);
+
+        // Crear mapa de asistencias existentes
+        const mapaAsistencias = {};
+
+        if (asistenciasExistentes) {
+          asistenciasExistentes.forEach(asistencia => {
+            mapaAsistencias[asistencia.participante_id] = {
+              asistio: asistencia.asistio,
+              id: asistencia.id,
+              observaciones: asistencia.observaciones
+            };
+          });
+        }
+
+        // Verificar participantes con alertas ANTES del forEach
+        const participantesConAlertas = [];
+        for (const participante of participantes) {
+          const tieneAlerta = await verificarFaltasConsecutivasDetallado(participante.id, userProfile.id);
+          if (tieneAlerta) {
+            participantesConAlertas.push(participante.nombre);
+          }
+        }
+
+        // Mostrar banner de alerta si hay participantes con 3+ faltas
+        if (participantesConAlertas.length > 0) {
+          html += `
+    <div class="banner-alerta">
+      <span class="icono">⚠️</span>
+      <div>
+        <strong>¡ATENCIÓN!</strong> Los siguientes participantes tienen 3 o más faltas consecutivas: 
+        <strong>${participantesConAlertas.join(', ')}</strong>
+      </div>
+    </div>
+  `;
+        }
+
+        // Ahora generar las filas de participantes
+        for (const participante of participantes) {
+          // Verificar si ya tiene asistencia registrada
+          const asistenciaExistente = mapaAsistencias[participante.id];
+          const yaAsistio = asistenciaExistente ? asistenciaExistente.asistio : false;
+          const yaNoAsistio = asistenciaExistente ? !asistenciaExistente.asistio : true;
+
+          // Obtener observación existente si la hay
+          const observacionExistente = asistenciaExistente ? (asistenciaExistente.observaciones || '') : '';
+
+          // Verificar si tiene alerta de faltas
+          const tieneAlerta = await verificarFaltasConsecutivasDetallado(participante.id, userProfile.id);
+
+          html += `
+    <tr id="fila-participante-${participante.id}" ${tieneAlerta ? 'class="fila-alerta"' : ''}>
+      <td style="padding: 0.5rem; border: 1px solid #ddd;">
+        <span ${tieneAlerta ? 'class="alerta-participante"' : ''}>
+          ${tieneAlerta ? '⚠️ ' : ''}
+          <strong>${participante.nombre}</strong>
+        </span><br>
+        <small>${participante.edad} años - ${participante.genero} - ${participante.barrio}</small>
+        ${asistenciaExistente ? '<br><span style="color: #28a745; font-size: 0.8rem;">✓ Ya registrado</span>' : ''}
+        ${tieneAlerta ? '<br><small style="color: #dc3545; font-weight: bold; font-size: 0.7rem;">⚠️ 3+ faltas consecutivas</small>' : ''}
+      </td>
+      <td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">
+        <input type="radio" name="asistencia_${participante.id}" value="true"
+               data-participante-id="${participante.id}"
+               data-asistencia-id="${asistenciaExistente ? asistenciaExistente.id : ''}"
+               ${yaAsistio ? 'checked' : ''}
+               onchange="marcarCambioParticipante('${participante.id}')">
+      </td>
+      <td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">
+        <input type="radio" name="asistencia_${participante.id}" value="false"
+               data-participante-id="${participante.id}"
+               data-asistencia-id="${asistenciaExistente ? asistenciaExistente.id : ''}"
+               ${yaNoAsistio ? 'checked' : ''}
+               onchange="marcarCambioParticipante('${participante.id}')">
+      </td>
+      <td style="padding: 0.5rem; border: 1px solid #ddd;">
+        <textarea 
+          id="observacion_${participante.id}"
+          data-participante-id="${participante.id}"
+          placeholder="Observaciones..."
+          style="width: 100%; min-height: 60px; border: 1px solid #ddd; border-radius: 4px; padding: 0.25rem; font-size: 0.8rem; resize: vertical;"
+          onchange="marcarCambioParticipante('${participante.id}')"
+        >${observacionExistente}</textarea>
+      </td>
+    </tr>
+  `;
+        }
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+
+      } catch (error) {
+        console.error('Error cargando participantes:', error);
+        document.getElementById('lista-participantes-deporte').innerHTML = `
+      <p style="color: #dc3545;">Error al cargar participantes: ${error.message}</p>
+    `;
+      }
+    }
+
+    // Función mejorada para mostrar evidencias en el grid
+    function mostrarEvidencias(evidencias) {
+      const grid = document.getElementById('evidenceGrid');
+
+      if (!evidencias || evidencias.length === 0) {
+        grid.innerHTML = `
+        <div style="text-align: center; padding: 2rem; color: #666; grid-column: 1 / -1;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">📷</div>
+          <h4>No hay evidencias</h4>
+          <p>Sube tu primera evidencia fotográfica</p>
+        </div>
+      `;
+        return;
+      }
+
+      let html = '';
+      evidencias.forEach(evidencia => {
+        const fecha = new Date(evidencia.fecha_subida);
+        const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        // Mostrar dirección si está disponible, sino mostrar coordenadas
+        let ubicacionTexto = '📍 Ubicación no disponible';
+        let coordenadasTexto = '';
+
+        if (evidencia.direccion) {
+          // Mostrar la dirección formateada
+          ubicacionTexto = `📍 ${evidencia.direccion}`;
+          if (evidencia.latitud && evidencia.longitud) {
+            coordenadasTexto = `${evidencia.latitud.toFixed(6)}, ${evidencia.longitud.toFixed(6)}`;
+          }
+        } else if (evidencia.latitud && evidencia.longitud) {
+          // Fallback a coordenadas si no hay dirección
+          ubicacionTexto = `📍 ${evidencia.latitud.toFixed(6)}, ${evidencia.longitud.toFixed(6)}`;
+        }
+
+        html += `
+        <div class="evidence-card">
+          <img 
+            src="${evidencia.archivo_url}"
+            alt="Evidencia"
+            class="evidence-image"
+            onclick="abrirImagenModal('${evidencia.archivo_url}')"
+            onerror="this.onerror=null; this.src='/placeholder.svg?height=200&width=300';"
+          >
+          <div class="evidence-info">
+            <div class="evidence-instructor">${evidencia.instructor_nombre}</div>
+            <div class="evidence-datetime">🕒 ${fechaFormateada}</div>
+            <div class="evidence-location">${ubicacionTexto}</div>
+            ${coordenadasTexto ? `<div class="evidence-coordinates">${coordenadasTexto}</div>` : ''}
+            ${userProfile.role === 'admin' || evidencia.instructor_id === userProfile.id ?
+            `<button onclick="eliminarEvidencia('${evidencia.id}')" class="btn-delete-evidence">🗑️ Eliminar</button>`
+            : ''
+          }
+          </div>
+        </div>
+      `;
+      });
+
+      grid.innerHTML = html;
+    }
+
+    // Función para actualizar estadísticas de evidencias
+    function actualizarEstadisticasEvidencias(evidencias) {
+      const total = evidencias.length;
+
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      const evidenciasHoy = evidencias.filter(e => {
+        const fechaEvidencia = new Date(e.fecha_subida);
+        fechaEvidencia.setHours(0, 0, 0, 0);
+        return fechaEvidencia.getTime() === hoy.getTime();
+      }).length;
+
+      const inicioSemana = new Date();
+      inicioSemana.setDate(inicioSemana.getDate() - inicioSemana.getDay());
+      inicioSemana.setHours(0, 0, 0, 0);
+      const evidenciasSemana = evidencias.filter(e =>
+        new Date(e.fecha_subida) >= inicioSemana
+      ).length;
+
+      document.getElementById('totalEvidencias').textContent = total;
+      document.getElementById('evidenciasHoy').textContent = evidenciasHoy;
+      document.getElementById('evidenciasSemana').textContent = evidenciasSemana;
+    }
+
+    // Función para cargar filtro de instructores
+    function cargarFiltroInstructores(evidencias) {
+      const select = document.getElementById('filterinstructor');
+      const instructores = [...new Set(evidencias.map(e => e.instructor_nombre))];
+
+      let options = '<option value="">Todos los instructores</option>';
+      instructores.forEach(instructor => {
+        options += `<option value="${instructor}">${instructor}</option>`;
+      });
+
+      select.innerHTML = options;
+
+      // Ocultar filtro si es instructor (solo ve sus propias evidencias)
+      if (userProfile.role === 'instructor') {
+        select.style.display = 'none';
+      }
+    }
+
+    // Función para filtrar evidencias
+    function filtrarEvidencias() {
+      const instructorFiltro = document.getElementById('filterinstructor').value;
+      const fechaFiltro = document.getElementById('filterFecha').value;
+
+      let evidenciasFiltradas = [...evidenciasData];
+
+      if (instructorFiltro) {
+        evidenciasFiltradas = evidenciasFiltradas.filter(e =>
+          e.instructor_nombre === instructorFiltro
+        );
+      }
+
+      if (fechaFiltro) {
+        const fechaSeleccionada = new Date(fechaFiltro);
+        evidenciasFiltradas = evidenciasFiltradas.filter(e => {
+          const fechaEvidencia = new Date(e.fecha_subida);
+          return fechaEvidencia.toDateString() === fechaSeleccionada.toDateString();
+        });
+      }
+
+      mostrarEvidencias(evidenciasFiltradas);
+    }
+
+    // Función para limpiar filtros
+    function limpiarFiltros() {
+      document.getElementById('filterinstructor').value = '';
+      document.getElementById('filterFecha').value = '';
+      mostrarEvidencias(evidenciasData);
+    }
+
+    // Función para eliminar evidencia
+    async function eliminarEvidencia(evidenciaId) {
+      if (!confirm('¿Está seguro de que desea eliminar esta evidencia?')) {
+        return;
+      }
+
+      try {
+        // Obtener información de la evidencia
+        const evidencia = evidenciasData.find(e => e.id === evidenciaId);
+        if (!evidencia) throw new Error('Evidencia no encontrada');
+
+        // Eliminar archivo del storage
+        const { error: storageError } = await supabaseClient.storage
+          .from('evidencias')
+          .remove([evidencia.archivo_nombre]);
+
+        if (storageError) {
+          console.warn('Error eliminando archivo del storage:', storageError);
+        }
+
+        // Eliminar registro de la base de datos
+        const { error: dbError } = await supabaseClient
+          .from('evidencias')
+          .delete()
+          .eq('id', evidenciaId);
+
+        if (dbError) throw dbError;
+
+        alert('✅ Evidencia eliminada exitosamente');
+        await cargarEvidencias();
+      } catch (error) {
+        console.error('Error eliminando evidencia:', error);
+        alert(`❌ Error al eliminar evidencia: ${error.message}`);
+      }
+    }
+
+    // Funciones para modales
+    window.abrirModalEvidencias = async function () {
+      await inicializarPerfil();
+
+      await crearTablaEvidencias();
+      document.getElementById('modalEvidencias').style.display = 'block';
+      await cargarEvidencias();
+    }
+
+    window.cerrarModalEvidencias = function () {
+      document.getElementById('modalEvidencias').style.display = 'none';
+    }
+
+    window.abrirImagenModal = function (url) {
+      document.getElementById('modalImage').src = url;
+      document.getElementById('imageModal').style.display = 'block';
+    }
+
+    window.cerrarImagenModal = function () {
+      document.getElementById('imageModal').style.display = 'none';
+    }
+
+    // Exponer funciones globalmente
+    window.subirEvidencia = subirEvidencia;
+    window.eliminarEvidencia = eliminarEvidencia;
+    window.filtrarEvidencias = filtrarEvidencias;
+    window.limpiarFiltros = limpiarFiltros;
+
+    // Configurar drag and drop
+    document.addEventListener('DOMContentLoaded', function () {
+      const uploadArea = document.getElementById('uploadArea');
+
+      if (uploadArea) {
+        uploadArea.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+          uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+          e.preventDefault();
+          uploadArea.classList.remove('dragover');
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            subirEvidencia(files[0]);
+          }
+        });
+      }
+    });
+
+    // Cerrar modales con Escape
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        cerrarModalEvidencias();
+        cerrarImagenModal();
+      }
+    });
+
+    // Variables globales para asistencia
+    let participanteSeleccionado = null;
+    let asistenciasHoy = [];
+
+    // Función para abrir modal de asistencia
+    window.abrirModalAsistencia = async function () {
+      await inicializarPerfil();
+      if (userProfile.role === 'admin') {
+        await abrirHistorialAsistencias();
+        return;
+      }
+
+      // Establecer fecha y hora actual
+      const ahora = new Date();
+      const año = ahora.getFullYear();
+      const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+      const dia = String(ahora.getDate()).padStart(2, '0');
+      const fechaLocal = `${año}-${mes}-${dia}`;
+      document.getElementById('fecha-clase').value = fechaLocal;
+
+      document.getElementById('hora-clase').value = ahora.toTimeString().slice(0, 5);
+
+      // NUEVO: Configurar deporte del instructor
+      await configurarDeporteInstructor();
+
+      // NUEVO: Cargar participantes del deporte
+      await cargarParticipantesDeporte();
+
+      document.getElementById('modalAsistencia').style.display = 'block';
+      await cargarAsistenciasHoy();
+    }
+    // Nueva función para administradores - ver historial de asistencias
+    window.abrirHistorialAsistencias = async function () {
+      // Crear modal específico para historial
+      const modalHTML = `
+        <div id="modalHistorialAsistencias" class="modal" style="display: block;">
+            <div class="modal-content" style="max-width: 900px;">
+                <span class="close" onclick="cerrarHistorialAsistencias()">&times;</span>
+                <h2>📋 Historial de Asistencias</h2>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label>Seleccionar Grupo:</label>
+                    <select id="grupo-historial" onchange="cargarFechasDisponibles()">
+                        <option value="">Seleccione un grupo...</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                <label>Seleccionar Fecha:</label>
+                <input type="date" id="fecha-historial" onchange="cargarAsistenciaFecha()" 
+                style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 200px;" />
+                <div id="fechas-disponibles" style="margin-top: 0.5rem; font-size: 0.8rem; color: #666;"></div>
+              </div>
+                
+                <div id="contenido-historial" style="display: none;">
+                    <div style="display: grid; grid-template-columns: 1fr 300px; gap: 2rem;">
+                        <div>
+                            <h4>Lista de Asistencia</h4>
+                            <div id="lista-asistencia-historial"></div>
+                        </div>
+                        <div>
+                            <h4>Evidencias del Día</h4>
+                            <div id="evidencias-historial"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+      // Agregar modal al DOM si no existe
+      if (!document.getElementById('modalHistorialAsistencias')) {
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+      } else {
+        document.getElementById('modalHistorialAsistencias').style.display = 'block';
+      }
+
+      await cargarGruposHistorial();
+      
+      document.getElementById('fecha-historial').value = '';
+      document.getElementById('fechas-disponibles').innerHTML = '';
+      document.getElementById('contenido-historial').style.display = 'none';
+    }
+    // Función para cargar grupos en el selector
+    async function cargarGruposHistorial() {
+      try {
+        const { data: grupos, error } = await supabaseClient
+          .from('grupos')
+          .select('*')
+          .eq('activo', true)
+          .order('nombre');
+
+        if (error) throw error;
+
+        const select = document.getElementById('grupo-historial');
+        select.innerHTML = '<option value="">Seleccione un grupo...</option>';
+
+        grupos.forEach(grupo => {
+          select.innerHTML += `<option value="${grupo.id}">${grupo.nombre}</option>`;
+        });
+      } catch (error) {
+        console.error('Error cargando grupos:', error);
+      }
+    }
+
+    // Función para cargar fechas disponibles del grupo seleccionado
+    window.cargarFechasDisponibles = async function () {
+      const grupoId = document.getElementById('grupo-historial').value;
+      if (!grupoId) {
+        document.getElementById('fechas-disponibles').innerHTML = '';
+        return;
+      }
+
+      try {
+        
+        const { data: participantesGrupo, error: errorPG } = await supabaseClient
+          .from('participantes_grupos')
+          .select('participante_id')
+          .eq('grupo_id', grupoId);
+
+        if (errorPG) throw errorPG;
+
+        const participanteIds = participantesGrupo.map(pg => pg.participante_id);
+
+        if (participanteIds.length === 0) {
+          document.getElementById('fechas-disponibles').innerHTML = '⚠️ No hay participantes en este grupo';
+          return;
+        }
+
+        
+        const { data: asistencias, error } = await supabaseClient
+          .from('asistencias')
+          .select('fecha_clase')
+          .in('participante_id', participanteIds)
+          .order('fecha_clase', { ascending: false });
+
+        if (error) throw error;
+
+        
+        const fechasUnicas = [...new Set(asistencias.map(a => a.fecha_clase))].sort();
+
+        if (fechasUnicas.length > 0) {
+          const fechaMin = fechasUnicas[0];
+          const fechaMax = fechasUnicas[fechasUnicas.length - 1];
+
+          const inputFecha = document.getElementById('fecha-historial');
+          inputFecha.min = fechaMin;
+          inputFecha.max = fechaMax;
+
+          document.getElementById('fechas-disponibles').innerHTML =
+            `📅 Fechas disponibles: ${new Date(fechaMin).toLocaleDateString('es-ES')} - ${new Date(fechaMax).toLocaleDateString('es-ES')} (${fechasUnicas.length} registros)`;
+        } else {
+          document.getElementById('fechas-disponibles').innerHTML = '⚠️ No hay registros de asistencia para este grupo';
+        }
+
+        window.fechasDisponibles = fechasUnicas;
+
+      } catch (error) {
+        console.error('Error cargando fechas:', error);
+        document.getElementById('fechas-disponibles').innerHTML = '❌ Error cargando fechas disponibles';
+      }
+    };
+    // Función para cargar asistencia de fecha específica
+    window.cargarAsistenciaFecha = async function () {
+      const grupoId = document.getElementById('grupo-historial').value;
+      const fecha = document.getElementById('fecha-historial').value;
+
+      if (!grupoId || !fecha) return;
+
+      try {       
+
+
+        // Primero obtener los participantes del grupo
+        const { data: participantesGrupo, error: errorPG } = await supabaseClient
+          .from('participantes_grupos')
+          .select('participante_id')
+          .eq('grupo_id', grupoId)
+          .eq('activo', true);
+
+        if (errorPG) throw errorPG;
+
+        const participanteIds = participantesGrupo.map(pg => pg.participante_id);
+
+        // obtener asistencias solo de esos participantes
+        const { data: asistencias, error: errorAsistencias } = await supabaseClient
+          .from('asistencias')
+          .select(`
+            id,
+            fecha_clase,
+            asistio,
+            observaciones,
+            participantes (
+            nombre,
+            documento_identidad
+    )
+  `)
+          .in('participante_id', participanteIds)
+          .eq('fecha_clase', fecha);
+
+
+
+        if (errorAsistencias) throw errorAsistencias;
+
+        // Cargar evidencias del día
+
+        const { data: evidencias, error: errorEvidencias } = await supabaseClient
+          .from('evidencias')
+          .select('*')
+          .gte('fecha_subida', fecha + 'T00:00:00')
+          .lt('fecha_subida', fecha + 'T23:59:59');
+
+        if (errorEvidencias) throw errorEvidencias;
+
+
+        mostrarAsistenciaHistorial(asistencias, evidencias);
+        document.getElementById('contenido-historial').style.display = 'block';
+
+      } catch (error) {
+        console.error('Error cargando asistencia:', error);
+      }
+    }
+
+    // Función para mostrar la asistencia y evidencias
+    function mostrarAsistenciaHistorial(asistencias, evidencias) {
+      // Mostrar lista de asistencia
+      const listaContainer = document.getElementById('lista-asistencia-historial');
+      let asistieron = 0;
+      let noAsistieron = 0;
+
+      let html = '<table style="width: 100%; border-collapse: collapse;">';
+      html += '<tr><th>Participante</th><th>Estado</th><th>Observaciónes</th></tr>';
+
+      asistencias.forEach(asistencia => {
+        const estado = asistencia.asistio ? 'Asistió' : 'No Asistió';
+        const color = asistencia.asistio ? '#28a745' : '#dc3545';
+
+        if (asistencia.asistio) asistieron++;
+        else noAsistieron++;
+
+        html += `
+            <tr>
+                
+                <td>${asistencia.participantes.nombre || ''}</td>
+                <td style="color: ${color}; font-weight: bold;">${estado}</td>
+                
+                <td>${asistencia.observaciones || '-'}</td>
+            </tr>
+        `;
+      });
+
+      html += '</table>';
+      html += `<div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+        <strong>Resumen:</strong> ${asistieron} asistieron, ${noAsistieron} no asistieron
+    </div>`;
+
+      listaContainer.innerHTML = html;
+
+      // Mostrar evidencias
+      const evidenciasContainer = document.getElementById('evidencias-historial');
+      if (evidencias.length === 0) {
+        evidenciasContainer.innerHTML = '<p>No hay evidencias para esta fecha.</p>';
+      } else {
+        let evidenciasHTML = '';
+        evidencias.forEach(evidencia => {
+          evidenciasHTML += `
+                <div style="margin-bottom: 1rem; border: 1px solid #ddd; border-radius: 5px; overflow: hidden;">
+                    <img src="${evidencia.archivo_url}" alt="Evidencia"
+                         style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;"
+                         onclick="abrirImagenModal('${evidencia.archivo_url}')" />
+                    <div style="padding: 0.5rem; font-size: 0.8rem;">
+                        <strong>Hora:</strong> ${new Date(evidencia.fecha_subida).toLocaleTimeString()}<br>
+                        <strong>Ubicación:</strong> ${evidencia.ubicacion || 'No disponible'}
+                    </div>
+                </div>
+            `;
+        });
+        evidenciasContainer.innerHTML = evidenciasHTML;
+      }
+    }
+
+    // Función para cerrar el modal de historial
+    window.cerrarHistorialAsistencias = function () {
+      document.getElementById('modalHistorialAsistencias').style.display = 'none';
+    }
+
+    // Función para cerrar modal de asistencia
+    window.cerrarModalAsistencia = function () {
+      document.getElementById('modalAsistencia').style.display = 'none';
+      limpiarFormularioAsistencia();
+    }
+
+    // Función para buscar participantes
+    document.addEventListener('DOMContentLoaded', function () {
+      const buscarInput = document.getElementById('buscar-participante');
+      if (buscarInput) {
+        buscarInput.addEventListener('input', buscarParticipantes);
+      }
+    });
+
+    async function buscarParticipantes() {
+      const termino = document.getElementById('buscar-participante').value.trim();
+      const sugerenciasDiv = document.getElementById('sugerencias-participantes');
+
+      if (termino.length < 2) {
+        sugerenciasDiv.style.display = 'none';
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('participantes')
+          .select('*')
+          .ilike('nombre', `%${termino}%`)
+          .limit(10);
+
+        if (error) throw error;
+
+        if (data.length === 0) {
+          sugerenciasDiv.innerHTML = '<div style="padding: 0.5rem; color: #666;">No se encontraron participantes</div>';
+          sugerenciasDiv.style.display = 'block';
+          return;
+        }
+
+        let html = '';
+        data.forEach(participante => {
+          html += `
+        <div onclick="seleccionarParticipante('${participante.id}')" 
+             style="padding: 0.5rem; cursor: pointer; border-bottom: 1px solid #eee; hover: background-color: #f5f5f5;"
+             onmouseover="this.style.backgroundColor='#f5f5f5'"
+             onmouseout="this.style.backgroundColor='white'">
+          <strong>${participante.nombre}</strong><br>
+          <small>${participante.edad} años - ${participante.genero} - ${participante.actividad}</small>
+        </div>
+      `;
+        });
+
+        sugerenciasDiv.innerHTML = html;
+        sugerenciasDiv.style.display = 'block';
+
+      } catch (error) {
+        console.error('Error buscando participantes:', error);
+      }
+    }
+
+    // Función para seleccionar participante
+    window.seleccionarParticipante = async function (participanteId) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('participantes')
+          .select('*')
+          .eq('id', participanteId)
+          .single();
+
+        if (error) throw error;
+
+        participanteSeleccionado = data;
+
+        // Mostrar información del participante
+        document.getElementById('buscar-participante').value = data.nombre;
+        document.getElementById('sugerencias-participantes').style.display = 'none';
+
+        const infoDiv = document.getElementById('info-participante');
+        const datosDiv = document.getElementById('datos-participante');
+
+        datosDiv.innerHTML = `
+      <p><strong>documento_identidad:</strong> ${data.documento_identidad}</p>
+      <p><strong>Nombre:</strong> ${data.nombre}</p>
+      <p><strong>Edad:</strong> ${data.edad} años</p>
+      <p><strong>Género:</strong> ${data.genero}</p>
+      <p><strong>Actividad Principal:</strong> ${data.actividad}</p>
+      <p><strong>Barrio:</strong> ${data.barrio}</p>
+    `;
+
+        infoDiv.style.display = 'block';
+
+      } catch (error) {
+        console.error('Error seleccionando participante:', error);
+        alert('Error al cargar información del participante');
+      }
+    }
+
+    // Función para manejar el formulario de asistencia
+    document.addEventListener('DOMContentLoaded', function () {
+      const formAsistencia = document.getElementById('formAsistencia');
+      if (formAsistencia) {
+        formAsistencia.addEventListener('submit', guardarAsistencia);
+      }
+    });
+    async function verificarFaltasConsecutivasDetallado(participanteId, instructorId) {
+      try {
+        // Obtener últimas 15 asistencias del participante con este instructor
+        const { data, error } = await supabaseClient
+          .from('asistencias')
+          .select('fecha_clase, asistio')
+          .eq('participante_id', participanteId)
+          .eq('instructor_id', instructorId)
+          .order('fecha_clase', { ascending: false })
+          .limit(15);
+
+        if (error || !data || data.length < 3) return false;
+
+        // Agrupar por fecha (eliminar duplicados del mismo día)
+        const fechasUnicas = [...new Set(data.map(r => r.fecha_clase))].sort((a, b) => new Date(b) - new Date(a));
+
+        // Verificar faltas consecutivas
+        let faltasConsecutivas = 0;
+
+        for (let i = 0; i < fechasUnicas.length; i++) {
+          const fecha = fechasUnicas[i];
+          const registrosDia = data.filter(r => r.fecha_clase === fecha);
+          const faltoEseDia = registrosDia.every(r => !r.asistio);
+
+          if (faltoEseDia) {
+            faltasConsecutivas++;
+            if (faltasConsecutivas >= 3) {
+              console.log(`Participante ${participanteId} tiene ${faltasConsecutivas} faltas consecutivas`);
+              return true;
+            }
+          } else {
+            // Si asistió, reiniciar contador
+            faltasConsecutivas = 0;
+          }
+        }
+
+        return false;
+      } catch (error) {
+        console.error('Error verificando faltas:', error);
+        return false;
+      }
+    }
+
+    async function verificarFaltasConsecutivas(supabase, participanteId) {
+      const { data, error } = await supabase
+        .from('asistencias')
+        .select('fecha_clase, asistio')
+        .eq('participante_id', participanteId)
+        .order('fecha_clase', { ascending: false })
+        .limit(10); 
+
+      if (error || !data) return false;
+
+      // Convertimos a fechas únicas por día y revisamos faltas consecutivas
+      const faltasConsecutivas = data
+        .filter(reg => reg.asistio === false)
+        .map(reg => reg.fecha_clase)
+        .filter((fecha, index, self) => self.indexOf(fecha) === index); 
+
+      // Ahora verificamos si hay al menos 3 faltas en días consecutivos
+      let contador = 0;
+      let ultimoDia = null;
+
+      for (const fechaStr of faltasConsecutivas) {
+        const fecha = new Date(fechaStr);
+        if (!ultimoDia) {
+          contador = 1;
+        } else {
+          const diferenciaDias = (ultimoDia - fecha) / (1000 * 60 * 60 * 24);
+          if (diferenciaDias === 1) {
+            contador++;
+          } else {
+            contador = 1;
+          }
+        }
+
+        if (contador >= 3) return true;
+
+        ultimoDia = new Date(fechaStr);
+      }
+
+      return false;
+    }
+
+    async function guardarAsistencia(e) {
+      e.preventDefault();
+
+      const fechaClase = document.getElementById('fecha-clase').value;
+      const horaClase = document.getElementById('hora-clase').value;
+      const actividad = document.getElementById('actividad-asistencia').value;
+
+
+      if (!fechaClase || !horaClase || !actividad) {
+        alert('Por favor, complete todos los campos obligatorios');
+        return;
+      }
+      
+      const radiosAsistencia = document.querySelectorAll('input[type="radio"]:checked[data-participante-id]');
+
+      if (radiosAsistencia.length === 0) {
+        alert('No hay participantes para registrar asistencia');
+        return;
+      }
+
+      try {
+        const operaciones = [];
+        let participantesProcesados = 0;
+        
+        for (const radio of radiosAsistencia) {
+          const participanteId = radio.getAttribute('data-participante-id');
+          const asistenciaId = radio.getAttribute('data-asistencia-id');
+          const asistio = radio.value === 'true';
+          const observacionInput = document.getElementById(`observacion_${participanteId}`);
+
+          const observacionIndividual = observacionInput ? observacionInput.value.trim() : '';
+
+          // Solo procesar si es nuevo o ha sido modificado
+          if (!asistenciaId || participantesModificados.has(participanteId)) {
+            const grupoParam = obtenerParametroURL('grupo');
+            const asistenciaData = {
+              participante_id: participanteId,
+              instructor_id: userProfile.id,
+              fecha_clase: fechaClase,
+              hora_clase: horaClase,
+              actividad: actividad,
+              asistio: asistio,
+              observaciones: observacionIndividual,
+
+            };
+
+            if (asistenciaId) {
+              // ACTUALIZAR registro existente
+              const { error } = await supabaseClient
+                .from('asistencias')
+                .update(asistenciaData)
+                .eq('id', asistenciaId);
+
+              if (error) throw error;
+              console.log(`Asistencia actualizada para participante ${participanteId}`);
+            } else {
+              // INSERTAR nuevo registro
+              const { error } = await supabaseClient
+                .from('asistencias')
+                .insert([asistenciaData]);
+
+              if (error) throw error;
+              console.log(`Nueva asistencia creada para participante ${participanteId}`);
+            }
+
+            participantesProcesados++;
+          }
+        }
+
+        if (participantesProcesados > 0) {
+          alert(`✅ Asistencia guardada/actualizada para ${participantesProcesados} participante(s)`);
+
+          // NUEVO: Limpiar marcadores de cambio
+          participantesModificados.clear();
+
+          // Remover resaltado visual
+          document.querySelectorAll('[id^="fila-participante-"]').forEach(fila => {
+            fila.style.backgroundColor = '';
+            fila.style.border = '';
+          });
+
+          // <CHANGE> Asegurar que el localStorage tenga el grupo correcto
+          const grupoParam = obtenerParametroURL('grupo');
+          if (grupoParam) {
+            const grupoSeleccionado = { id: grupoParam };
+            localStorage.setItem('grupoSeleccionadoAsistencia', JSON.stringify(grupoSeleccionado));
+          }
+
+          // Recargar asistencias y lista de participantes
+          await cargarAsistenciasHoy();
+          await cargarParticipantesDeporte();
+        } else {
+          alert('ℹ️ No hay cambios para guardar');
+        }
+
+      } catch (error) {
+        console.error('Error guardando asistencia:', error);
+        alert(`❌ Error al guardar asistencia: ${error.message}`);
+      }
+    }
+
+    async function cargarAsistenciasHoy() {
+      try {
+        
+        const fechaHoy = new Date().toLocaleDateString('en-CA');
+        const grupoParam = obtenerParametroURL('grupo');
+
+        let query = supabaseClient
+          .from('asistencias')
+          .select(`
+        *,
+        participantes (
+          nombre,
+          edad,
+          genero,
+          participantes_grupos (
+            grupo_id
+          )
+        )
+      `)
+          .eq('fecha_clase', fechaHoy)
+          .order('hora_clase', { ascending: false });
+        /*
+        // Filtrar por grupo si existe
+        if (grupoParam) {
+            query = query.eq('grupo_id', grupoParam);
+        }
+        */
+        // Filtrar por instructor si aplica
+        if (userProfile.role === 'instructor') {
+          query = query.eq('instructor_id', userProfile.id);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        asistenciasHoy = data || [];
+        // Calcular faltas acumuladas antes de hoy
+        const { data: faltasAcumuladas, error: errorFaltas } = await supabaseClient
+          .from('asistencias')
+          .select('participante_id, asistio')
+          .lt('fecha_clase', new Date().toISOString().split('T')[0]) 
+          .eq('instructor_id', userProfile.id); 
+
+        if (errorFaltas) throw errorFaltas;
+
+        // Contar faltas por participante
+        const mapaFaltas = new Map();
+
+        faltasAcumuladas.forEach(asistencia => {
+          if (!asistencia.asistio) {
+            const id = asistencia.participante_id;
+            mapaFaltas.set(id, (mapaFaltas.get(id) || 0) + 1);
+          }
+        });
+
+        mostrarAsistenciasHoy(asistenciasHoy);
+
+      } catch (error) {
+        console.error('Error cargando asistencias:', error);
+        document.getElementById('lista-asistencias-hoy').innerHTML =
+          '<p style="color: #dc3545;">Error al cargar asistencias</p>';
+      }
+    }
+      // Función para mostrar asistencias del día
+    
+    async function mostrarAsistenciasHoy(asistencias) {
+      const container = document.getElementById('lista-asistencias-hoy');
+
+      // <CHANGE> Usar parámetro URL como fallback si no hay grupo en localStorage
+      let grupoSeleccionado = JSON.parse(localStorage.getItem('grupoSeleccionadoAsistencia'));
+      let grupoIdActual = grupoSeleccionado?.id ? String(grupoSeleccionado.id) : null;
+
+      // Si no hay grupo en localStorage, usar el parámetro URL
+      if (!grupoIdActual) {
+        const grupoParam = obtenerParametroURL('grupo');
+        if (grupoParam) {
+          grupoIdActual = String(grupoParam);
+          // Actualizar localStorage para futuras consultas
+          localStorage.setItem('grupoSeleccionadoAsistencia', JSON.stringify({ id: grupoParam }));
+        }
+      }
+
+      if (grupoIdActual) {
+        asistencias = asistencias.filter(a => {
+          const grupoRelacion = a.participantes?.participantes_grupos?.[0];
+          return grupoRelacion?.grupo_id === grupoIdActual;
+        });
+      }
+
+      if (!asistencias || asistencias.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666;">No hay asistencias registradas hoy</p>';
+        return;
+      }
+
+      let html = `
+    <table style="width: 100%; margin-top: 1rem;">
+      <thead>
+        <tr>
+          <th>Hora</th>
+          <th>Participante</th>
+          <th>Actividad</th>
+          <th>Asistió</th>
+          <th>Observaciones</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+      // Verificar participantes con alertas ANTES del bucle
+      const participantesConAlertasHoy = [];
+      for (const asistencia of asistencias) {
+        const participanteId = asistencia.participante_id;
+        const tieneAlerta = await verificarFaltasConsecutivasDetallado(participanteId, userProfile.id);
+        if (tieneAlerta) {
+          const participante = asistencia.participantes || {};
+          participantesConAlertasHoy.push(participante.nombre || 'Sin nombre');
+        }
+      }
+
+      // Mostrar banner de alerta si hay participantes con 3+ faltas
+      if (participantesConAlertasHoy.length > 0) {
+        const participantesUnicos = [...new Set(participantesConAlertasHoy)];
+        html += `
+    <div class="banner-alerta" style="margin-bottom: 1rem;">
+      <span class="icono">⚠️</span>
+      <div>
+        <strong>¡ATENCIÓN!</strong> Participantes con 3+ faltas consecutivas detectados en la asistencia de hoy: 
+        <strong>${participantesUnicos.join(', ')}</strong>
+      </div>
+    </div>
+  `;
+      }
+
+      for (const asistencia of asistencias) {
+        const hora = asistencia.hora_clase?.slice(0, 5) || '--:--';
+        const participante = asistencia.participantes || {};
+        const participanteId = asistencia.participante_id;
+
+        // Verificar si faltó a 3 clases seguidas
+        const alertaFaltas = await verificarFaltasConsecutivasDetallado(participanteId, userProfile.id);
+
+        html += `
+  <tr ${alertaFaltas ? 'class="fila-alerta"' : ''}>
+    <td>${hora}</td>
+    <td>
+      <span class="${alertaFaltas ? 'alerta-participante' : ''}">
+        ${alertaFaltas ? '⚠️ ' : ''}${participante.nombre || 'Sin nombre'}
+      </span><br>
+      <small>${participante.edad || 'Edad no registrada'} años - ${participante.genero || 'Sin género'}</small>
+      ${alertaFaltas ? '<br><small style="color: #dc3545; font-weight: bold; font-size: 0.7rem;">⚠️ 3+ faltas consecutivas</small>' : ''}
+    </td>
+        <td>${asistencia.actividad || '-'}</td>
+        <td>${asistencia.asistio ? '✅ Sí' : '❌ No'}</td>
+        <td>${asistencia.observaciones || '-'}</td>
+      </tr>
+    `;
+      }
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    // Función para limpiar formulario de asistencia
+    function limpiarFormularioAsistencia() {
+      // Limpiar marcadores de cambio
+      participantesModificados.clear();
+
+      //  Remover resaltado visual
+      document.querySelectorAll('[id^="fila-participante-"]').forEach(fila => {
+        fila.style.backgroundColor = '';
+        fila.style.border = '';
+      });
+
+      // NO limpiar los radios ni las observaciones - mantener el estado actual
+      console.log('Formulario limpiado, manteniendo estados de asistencia y observaciones');
+    }
+    // Función para guardar datos en Supabase
+    async function guardarEnSupabase(participante) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('participantes')
+          .insert([participante]);
+
+        if (error) throw error;
+
+        console.log('Participante guardado exitosamente:', data);
+        return { success: true, data };
+      } catch (error) {
+        console.error('Error al guardar en Supabase:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // Función para actualizar participante en Supabase
+    async function actualizarEnSupabase(id, participante) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('participantes')
+          .update(participante)
+          .eq('id', id);
+
+        if (error) throw error;
+
+        console.log('Participante actualizado exitosamente:', data);
+        return { success: true, data };
+      } catch (error) {
+        console.error('Error al actualizar en Supabase:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // Función para eliminar participantes de Supabase
+    async function eliminarDeSupabase(ids) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('participantes')
+          .delete()
+          .in('id', ids);
+
+        if (error) throw error;
+
+        console.log('Participantes eliminados exitosamente:', data);
+        return { success: true, data };
+      } catch (error) {
+        console.error('Error al eliminar de Supabase:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // Función para cargar participantes desde Supabase
+    async function cargarParticipantes() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('participantes')
+          .select('*')
+          .order('fecha_registro', { ascending: false });
+
+        if (error) throw error;
+
+        participantesGuardados = data || [];
+        mostrarTabla(participantesGuardados);
+        return data;
+      } catch (error) {
+        console.error('Error al cargar participantes:', error);
+        return [];
+      }
+    }
+
+    // Manejo del formulario
+    document.getElementById('formExcel').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const submitButton = e.target.querySelector('button[type="submit"]');
+      const originalText = submitButton.textContent;
+
+      // Mostrar estado de carga
+      submitButton.textContent = modoEdicion ? 'Actualizando...' : 'Guardando...';
+      submitButton.disabled = true;
+
+      const documento_identidad = document.querySelector('[name="documento_identidad"]').value.trim();
+      const nombre = document.querySelector('[name="nombre"]').value.trim();
+      const edad = parseInt(document.querySelector('[name="edad"]').value);
+      const genero = document.querySelector('[name="genero"]').value;
+      const actividad = document.querySelector('[name="actividad"]').value.trim();
+      const barrio = document.querySelector('[name="barrio"]').value.trim();
+      const telefono = document.querySelector('[name="telefono"]').value.trim();
+      const correo = document.querySelector('[name="correo"]').value.trim();
+      const vereda = document.querySelector('[name="vereda"]').value;
+      const lgbtq = document.querySelector('[name="lgbtq"]').value;
+      const discapacidad = document.querySelector('[name="discapacidad"]').value;
+      const victima = document.querySelector('[name="victima"]').value;
+      const madre_cabeza = document.querySelector('[name="madre_cabeza"]').value;
+
+      const desplazado = document.querySelector('[name="desplazado"]').value;
+
+
+
+      // Validar que todos los campos estén completos
+      if (!documento_identidad || !nombre || !edad || !genero || !actividad || !barrio || !telefono || !correo || !vereda || !lgbtq || !discapacidad || !victima || !madre_cabeza || !desplazado) {
+        alert('Por favor, complete todos los campos.');
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
+        return;
+      }
+
+      const participante = {
+        documento_identidad,
+        nombre,
+        edad,
+        genero,
+        actividad,
+        barrio,
+        telefono,
+        correo,
+        vereda,
+        lgbtq,
+        discapacidad,
+        victima,
+        madrecabezahogar: madre_cabeza,
+        desplazado,
+
+
+      };
+
+      let resultado;
+      if (modoEdicion && participanteEditando) {
+        // Actualizar participante existente
+        resultado = await actualizarEnSupabase(participanteEditando.id, participante);
+      } else {
+        // Guardar nuevo participante
+        resultado = await guardarEnSupabase(participante);
+      }
+
+      if (resultado.success) {
+        alert(`✅ Participante ${modoEdicion ? 'actualizado' : 'guardado'} exitosamente.`);
+
+        // Limpiar formulario y salir del modo edición
+        limpiarFormulario();
+        cancelarEdicion();
+
+        // Recargar la tabla con datos actualizados
+        await cargarParticipantes();
+      } else {
+        alert(`❌ Error al ${modoEdicion ? 'actualizar' : 'guardar'}: ${resultado.error}`);
+      }
+
+      // Restaurar botón
+      submitButton.textContent = originalText;
+      submitButton.disabled = false;
+    });
+
+    function capitalizarActividad(actividad) {
+      // Casos especiales
+      const casosEspeciales = {
+        'futbol': 'Fútbol',
+        'futbol_de_salon': 'Fútbol de Salón',
+        'futbol_sala': 'Fútbol Sala',
+        'ajedrez': 'Ajedrez',
+        'baloncesto': 'Baloncesto',
+        'balonmano': 'Balonmano',
+        'natacion': 'Natación',
+        'atletismo': 'Atletismo',
+        'patinaje': 'Patinaje',
+        'rugby': 'Rugby',
+        'tenis_de_campo': 'Tenis de Campo',
+        'voleibol': 'Voleibol',
+        'tenis_mesa': 'Tenis de Mesa',
+        'bmx': 'BMX',
+        'boxeo': 'Boxeo',
+        'gimnasia': 'Gimnasia',
+        'jiu_jitsu': 'Jiu Jitsu',
+        'levantamiento_de_pesas': 'Levantamiento de Pesas',
+        'taekwondo': 'Taekwondo',
+        'gimnasio_municipal': 'Gimnasio Municipal',
+        'descubre_tu_talento': 'Descubre tu Talento',
+        'nadadores_activos': 'Nadadores Activos',
+        'yoga': 'Yoga',
+        'rumba_aerobica': 'Rumba Aeróbica',
+        'hidroaerobicos': 'Hidroaerobicos',
+        'vacaciones_recreativas': 'Vacaciones Recreativas',
+        'celebracion_deporte_cultura': 'Celebración del Deporte y Cultura',
+        'master': 'Master',
+        'open': 'Open',
+        'gran_master': 'Gran Master',
+        'libre': 'Libre',
+        'prebenjamines': 'Prebenjamines',
+        'benjamines': 'Benjamines',
+        'baby': 'Baby',
+        'baby_futbol': 'Baby Fútbol',
+        'escolares_subregional': 'Escolares Sub-Regional',
+        'escolares_departamental': 'Escolares Departamental',
+        'intercolegiados_municipal': 'Intercolegiados Municipal',
+        'intercolegiados_departamental': 'Intercolegiados Departamental',
+        'intercolegiados_subregional': 'Intercolegiados Sub-Regional',
+        'mayores_subregional': 'Mayores Sub-Regional',
+        'mayores_departamental': 'Mayores Departamental'
+      };
+
+      return casosEspeciales[actividad] || actividad.charAt(0).toUpperCase() + actividad.slice(1);
+    }
+
+    // Función para mostrar tabla de resultados con checkboxes
+    function mostrarTabla(data) {
+      const container = document.getElementById('tablaResultado');
+
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 2rem;">No hay participantes registrados</p>';
+        return;
+      }
+
+      let html = `
+      <div style="overflow-x: auto;">
+        <table style="width: 100%;">
+          <thead>
+            <tr>
+              <th class="checkbox-column">
+                <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
+              </th>
+              
+              <th>Nombre</th>
+              <th>Edad</th>
+              <th>Género</th>
+              <th>Actividad</th>              
+              <th>Barrio</th>
+              <th>Fecha Registro</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+      data.forEach(participante => {
+        const fecha = new Date(participante.fecha_registro).toLocaleString('es-CO', {
+          timeZone: 'America/Bogota',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+
+        html += `
+        <tr data-id="${participante.id}">
+          <td class="checkbox-column" style="text-align: center;">
+            <input type="checkbox" class="row-checkbox" value="${participante.id}" style="transform: scale(1.3); cursor: pointer; margin: 0;">
+          </td>
+          
+          <td data-label="Nombre">${participante.nombre}</td>
+          <td data-label="Edad">${participante.edad}</td>
+          <td data-label="Género">${participante.genero}</td>
+          <td data-label="Actividad">${capitalizarActividad(participante.actividad)}</td>
+          <td data-label="Barrio">${participante.barrio}</td>
+          <td data-label="Fecha Registro">${fecha}</td>
+        </tr>
+      `;
+      });
+
+      html += '</tbody></table></div>';
+
+      // Agregar estadísticas
+      const totalParticipantes = data.length;
+      const hombres = data.filter(p => p.genero === 'Hombre').length;
+      const mujeres = data.filter(p => p.genero === 'Mujer').length;
+
+      html += `
+      <div style="margin-top: 1.5rem; padding: 1rem; background-color: #f8f9fa; border-radius: 8px;">
+        <h4 style="margin-bottom: 1rem; color: var(--color-primary);">📊 Estadísticas</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+          <div style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold; color: var(--color-primary);">${totalParticipantes}</div>
+            <div style="color: #6c757d;">Total Participantes</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold; color: var(--color-male);">${hombres}</div>
+            <div style="color: #6c757d;">Hombres (${totalParticipantes > 0 ? Math.round((hombres / totalParticipantes) * 100) : 0}%)</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold; color: var(--color-female);">${mujeres}</div>
+            <div style="color: #6c757d;">Mujeres (${totalParticipantes > 0 ? Math.round((mujeres / totalParticipantes) * 100) : 0}%)</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+      container.innerHTML = html;
+    }
+
+    // Función para seleccionar/deseleccionar todos
+    window.toggleSelectAll = function () {
+      const selectAll = document.getElementById('select-all');
+      const checkboxes = document.querySelectorAll('.row-checkbox');
+
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+      });
+    }
+
+    // Función para seleccionar todos
+    window.seleccionarTodos = function () {
+      const selectAll = document.getElementById('select-all');
+      if (selectAll) {
+        selectAll.checked = !selectAll.checked;
+        toggleSelectAll();
+      }
+    }
+
+    // Función para editar participantes seleccionados
+    window.editarSeleccionados = function () {
+      const seleccionados = document.querySelectorAll('.row-checkbox:checked');
+
+      if (seleccionados.length === 0) {
+        alert('Por favor, seleccione al menos un participante para editar.');
+        return;
+      }
+
+      if (seleccionados.length > 1) {
+        alert('Por favor, seleccione solo un participante para editar.');
+        return;
+      }
+
+      const id = seleccionados[0].value;
+      const participante = participantesGuardados.find(p => p.id === id);
+
+      if (participante) {
+        cargarParticipanteEnFormulario(participante);
+      }
+    }
+
+    // Función para cargar participante en el formulario para edición
+    function cargarParticipanteEnFormulario(participante) {
+      const fila = document.querySelector('#tablaFormulario tbody tr');
+      fila.querySelector('[name="documento_identidad"]').value = participante.documento_identidad;
+      fila.querySelector('[name="nombre"]').value = participante.nombre;
+      fila.querySelector('[name="edad"]').value = participante.edad;
+      fila.querySelector('[name="genero"]').value = participante.genero;
+      fila.querySelector('[name="actividad"]').value = participante.actividad;
+      fila.querySelector('[name="barrio"]').value = participante.barrio;
+
+      // Activar modo edición
+      modoEdicion = true;
+      participanteEditando = participante;
+
+      // Cambiar UI
+      document.getElementById('form-title').textContent = 'Editar Participante';
+      document.getElementById('btn-guardar').textContent = 'Actualizar';
+      document.getElementById('btn-cancelar').style.display = 'inline-block';
+
+      // Scroll al formulario
+      document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Función para cancelar edición
+    window.cancelarEdicion = function () {
+      modoEdicion = false;
+      participanteEditando = null;
+
+      // Restaurar UI
+      document.getElementById('form-title').textContent = 'Agregar Nuevo Participante';
+      document.getElementById('btn-guardar').textContent = 'Guardar';
+      document.getElementById('btn-cancelar').style.display = 'none';
+
+      limpiarFormulario();
+    }
+
+    // Función para eliminar participantes seleccionados
+    window.eliminarSeleccionados = async function () {
+      const seleccionados = document.querySelectorAll('.row-checkbox:checked');
+
+      if (seleccionados.length === 0) {
+        alert('Por favor, seleccione al menos un participante para eliminar.');
+        return;
+      }
+
+      const confirmacion = confirm(`¿Está seguro de que desea eliminar ${seleccionados.length} participante(s)? Esta acción no se puede deshacer.`);
+
+      if (!confirmacion) return;
+
+      const ids = Array.from(seleccionados).map(checkbox => checkbox.value);
+
+      const resultado = await eliminarDeSupabase(ids);
+
+      if (resultado.success) {
+        alert(`✅ ${ids.length} participante(s) eliminado(s) exitosamente.`);
+        await cargarParticipantes();
+      } else {
+        alert(`❌ Error al eliminar: ${resultado.error}`);
+      }
+    }
+
+    // Función para limpiar formulario
+    function limpiarFormulario() {
+      document.querySelectorAll('#tablaFormulario input, #tablaFormulario select').forEach(input => {
+        input.value = '';
+      });
+    }
+
+    // Función para filtrar participantes por nombre
+    function filtrarParticipantes() {
+      const searchTerm = document.getElementById('search-participante').value.toLowerCase().trim();
+      const tabla = document.querySelector('#tablaResultado table');
+
+      if (!tabla) return;
+
+      const filas = tabla.querySelectorAll('tbody tr');
+      let participantesVisibles = 0;
+
+      filas.forEach(fila => {
+        const nombreCell = fila.querySelector('td:nth-child(2)');
+
+        if (nombreCell) {
+          const nombre = nombreCell.textContent.toLowerCase();
+          const coincide = nombre.includes(searchTerm);
+
+          fila.style.display = coincide ? '' : 'none';
+
+          if (coincide) {
+            participantesVisibles++;
+            
+            if (searchTerm.length > 0) {
+              const textoOriginal = nombreCell.textContent;
+              const regex = new RegExp(`(${searchTerm})`, 'gi');
+              nombreCell.innerHTML = textoOriginal.replace(regex, '<mark style="background-color: yellow; padding: 0.1rem;">$1</mark>');
+            } else {
+              nombreCell.innerHTML = nombreCell.textContent; 
+            }
+          }
+        }
+      });
+
+      // Mostrar mensaje si no hay resultados
+      mostrarMensajeBusqueda(participantesVisibles, searchTerm);
+    }
+
+    // Función para mostrar mensaje de búsqueda
+    function mostrarMensajeBusqueda(participantesVisibles, searchTerm) {
+      const container = document.getElementById('tablaResultado');
+      let mensajeExistente = document.getElementById('mensaje-busqueda');
+
+      // Remover mensaje anterior si existe
+      if (mensajeExistente) {
+        mensajeExistente.remove();
+      }
+
+      // Mostrar mensaje solo si hay término de búsqueda y no hay resultados
+      if (searchTerm.length > 0 && participantesVisibles === 0) {
+        const mensaje = document.createElement('div');
+        mensaje.id = 'mensaje-busqueda';
+        mensaje.style.cssText = `
+        text-align: center; 
+        padding: 2rem; 
+        color: #666; 
+        background-color: #f8f9fa; 
+        border-radius: 8px; 
+        margin-top: 1rem;
+        border: 2px dashed #ddd;
+      `;
+        mensaje.innerHTML = `
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+        <h4 style="margin-bottom: 0.5rem; color: #333;">No se encontraron participantes</h4>
+        <p>No hay participantes que coincidan con "<strong>${searchTerm}</strong>"</p>
+        <button onclick="limpiarBusqueda()" class="btn btn-outline" style="margin-top: 1rem;">Limpiar búsqueda</button>
+      `;
+        container.appendChild(mensaje);
+      } else if (searchTerm.length > 0 && participantesVisibles > 0) {
+        // Mostrar contador de resultados
+        const mensaje = document.createElement('div');
+        mensaje.id = 'mensaje-busqueda';
+        mensaje.style.cssText = `
+        text-align: center; 
+        padding: 0.5rem; 
+        color: #28a745; 
+        background-color: #d4edda; 
+        border-radius: 4px; 
+        margin-bottom: 1rem;
+        border: 1px solid #c3e6cb;
+      `;
+        mensaje.innerHTML = `📋 Se encontraron <strong>${participantesVisibles}</strong> participante(s) con "${searchTerm}"`;
+        container.insertBefore(mensaje, container.firstChild);
+      }
+    }
+
+    // Función para limpiar búsqueda
+    function limpiarBusqueda() {
+      const searchInput = document.getElementById('search-participante');
+      searchInput.value = '';
+
+      // Mostrar todas las filas
+      const tabla = document.querySelector('#tablaResultado table');
+      if (tabla) {
+        const filas = tabla.querySelectorAll('tbody tr');
+        filas.forEach(fila => {
+          fila.style.display = '';
+
+          // Restaurar texto original sin resaltado
+          const nombreCell = fila.querySelector('td:nth-child(2)');
+          if (nombreCell) {
+            nombreCell.innerHTML = nombreCell.textContent;
+          }
+        });
+      }
+
+      // Remover mensaje de búsqueda
+      const mensajeExistente = document.getElementById('mensaje-busqueda');
+      if (mensajeExistente) {
+        mensajeExistente.remove();
+      }
+
+      // Enfocar el input de búsqueda
+      searchInput.focus();
+    }
+
+    // Exponer funciones globalmente
+    window.filtrarParticipantes = filtrarParticipantes;
+    window.limpiarBusqueda = limpiarBusqueda;
+
+    // Cargar datos al iniciar la página
+    document.addEventListener('DOMContentLoaded', async function () {
+      console.log('Cargando participantes desde Supabase...');
+      await cargarParticipantes();
+    });
+
+    // Agregar atajo de teclado para búsqueda rápida
+    document.addEventListener('keydown', function (e) {
+      // Ctrl/Cmd + F para enfocar la búsqueda
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        const searchInput = document.getElementById('search-participante');
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+      
+      if (e.key === 'Escape') {
+        limpiarBusqueda();
+      }
+    });
+
+  </script>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

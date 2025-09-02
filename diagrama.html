@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Estadísticas - INDER Copacabana</title>
+    <link rel="stylesheet" href="estilos.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .dashboard-container {
+            padding: 2rem 0;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-dropdown {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card.secondary {
+            background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);
+        }
+
+        .stat-card.tertiary {
+            background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);
+        }
+
+        .stat-card.quaternary {
+            background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #333;
+            text-align: center;
+        }
+
+        .chart-canvas {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .detailed-stats {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .detailed-stats h3 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .stats-table th,
+        .stats-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stats-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stats-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .update-info {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Encabezado con navegación -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">INDER Copacabana</div>
+            <nav>
+                <ul>
+                    <li class="dropdown">
+                        <a href="index.html">Inicio</a>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="deportes.html" class="dropdown-toggle">Deportes Formativo<span
+                                class="arrow">▼</span></a>
+                        <div class="dropdown-content">
+                            <a href="deportes.html#futbol">Fútbol</a>
+                            <a href="deportes.html#futbol_de_salon">Fútbol de Salón</a>
+                            <a href="deportes.html#futbol_sala">Fútbol sala</a>
+                            <a href="deportes.html#ajedrez">Ajedrez</a>
+                            <a href="deportes.html#baloncesto">Baloncesto</a>
+                            <a href="deportes.html#balonmano">Balonmano</a>
+                            <a href="deportes.html#natacion">Natación</a>
+                            <a href="deportes.html#atletismo">Atletismo</a>
+                            <a href="deportes.html#patinaje">Patinaje</a>
+                            <a href="deportes.html#rugby">Rugby</a>
+                            <a href="deportes.html#tenis">Tenis de campo</a>
+                            <a href="deportes.html#voleibol">Voleibol</a>
+                            <a href="deportes.html#tenis">Tenis de Mesa</a>
+                            <a href="deportes.html">BMX</a>
+                            <a href="deportes.html#boxeo">Boxeo</a>
+                            <a href="deportes.html#gimnasia">Gimnasia</a>
+                            <a href="deportes.html#jiu_jitsu">Jiu Jitsu</a>
+                            <a href="deportes.html#levantamiento_de_pesas">Levantamiento de Pesas</a>
+                            <a href="deportes.html#taekwondo">Taekwondo</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="actividades.html" class="dropdown-toggle">Actividades Físicas <span
+                                class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="actividades.html#gimnasio_municipal">Gimnasio Municipal</a>
+                            <a href="actividades.html#descubre_tu_talento">Descubre tu Talento</a>
+                            <a href="actividades.html#nadadores_activos">Nadadores Activos</a>
+                            <a href="actividades.html#yoga">Yoga</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="recreacion.html" class="dropdown-toggle">Recreación<span class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="recreacion.html#rumba_aerobica">Rumba Aeróbica</a>
+                            <a href="recreacion.html#hidroaerobicos">Hidroaerobicos</a>
+
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="eventos_institucionales.html" class="dropdown-toggle">Eventos Institucionales<span
+                                class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="eventos_institucionales.html#vacaciones_recreativas">Vacaciones Recreativas</a>
+                            <a href="eventos_institucionales.html#celebracion_deporte_cultura">Celebración del Deporte y
+                                Cultura</a>
+
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="torneos_festivales.html" class="dropdown-toggle">Torneos y Festivales
+                            Institucionales<span class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="torneos_festivales.html#master">Master</a>
+                            <a href="torneos_festivales.html#open">Open</a>
+                            <a href="torneos_festivales.html#gran_master">Gran Master</a>
+                            <a href="torneos_festivales.html#libre">Libre</a>
+                            <a href="torneos_festivales.html#prebenjamines">Prebenjamines</a>
+                            <a href="torneos_festivales.html#benjamines">Benjamines</a>
+                            <a href="torneos_festivales.html#baby">Baby</a>
+                            <a href="torneos_festivales.html#babyfutbol">BabyFútbol</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="juegos_institucionales.html" class="dropdown-toggle">Juegos Institucionales<span
+                                class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="juegos_institucionales.html#escolares_subregional">Escolares Sub_Regional</a>
+                            <a href="juegos_institucionales.html#escolares_departamental">Escolares Departamental</a>
+                            <a href="juegos_institucionales.html#intercolegiados_municipal">Intercolegiados
+                                Municipal</a>
+                            <a href="juegos_institucionales.html#intercolegiados_subregional">Intercolegiados
+                                Sub_Regional</a>
+                            <a href="juegos_institucionales.html#intercolegiados_departamental">Intercolegiados
+                                Departamental</a>
+                            <a href="juegos_institucionales.html#mayores_subregional">Mayores sub_regional</a>
+                            <a href="juegos_institucionales.html#mayores_departamental">Mayores Departamental</a>
+                        </div>
+                    </li>
+
+                    <li><a href="diagrama.html">Estadísticas</a></li>
+                </ul>
+            </nav>
+            <!-- Navegación dinámica basada en autenticación -->
+            <div id="auth-navigation">
+                <a href="inicio_de_sesion.html" class="btn btn-secondary" id="login-btn">Iniciar Sesión</a>
+                <div id="user-menu" style="display: none;">
+                    <span id="user-name-header">Usuario</span>
+                    <a href="Dashboard.html" class="btn btn-primary" id="dashboard-btn">Dashboard</a>
+                    <button id="logout-btn" class="btn btn-secondary">Cerrar Sesión</button>
+
+                </div>
+                <button id="menu-toggle" class="menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main>
+        <div class="page-header">
+            <div class="container">
+                <h1>Dashboard de Estadísticas</h1>
+                <p>Análisis en tiempo real de participación deportiva y actividades físicas</p>
+            </div>
+        </div>
+
+        <div class="container dashboard-container">
+            <!-- Controles del Dashboard -->
+            <div class="dashboard-controls">
+                <select id="filter-tipo" class="filter-dropdown">
+                    <option value="todos">Todas las Actividades</option>
+                    <option value="deporte">Solo Deportes</option>
+                    <option value="actividad_fisica">Solo Actividades Físicas</option>
+                    <option value="recreacion">Recreación</option>
+                    <option value="eventos_institucionales">Eventos Institucionales</option>
+                    <option value="torneos_festivales">Torneos y Festivales</option>
+                    <option value="juegos_institucionales">Juegos Institucionales</option>
+                </select>
+                <select id="filter-genero" class="filter-dropdown">
+                    <option value="todos">Todos los Géneros</option>
+                    <option value="Hombre">Hombre</option>
+                    <option value="Mujer">Mujer</option>
+                    <option value="LGBTQ">LGBTQ</option>
+                </select>
+                <!-- Después del select de género existente -->
+                <select id="filter-condicion" class="filter-dropdown">
+                    <option value="todos">Todas las Condiciones</option>
+                    <option value="discapacidad">Con Discapacidad</option>
+                    <option value="victima">Víctima</option>
+                    <option value="madre_cabeza">Madre Cabeza de Hogar</option>
+                    <option value="desplazado">Desplazado</option>
+                </select>
+
+                <select id="filter-ubicacion" class="filter-dropdown">
+                    <option value="todos">Todas las Ubicaciones</option>
+                    <option value="urbano">Urbano (Barrio)</option>
+                    <option value="rural">Rural (Vereda)</option>
+                </select>
+
+
+                <button onclick="actualizarDashboard()" class="btn btn-primary" id="btn-actualizar">
+                    🔄 Actualizar Datos
+                </button>
+            </div>
+
+            <!-- Resumen de Estadísticas -->
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-participantes">0</div>
+                    <div class="stat-label">Total Participantes</div>
+                </div>
+                <div class="stat-card secondary">
+                    <div class="stat-number" id="total-deportes">0</div>
+                    <div class="stat-label">Deportes</div>
+                </div>
+                <div class="stat-card tertiary">
+                    <div class="stat-number" id="total-actividades">0</div>
+                    <div class="stat-label">Actividades Físicas</div>
+                </div>
+                <div class="stat-card quaternary">
+                    <div class="stat-number" id="promedio-edad">0</div>
+                    <div class="stat-label">Edad Promedio</div>
+                </div>
+
+                <div class="stat-card" style="background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);">
+                    <div class="stat-number" id="total-condiciones-especiales">0</div>
+                    <div class="stat-label">Condiciones Especiales</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #364b8a    0%, #5f6ed6 100%);">
+                    <div class="stat-number" id="porcentaje-urbano">0%</div>
+                    <div class="stat-label">Población Urbana</div>
+                </div>
+                <!-- Agregar después de las tarjetas existentes: -->
+                <div class="stat-card" style="background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);">
+                    <div class="stat-number" id="total-recreacion">0</div>
+                    <div class="stat-label">Recreación</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);">
+                    <div class="stat-number" id="total-eventos">0</div>
+                    <div class="stat-label">Eventos</div>
+                </div>
+            </div>
+
+            <!-- Gráficos Principales -->
+            <div class="charts-grid">
+                <!-- Gráfico de Distribución por Edad -->
+                <div class="chart-container">
+                    <h3 class="chart-title">Distribución por Edad</h3>
+                    <div class="chart-canvas">
+                        <canvas id="chart-edades"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Distribución por Género -->
+                <div class="chart-container">
+                    <h3 class="chart-title">Distribución por Género</h3>
+                    <div class="chart-canvas">
+                        <canvas id="chart-genero"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Actividades Más Populares -->
+                <div class="chart-container">
+                    <h3 class="chart-title">Actividades Más Populares</h3>
+                    <div class="chart-canvas">
+                        <canvas id="chart-actividades"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Tipo de Actividad -->
+                <div class="chart-container">
+                    <h3 class="chart-title">Tipo de Actividad</h3>
+                    <div class="chart-canvas">
+                        <canvas id="chart-tipos"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas Detalladas -->
+            <div class="detailed-stats">
+                <h3>📊 Estadísticas Detalladas por Actividad</h3>
+                <div style="overflow-x: auto;">
+                    <table class="stats-table" id="tabla-detallada">
+                        <thead>
+                            <tr>
+                                <th>Actividad</th>
+                                <th>Total</th>
+                                <th>Hombres</th>
+                                <th>Mujeres</th>
+                                <th>Edad Promedio</th>
+                                <th>Tipo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-detallada-body">
+                            <tr>
+                                <td colspan="6" style="text-align: center;">
+                                    <div class="loading-spinner"></div> Cargando datos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="update-info">
+                <p id="ultima-actualizacion">Última actualización: Cargando...</p>
+                <p><small>Los datos se actualizan automáticamente cada 30 segundos</small></p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Pie de página -->
+    <footer>
+        <div class="container" style="text-align: center;">
+            <p>© 2025 INDER Copacabana. Todos los Derechos Reservados.</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        // Importar configuración de Supabase desde el archivo de configuración
+        import { supabaseClient } from './supabase-config.js';
+
+        // Variables globales para los gráficos
+        let chartEdades, chartGenero, chartActividades, chartTipos;
+
+        
+        const categoriasActividades = {
+            deportes: ['futbol', 'futbol_de_salon', 'futbol_sala', 'ajedrez', 'baloncesto', 'balonmano', 'natacion', 'atletismo', 'patinaje', 'rugby', 'tenis_de_campo', 'voleibol', 'tenis_de_mesa', 'bmx', 'boxeo', 'gimnasia', 'jiu_jitsu', 'levantamiento_de_pesas', 'taekwondo'],
+
+            actividades_fisicas: ['gimnasio_municipal', 'descubre_tu_talento', 'nadadores_activos', 'yoga'],
+
+            recreacion: ['rumba_aerobica', 'hidroaerobicos'],
+
+            eventos_institucionales: ['vacaciones_recreativas', 'celebracion_deporte_cultura'],
+
+            torneos_festivales: ['master', 'open', 'gran_master', 'libre', 'prebenjamines', 'benjamines', 'baby', 'babyfutbol'],
+
+            juegos_institucionales: ['escolares_subregional', 'escolares_departamental', 'intercolegiados_municipal', 'intercolegiados_subregional', 'intercolegiados_departamental', 'mayores_subregional', 'mayores_departamental']
+        };
+
+        // Función para obtener datos filtrados
+        async function obtenerDatos() {
+            try {
+                const filterTipo = document.getElementById('filter-tipo').value;
+                const filterCondicion = document.getElementById('filter-condicion').value;
+                const filterUbicacion = document.getElementById('filter-ubicacion').value;
+                const filterGenero = document.getElementById('filter-genero').value;
+
+            
+                let query = supabaseClient.from('participantes').select('*');
+
+                const { data, error } = await query;
+
+                if (error) {
+                    console.error('Error al obtener datos:', error);
+                    return [];
+                }
+
+                let datosFiltrados = data || [];
+
+                // Filtro por condición
+                if (filterCondicion !== 'todos') {
+                    datosFiltrados = datosFiltrados.filter(p => {
+                        const normalizar = valor => (valor || '').toString().trim().toLowerCase();
+
+                        switch (filterCondicion) {
+                            case 'discapacidad': return normalizar(p.discapacidad) === 'sí';
+                            case 'victima': return normalizar(p.victima) === 'sí';
+                            case 'madre_cabeza': return normalizar(p.madrecabezahogar) === 'sí';
+                            case 'desplazado': return normalizar(p.desplazado) === 'sí';
+                            default: return true;
+                        }
+                    });
+                }
+
+                // Filtro por género
+                if (filterGenero !== 'todos') {
+                    if (filterGenero === 'LGBTQ') {
+                        datosFiltrados = datosFiltrados.filter(p => {
+                            const valor = (p.lgbtq || '').toString().trim().toLowerCase();
+                            return valor === 'sí';
+                        });
+                    } else {
+                        datosFiltrados = datosFiltrados.filter(p => p.genero === filterGenero);
+                    }
+                }
+
+                // Filtro por ubicación
+                if (filterUbicacion !== 'todos') {
+                    datosFiltrados = datosFiltrados.filter(p => {
+                        if (filterUbicacion === 'urbano') {
+                            return p.barrio && p.barrio.trim() !== '';
+                        } else if (filterUbicacion === 'rural') {
+                            return p.vereda && p.vereda.trim() !== '';
+                        }
+                        return true;
+                    });
+                }
+
+                // Filtro por tipo de actividad               
+                if (filterTipo !== 'todos') {
+                    datosFiltrados = datosFiltrados.filter(p => {
+                        const actividadLower = p.actividad?.toLowerCase();
+
+                        switch (filterTipo) {
+                            case 'deporte':
+                                return categoriasActividades.deportes.includes(actividadLower);
+                            case 'actividad_fisica':
+                                return categoriasActividades.actividades_fisicas.includes(actividadLower);
+                            case 'recreacion':
+                                return categoriasActividades.recreacion.includes(actividadLower);
+                            case 'eventos_institucionales':
+                                return categoriasActividades.eventos_institucionales.includes(actividadLower);
+                            case 'torneos_festivales':
+                                return categoriasActividades.torneos_festivales.includes(actividadLower);
+                            case 'juegos_institucionales':
+                                return categoriasActividades.juegos_institucionales.includes(actividadLower);
+                            default:
+                                return true;
+                        }
+                    });
+                }
+
+                console.log('Datos filtrados:', datosFiltrados.length, 'participantes');
+                return datosFiltrados;
+
+            } catch (error) {
+                console.error('Error al obtener datos:', error);
+                return [];
+            }
+        }
+
+        // Función para calcular estadísticas por edad
+        function calcularEstadisticasEdad(datos) {
+            const rangos = {
+                'Primera infancia (0-5)': 0,
+                'Infancia (6-11)': 0,
+                'Adolescencia (12-18)': 0,
+                'Juventud (19-26)': 0,
+                'Adultez (27-59)': 0,
+                'Persona mayor (60+)': 0
+            };
+
+            datos.forEach(p => {
+                const edad = p.edad;
+                if (edad >= 0 && edad <= 5) rangos['Primera infancia (0-5)']++;
+                else if (edad >= 6 && edad <= 11) rangos['Infancia (6-11)']++;
+                else if (edad >= 12 && edad <= 18) rangos['Adolescencia (12-18)']++;
+                else if (edad >= 19 && edad <= 26) rangos['Juventud (19-26)']++;
+                else if (edad >= 27 && edad <= 59) rangos['Adultez (27-59)']++;
+                else if (edad >= 60) rangos['Persona mayor (60+)']++;
+            });
+
+            return rangos;
+        }
+
+
+        // Función para calcular actividades más populares
+        function calcularActividadesPopulares(datos) {
+            const conteo = {};
+            datos.forEach(p => {
+                const actividad = p.actividad.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                conteo[actividad] = (conteo[actividad] || 0) + 1;
+            });
+
+            return Object.entries(conteo)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 8);
+        }
+
+        // Función para actualizar gráfico de edades
+        function actualizarGraficoEdades(datos) {
+            const estadisticas = calcularEstadisticasEdad(datos);
+            const ctx = document.getElementById('chart-edades').getContext('2d');
+
+            if (chartEdades) chartEdades.destroy();
+
+            chartEdades = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(estadisticas),
+                    datasets: [{
+                        data: Object.values(estadisticas),
+                        backgroundColor: [
+                            '#21284d',
+                            '#7280f2',
+                            '#364b8a',
+                            '#4a5cb0',
+                            '#9966FF',
+                            '#7084d1'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: {
+                                weight: 'bold'
+                            },
+                            formatter: (value, ctx) => {
+                                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return value > 0 ? `${percentage}%` : '';
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+
+        // Función para actualizar gráfico de género
+        function actualizarGraficoGenero(datos) {
+            const hombres = datos.filter(p => p.genero === 'Hombre').length;
+            const mujeres = datos.filter(p => p.genero === 'Mujer').length;
+            const lgbtq = datos.filter(p => {
+                const valor = (p.lgbtq || '').toString().trim().toLowerCase();
+                return valor === 'sí';
+            }).length;
+            const ctx = document.getElementById('chart-genero').getContext('2d');
+
+            if (chartGenero) chartGenero.destroy();
+
+            chartGenero = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Hombres', 'Mujeres'],
+                    datasets: [{
+                        data: [hombres, mujeres],
+                        backgroundColor: ['#4361ee', '#f72585'],
+                        borderWidth: 3,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: {
+                                weight: 'bold',
+                                size: 14
+                            },
+                            formatter: (value, ctx) => {
+                                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return value > 0 ? `${value}\n(${percentage}%)` : '';
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+
+        // Función para actualizar gráfico de actividades
+        function actualizarGraficoActividades(datos) {
+            const actividades = calcularActividadesPopulares(datos);
+            const ctx = document.getElementById('chart-actividades').getContext('2d');
+
+            if (chartActividades) chartActividades.destroy();
+
+            chartActividades = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: actividades.map(([nombre]) => nombre),
+                    datasets: [{
+                        label: 'Participantes',
+                        data: actividades.map(([, cantidad]) => cantidad),
+                        backgroundColor: 'rgba(67, 97, 238, 0.8)',
+                        borderColor: 'rgba(67, 97, 238, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#333',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+
+        // Función para actualizar gráfico de tipos
+        function actualizarGraficoTipos(datos) {
+            const conteoTipos = {
+                'Deportes': 0,
+                'Actividades Físicas': 0,
+                'Recreación': 0,
+                'Eventos Institucionales': 0,
+                'Torneos y Festivales': 0,
+                'Juegos Institucionales': 0
+            };
+
+            datos.forEach(p => {
+                const actividadLower = p.actividad?.toLowerCase();
+
+                if (categoriasActividades.deportes.includes(actividadLower)) {
+                    conteoTipos['Deportes']++;
+                } else if (categoriasActividades.actividades_fisicas.includes(actividadLower)) {
+                    conteoTipos['Actividades Físicas']++;
+                } else if (categoriasActividades.recreacion.includes(actividadLower)) {
+                    conteoTipos['Recreación']++;
+                } else if (categoriasActividades.eventos_institucionales.includes(actividadLower)) {
+                    conteoTipos['Eventos Institucionales']++;
+                } else if (categoriasActividades.torneos_festivales.includes(actividadLower)) {
+                    conteoTipos['Torneos y Festivales']++;
+                } else if (categoriasActividades.juegos_institucionales.includes(actividadLower)) {
+                    conteoTipos['Juegos Institucionales']++;
+                }
+            });
+
+            const ctx = document.getElementById('chart-tipos').getContext('2d');
+
+            if (chartTipos) chartTipos.destroy();
+
+            chartTipos = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(conteoTipos),
+                    datasets: [{
+                        data: Object.values(conteoTipos),
+                        backgroundColor: [
+                            '#21284d',
+                            '#7280f2',
+                            '#364b8a',
+                            '#4a5cb0',
+                            '#9966FF',
+                            '#7084d1'  
+                        ],
+                        borderWidth: 3,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: {
+                                weight: 'bold',
+                                size: 14
+                            },
+                            formatter: (value, ctx) => {
+                                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return value > 0 ? `${value}\n(${percentage}%)` : '';
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+
+        function determinarTipoActividad(actividadLower) {
+            if (categoriasActividades.deportes.includes(actividadLower)) return 'deporte';
+            if (categoriasActividades.actividades_fisicas.includes(actividadLower)) return 'actividad_fisica';
+            if (categoriasActividades.recreacion.includes(actividadLower)) return 'recreacion';
+            if (categoriasActividades.eventos_institucionales.includes(actividadLower)) return 'eventos_institucionales';
+            if (categoriasActividades.torneos_festivales.includes(actividadLower)) return 'torneos_festivales';
+            if (categoriasActividades.juegos_institucionales.includes(actividadLower)) return 'juegos_institucionales';
+            return 'otro';
+        }
+
+        // Función para actualizar tabla detallada
+        function actualizarTablaDetallada(datos) {
+            const tbody = document.getElementById('tabla-detallada-body');
+            const actividadesStats = {};
+
+            // Calcular estadísticas por actividad
+            datos.forEach(p => {
+                const actividad = p.actividad;
+                if (!actividadesStats[actividad]) {
+                    actividadesStats[actividad] = {
+                        total: 0,
+                        hombres: 0,
+                        mujeres: 0,
+                        edades: [],
+                        tipo: determinarTipoActividad(actividad?.toLowerCase())
+
+
+                    };
+                }
+
+                actividadesStats[actividad].total++;
+                actividadesStats[actividad].edades.push(p.edad);
+
+                if (p.genero === 'Hombre') {
+                    actividadesStats[actividad].hombres++;
+                } else if (p.genero === 'Mujer') {
+                    actividadesStats[actividad].mujeres++;
+                }
+            });
+
+            // Generar HTML de la tabla
+            let html = '';
+            Object.entries(actividadesStats)
+                .sort(([, a], [, b]) => b.total - a.total)
+                .forEach(([actividad, stats]) => {
+                    const nombreLegible = actividad.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    const edadPromedio = stats.edades.length > 0
+                        ? (stats.edades.reduce((a, b) => a + b, 0) / stats.edades.length).toFixed(1)
+                        : 0;
+                    const tipoLegible = {
+                        'deporte': 'Deporte',
+                        'actividad_fisica': 'Actividad Física',
+                        'recreacion': 'Recreación',
+                        'eventos_institucionales': 'Eventos Institucionales',
+                        'torneos_festivales': 'Torneos y Festivales',
+                        'juegos_institucionales': 'Juegos Institucionales'
+                    }[stats.tipo] || 'Otro';
+
+                    html += `
+                    <tr>
+                        <td><strong>${nombreLegible}</strong></td>
+                        <td>${stats.total}</td>
+                        <td>${stats.hombres}</td>
+                        <td>${stats.mujeres}</td>
+                        <td>${edadPromedio} años</td>
+                        <td><span style="padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; background-color: ${stats.tipo === 'deporte' ? '#e3f2fd' : '#fff3e0'}; color: ${stats.tipo === 'deporte' ? '#1976d2' : '#f57c00'};">${tipoLegible}</span></td>
+                    </tr>
+                `;
+                });
+
+            tbody.innerHTML = html || '<tr><td colspan="6" style="text-align: center;">No hay datos disponibles</td></tr>';
+        }
+
+        // Función para actualizar resumen de estadísticas
+        function actualizarResumen(datos) {
+            const totalParticipantes = datos.length;
+
+            // Usar la estructura de categorías definidas anteriormente
+            const totalPorCategoria = {
+                deportes: datos.filter(p => categoriasActividades.deportes.includes(p.actividad?.toLowerCase())).length,
+                actividades_fisicas: datos.filter(p => categoriasActividades.actividades_fisicas.includes(p.actividad?.toLowerCase())).length,
+                recreacion: datos.filter(p => categoriasActividades.recreacion.includes(p.actividad?.toLowerCase())).length,
+                eventos_institucionales: datos.filter(p => categoriasActividades.eventos_institucionales.includes(p.actividad?.toLowerCase())).length,
+                torneos_festivales: datos.filter(p => categoriasActividades.torneos_festivales.includes(p.actividad?.toLowerCase())).length,
+                juegos_institucionales: datos.filter(p => categoriasActividades.juegos_institucionales.includes(p.actividad?.toLowerCase())).length,
+            };
+
+            const promedioEdad = datos.length > 0
+                ? (datos.reduce((sum, p) => sum + p.edad, 0) / datos.length).toFixed(1)
+                : 0;
+
+            // Calcular condiciones especiales
+            const condicionesEspeciales = datos.filter(p => {
+                const normalizar = valor => (valor || '').toString().trim().toLowerCase();
+                return normalizar(p.discapacidad) === 'sí' ||
+                    normalizar(p.victima) === 'sí' ||
+                    normalizar(p.madrecabezahogar) === 'sí' ||
+                    normalizar(p.desplazado) === 'sí';
+            }).length;
+
+            // Calcular porcentaje urbano
+            const urbanos = datos.filter(p => p.barrio && p.barrio.trim() !== '').length;
+            const porcentajeUrbano = datos.length > 0 ? ((urbanos / datos.length) * 100).toFixed(1) : 0;
+
+            // Actualizar elementos DOM
+            document.getElementById('total-participantes').textContent = totalParticipantes;
+            document.getElementById('promedio-edad').textContent = promedioEdad;
+            document.getElementById('total-condiciones-especiales').textContent = condicionesEspeciales;
+            document.getElementById('porcentaje-urbano').textContent = porcentajeUrbano + '%';
+
+            // Actualizar por categoría (asegúrate que tengas estos elementos en el HTML)
+            document.getElementById('total-deportes').textContent = totalPorCategoria.deportes;
+            document.getElementById('total-actividades').textContent = totalPorCategoria.actividades_fisicas;
+            document.getElementById('total-recreacion').textContent = totalPorCategoria.recreacion;
+            // Reemplazar las líneas que causan error con:
+            document.getElementById('total-eventos').textContent = totalPorCategoria.eventos_institucionales + totalPorCategoria.torneos_festivales + totalPorCategoria.juegos_institucionales;
+        }
+
+        // Función principal para actualizar dashboard
+        async function actualizarDashboard() {
+            const boton = document.getElementById('btn-actualizar');
+            const originalText = boton.textContent;
+
+            boton.textContent = '🔄 Actualizando...';
+            boton.disabled = true;
+
+            try {
+                console.log('Obteniendo datos del dashboard...');
+                const datos = await obtenerDatos();
+                console.log('Datos obtenidos:', datos.length, 'participantes');
+
+                // Actualizar todos los componentes
+                actualizarResumen(datos);
+                actualizarGraficoEdades(datos);
+                actualizarGraficoGenero(datos);
+                actualizarGraficoActividades(datos);
+                actualizarGraficoTipos(datos);
+                actualizarTablaDetallada(datos);
+
+                // Actualizar timestamp
+                const ahora = new Date().toLocaleString('es-ES', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                document.getElementById('ultima-actualizacion').textContent = `Última actualización: ${ahora}`;
+
+                console.log('Dashboard actualizado exitosamente');
+            } catch (error) {
+                console.error('Error al actualizar dashboard:', error);
+                document.getElementById('ultima-actualizacion').textContent = 'Error al actualizar estadísticas';
+            } finally {
+                boton.textContent = originalText;
+                boton.disabled = false;
+            }
+        }
+
+        // Event listeners
+        document.getElementById('filter-tipo').addEventListener('change', actualizarDashboard);
+        document.getElementById('filter-genero').addEventListener('change', actualizarDashboard);
+        document.getElementById('filter-condicion').addEventListener('change', actualizarDashboard);
+        document.getElementById('filter-ubicacion').addEventListener('change', actualizarDashboard);
+
+
+        // Exponer función globalmente
+        window.actualizarDashboard = actualizarDashboard;
+
+        // Inicializar dashboard
+        document.addEventListener('DOMContentLoaded', async function () {
+            console.log('Inicializando dashboard público...');
+            await actualizarDashboard();
+
+            // Actualización automática cada 30 segundos
+            setInterval(actualizarDashboard, 30000);
+
+            console.log('Dashboard público inicializado correctamente');
+        });
+
+        // Actualizar cuando la página vuelve a estar visible
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) {
+                actualizarDashboard();
+            }
+        });
+
+    </script>
+
+    <script src="script.js"></script>
+
+    <script type="module">
+        import { supabaseClient, isAuthenticated, getUserProfile, signOut } from './supabase-config.js';
+
+
+        let userProfile = null;
+
+        async function updateNavigation() {
+            try {
+                const isAuth = await isAuthenticated();
+                const loginBtn = document.getElementById('login-btn');
+                const userMenu = document.getElementById('user-menu');
+                const userNameHeader = document.getElementById('user-name-header');
+
+                if (isAuth) {
+                    userProfile = await getUserProfile();
+
+                    if (userProfile) {
+                        loginBtn.style.display = 'none';
+                        userMenu.style.display = 'flex';
+                        userMenu.style.alignItems = 'center';
+                        userMenu.style.gap = '1rem';
+
+                        userNameHeader.textContent = userProfile.full_name || userProfile.username || 'Usuario';
+
+                        document.getElementById('logout-btn').addEventListener('click', async function () {
+                            try {
+                                await signOut();
+                                window.location.reload();
+                            } catch (error) {
+                                console.error('Error al cerrar sesión:', error);
+                            }
+                        });
+                    }
+                } else {
+                    loginBtn.style.display = 'inline-block';
+                    userMenu.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error al actualizar navegación:', error);
+                document.getElementById('login-btn').style.display = 'inline-block';
+                document.getElementById('user-menu').style.display = 'none';
+            }
+        }
+
+        updateNavigation();
+
+    </script>
+
+</body>
+
+</html>

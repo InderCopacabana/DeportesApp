@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar Sesión - INDER Copacabana</title>
+  <link rel="stylesheet" href="estilos.css" />
+</head>
+
+<body>
+  <!-- Encabezado con navegación -->
+  <header>
+    <div class="container header-content">
+      <div class="logo">INDER Copacabana</div>
+      <nav>
+        <ul>
+          <li class="dropdown">
+            <a href="index.html">Inicio</a>
+          </li>
+
+          <li class="dropdown">
+            <a href="deportes.html" class="dropdown-toggle">Deportes Formativo<span class="arrow">▼</span></a>
+            <div class="dropdown-content">
+              <a href="deportes.html#futbol">Fútbol</a>
+              <a href="deportes.html#futbol_de_salon">Fútbol de Salón</a>
+              <a href="deportes.html#futbol_sala">Fútbol sala</a>
+              <a href="deportes.html#ajedrez">Ajedrez</a>
+              <a href="deportes.html#baloncesto">Baloncesto</a>
+              <a href="deportes.html#balonmano">Balonmano</a>
+              <a href="deportes.html#natacion">Natación</a>
+              <a href="deportes.html#atletismo">Atletismo</a>
+              <a href="deportes.html#patinaje">Patinaje</a>
+              <a href="deportes.html#rugby">Rugby</a>
+              <a href="deportes.html#tenis">Tenis de campo</a>
+              <a href="deportes.html#voleibol">Voleibol</a>
+              <a href="deportes.html#tenis">Tenis de Mesa</a>
+              <a href="deportes.html">BMX</a>
+              <a href="deportes.html#boxeo">Boxeo</a>
+              <a href="deportes.html#gimnasia">Gimnasia</a>
+              <a href="deportes.html#jiu_jitsu">Jiu Jitsu</a>
+              <a href="deportes.html#levantamiento_de_pesas">Levantamiento de Pesas</a>
+              <a href="deportes.html#taekwondo">Taekwondo</a>
+            </div>
+          </li>
+
+          <li class="dropdown">
+            <a href="actividades.html" class="dropdown-toggle">Actividades Físicas <span class="arrow">▼</span></a>
+
+            <div class="dropdown-content">
+              <a href="actividades.html#gimnasio_municipal">Gimnasio Municipal</a>
+              <a href="actividades.html#descubre_tu_talento">Descubre tu Talento</a>
+              <a href="actividades.html#nadadores_activos">Nadadores Activos</a>
+              <a href="actividades.html#yoga">Yoga</a>
+            </div>
+          </li>
+
+          <li class="dropdown">
+            <a href="recreacion.html" class="dropdown-toggle">Recreación<span class="arrow">▼</span></a>
+
+            <div class="dropdown-content">
+              <a href="recreacion.html#rumba_aerobica">Rumba Aeróbica</a>
+              <a href="recreacion.html#hidroaerobicos">Hidroaerobicos</a>
+
+            </div>
+          </li>
+
+          <li class="dropdown">
+            <a href="eventos_institucionales.html" class="dropdown-toggle">Eventos Institucionales<span
+                class="arrow">▼</span></a>
+
+            <div class="dropdown-content">
+              <a href="eventos_institucionales.html#vacaciones_recreativas">Vacaciones Recreativas</a>
+              <a href="eventos_institucionales.html#celebracion_deporte_cultura">Celebración del Deporte y Cultura</a>
+
+            </div>
+          </li>
+
+          <li class="dropdown">
+            <a href="torneos_festivales.html" class="dropdown-toggle">Torneos y Festivales
+              Institucionales<span class="arrow">▼</span></a>
+
+            <div class="dropdown-content">
+              <a href="torneos_festivales.html#master">Master</a>
+              <a href="torneos_festivales.html#open">Open</a>
+              <a href="torneos_festivales.html#gran_master">Gran Master</a>
+              <a href="torneos_festivales.html#libre">Libre</a>
+              <a href="torneos_festivales.html#prebenjamines">Prebenjamines</a>
+              <a href="torneos_festivales.html#benjamines">Benjamines</a>
+              <a href="torneos_festivales.html#baby">Baby</a>
+              <a href="torneos_festivales.html#babyfutbol">BabyFútbol</a>
+            </div>
+          </li>
+
+          <li class="dropdown">
+            <a href="juegos_institucionales.html" class="dropdown-toggle">Juegos Institucionales<span
+                class="arrow">▼</span></a>
+
+            <div class="dropdown-content">
+              <a href="juegos_institucionales.html#escolares_subregional">Escolares Sub_Regional</a>
+              <a href="juegos_institucionales.html#escolares_departamental">Escolares Departamental</a>
+              <a href="juegos_institucionales.html#intercolegiados_municipal">Intercolegiados Municipal</a>
+              <a href="juegos_institucionales.html#intercolegiados_subregional">Intercolegiados Sub_Regional</a>
+              <a href="juegos_institucionales.html#intercolegiados_departamental">Intercolegiados Departamental</a>
+              <a href="juegos_institucionales.html#mayores_subregional">Mayores sub_regional</a>
+              <a href="juegos_institucionales.html#mayores_departamental">Mayores Departamental</a>
+            </div>
+          </li>
+
+          <li><a href="diagrama.html">Estadísticas</a></li>
+        </ul>
+      </nav>
+      <!-- Navegación dinámica basada en autenticación -->
+      <div id="auth-navigation">
+        <a href="inicio_de_sesion.html" class="btn btn-secondary" id="login-btn">Iniciar Sesión</a>
+        <div id="user-menu" style="display: none;">
+          <span id="user-name-header">Usuario</span>
+          <a href="Dashboard.html" class="btn btn-primary" id="dashboard-btn">Dashboard</a>
+          <button id="logout-btn" class="btn btn-secondary">Cerrar Sesión</button>
+
+        </div>
+        <button id="menu-toggle" class="menu-toggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <main>
+    <div class="login-container">
+      <div class="login-card">
+        <h2 id="form-title">Iniciar Sesión</h2>
+        <p id="form-description" class="login-description">Ingrese sus credenciales para acceder al sistema</p>
+
+        <!-- Formulario de Login -->
+        <form id="login-form" class="login-form">
+          <div class="form-group">
+            <label for="email">Correo Electrónico</label>
+            <input type="email" id="email" name="email" placeholder="Ingrese su correo electrónico" required />
+          </div>
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required />
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-block">Iniciar Sesión</button>
+          </div>
+          <div class="form-group">
+            <a href="#" id="forgot-password-link" class="forgot-password-link">¿Olvidaste tu contraseña?</a>
+          </div>
+          <div id="login-error" class="error-message"></div>
+          <div id="login-success" class="success-message" style="color: green; text-align: center; display: none;">
+          </div>
+        </form>
+
+        <!-- Formulario de Recuperación de Contraseña -->
+        <form id="reset-form" class="login-form" style="display: none;">
+          <div class="form-group">
+            <label for="reset-email">Correo Electrónico</label>
+            <input type="email" id="reset-email" name="reset-email" placeholder="Ingrese su correo electrónico"
+              required />
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-block">Enviar Enlace de Recuperación</button>
+          </div>
+          <div class="form-group">
+            <a href="#" id="back-to-login-link" class="forgot-password-link">← Volver al inicio de sesión</a>
+          </div>
+          <div id="reset-error" class="error-message"></div>
+          <div id="reset-success" class="success-message" style="color: green; text-align: center; display: none;">
+          </div>
+        </form>
+
+        <div class="login-info">
+          <p>¿No tienes una cuenta? Contacta al administrador para obtener acceso.</p>
+          <p>Solo usuarios autorizados pueden acceder al sistema de gestión.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Pie de página -->
+  <footer>
+    <div class="container" style="text-align: center;">
+      <p>© 2025 INDER Copacabana. Todos los Derechos Reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./inicio_sesion.js"></script>
+
+  <style>
+    .forgot-password-link {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-size: 0.9rem;
+      text-align: center;
+      display: block;
+      margin-top: 10px;
+      transition: color 0.3s ease;
+    }
+
+    .forgot-password-link:hover {
+      color: var(--secondary-color);
+      text-decoration: underline;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .error-message {
+      color: #e74c3c;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+      font-size: 0.9rem;
+    }
+
+    .success-message {
+      color: #27ae60;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+      font-size: 0.9rem;
+    }
+  </style>
+  <script type="module">
+    function setupMobileDropdowns() {
+      const dropdowns = document.querySelectorAll('.dropdown');
+
+      dropdowns.forEach(dropdown => {
+        const toggle = dropdown.querySelector('.dropdown-toggle');
+        if (toggle) {
+          toggle.addEventListener('click', function (e) {
+            // Solo en móvil (ancho menor a 768px)
+            if (window.innerWidth <= 768) {
+              e.preventDefault();
+              e.stopPropagation();
+
+              // Cerrar otros dropdowns
+              dropdowns.forEach(otherDropdown => {
+                if (otherDropdown !== dropdown) {
+                  otherDropdown.classList.remove('active');
+                }
+              });
+
+              // Toggle el dropdown actual
+              dropdown.classList.toggle('active');
+            }
+          });
+        }
+      });
+
+      // Cerrar dropdowns al hacer click fuera
+      document.addEventListener('click', function (e) {
+        if (window.innerWidth <= 768) {
+          if (!e.target.closest('.dropdown')) {
+            dropdowns.forEach(dropdown => {
+              dropdown.classList.remove('active');
+            });
+          }
+        }
+      });
+    }
+    
+    document.addEventListener('DOMContentLoaded', setupMobileDropdowns);
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INDER Copacabana - Plataforma de Gestión Deportiva</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+
+<body>
+    <!-- Encabezado con navegación -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">INDER Copacabana</div>
+            <nav>
+                <ul>
+                    <li class="dropdown">
+                        <a href="index.html">Inicio</a>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="deportes.html" class="dropdown-toggle">Deportes Formativo<span
+                                class="arrow">▼</span></a>
+                        <div class="dropdown-content">
+                            <a href="deportes.html#futbol">Fútbol</a>
+                            <a href="deportes.html#futbol_de_salon">Fútbol de Salón</a>
+                            <a href="deportes.html#futbol_sala">Fútbol sala</a>
+                            <a href="deportes.html#ajedrez">Ajedrez</a>
+                            <a href="deportes.html#baloncesto">Baloncesto</a>
+                            <a href="deportes.html#balonmano">Balonmano</a>
+                            <a href="deportes.html#natacion">Natación</a>
+                            <a href="deportes.html#atletismo">Atletismo</a>
+                            <a href="deportes.html#patinaje">Patinaje</a>
+                            <a href="deportes.html#rugby">Rugby</a>
+                            <a href="deportes.html#tenis">Tenis de campo</a>
+                            <a href="deportes.html#voleibol">Voleibol</a>
+                            <a href="deportes.html#tenis">Tenis de Mesa</a>
+                            <a href="deportes.html">BMX</a>
+                            <a href="deportes.html#boxeo">Boxeo</a>
+                            <a href="deportes.html#gimnasia">Gimnasia</a>
+                            <a href="deportes.html#jiu_jitsu">Jiu Jitsu</a>
+                            <a href="deportes.html#levantamiento_de_pesas">Levantamiento de Pesas</a>
+                            <a href="deportes.html#taekwondo">Taekwondo</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="actividades.html" class="dropdown-toggle">Actividades Físicas <span
+                                class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="actividades.html#gimnasio_municipal">Gimnasio Municipal</a>
+                            <a href="actividades.html#descubre_tu_talento">Descubre tu Talento</a>
+                            <a href="actividades.html#nadadores_activos">Nadadores Activos</a>
+                            <a href="actividades.html#yoga">Yoga</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="recreacion.html" class="dropdown-toggle">Recreación<span class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="recreacion.html#rumba_aerobica">Rumba Aeróbica</a>
+                            <a href="recreacion.html#hidroaerobicos">Hidroaerobicos</a>
+
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="eventos_institucionales.html" class="dropdown-toggle">Eventos Institucionales<span
+                                class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="eventos_institucionales.html#vacaciones_recreativas">Vacaciones Recreativas</a>
+                            <a href="eventos_institucionales.html#celebracion_deporte_cultura">Celebración del Deporte y
+                                Cultura</a>
+
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="torneos_festivales.html" class="dropdown-toggle">Torneos y Festivales
+                            Institucionales<span class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="torneos_festivales.html#master">Master</a>
+                            <a href="torneos_festivales.html#open">Open</a>
+                            <a href="torneos_festivales.html#gran_master">Gran Master</a>
+                            <a href="torneos_festivales.html#libre">Libre</a>
+                            <a href="torneos_festivales.html#prebenjamines">Prebenjamines</a>
+                            <a href="torneos_festivales.html#benjamines">Benjamines</a>
+                            <a href="torneos_festivales.html#baby">Baby</a>
+                            <a href="torneos_festivales.html#babyfutbol">BabyFútbol</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="juegos_institucionales.html" class="dropdown-toggle">Juegos Institucionales<span
+                                class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="juegos_institucionales.html#escolares_subregional">Escolares Sub_Regional</a>
+                            <a href="juegos_institucionales.html#escolares_departamental">Escolares Departamental</a>
+                            <a href="juegos_institucionales.html#intercolegiados_municipal">Intercolegiados
+                                Municipal</a>
+                            <a href="juegos_institucionales.html#intercolegiados_subregional">Intercolegiados
+                                Sub_Regional</a>
+                            <a href="juegos_institucionales.html#intercolegiados_departamental">Intercolegiados
+                                Departamental</a>
+                            <a href="juegos_institucionales.html#mayores_subregional">Mayores sub_regional</a>
+                            <a href="juegos_institucionales.html#mayores_departamental">Mayores Departamental</a>
+                        </div>
+                    </li>
+
+                    <li><a href="diagrama.html">Estadísticas</a></li>
+                </ul>
+            </nav>
+            <!-- Navegación dinámica basada en autenticación -->
+            <div id="auth-navigation">
+                <a href="inicio_de_sesion.html" class="btn btn-secondary" id="login-btn">Iniciar Sesión</a>
+                <div id="user-menu" style="display: none;">
+                    <span id="user-name-header">Usuario</span>
+                    <a href="Dashboard.html" class="btn btn-primary" id="dashboard-btn">Dashboard</a>
+                    <button id="logout-btn" class="btn btn-secondary">Cerrar Sesión</button>
+
+                </div>
+                <button id="menu-toggle" class="menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main>
+        <div class="page-header">
+            <div class="container">
+                <h1>Deportes Informativo</h1>
+                <p>Lista completa de deportes disponibles con estadísticas de participación en tiempo real</p>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button onclick="actualizarEstadisticas()" class="btn btn-outline" id="btn-actualizar">
+                        🔄 Actualizar Estadísticas
+                    </button>
+                    <span id="ultima-actualizacion"
+                        style="margin-left: 1rem; color: #6c757d; font-size: 0.9rem;"></span>
+                </div>
+            </div>
+        </div>
+
+        <section class="container">
+            <div class="cards-container">
+                <!-- Fútbol -->
+                <div id="futbol" class="card" data-actividad="futbol">
+                    <div class="card-image">
+                        <img src="imagenes/futbol-02.jpg" alt="Fútbol">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Fútbol</h3>
+                        <p class="card-description">El deporte rey, lleno de pasión y estrategia. Desarrolla velocidad, coordinación
+y trabajo en equipo, uniendo corazones alrededor de un balón</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Fútbol de salon  -->
+                <div id="futbol_de_salon" class="card" data-actividad="futbol_de_salon">
+                    <div class="card-image">
+                        <img src="imagenes/futbol-de-salon-02.jpg" alt="Fútbol de Salón">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Fútbol de Salón</h3>
+                        <p class="card-description">Juego rápido e intenso en espacios reducidos. Aquí se cultivan reflejos,
+precisión y creatividad, fortaleciendo la táctica y el espíritu colectivo.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Fútbol-sala -->
+                <div id="futbol_sala" class="card" data-actividad="futbol_sala">
+                    <div class="card-image">
+                        <img src="imagenes/futbol-sala-02.jpg" alt="Fútbol de sala">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Fútbol sala</h3>
+                        <p class="card-description">Un deporte ágil y dinámico, donde la técnica, el control y la inteligencia de
+juego marcan la diferencia. Cada pase es un reto de concentración y destreza.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Ajedrez -->
+                <div id="ajedrez" class="card" data-actividad="ajedrez">
+                    <div class="card-image">
+                        <img src="imagenes/ajedrez-02.jpg" alt="ajedrez">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Ajedrez</h3>
+                        <p class="card-description">El deporte ciencia. Entrena la mente en estrategia, concentración y paciencia.
+Cada partida es un ejercicio de lógica y visión a futuro.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Baloncesto -->
+                <div id="baloncesto" class="card" data-actividad="baloncesto">
+                    <div class="card-image">
+                        <img src="imagenes/baloncesto-02.jpg" alt="Baloncesto">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Baloncesto</h3>
+                        <p class="card-description">Juego de energía y agilidad. Impulsa la coordinación, la toma de decisiones
+rápidas y la confianza en equipo. Cada canasta es fruto del esfuerzo colectivo</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Balonmano -->
+                <div id="balonmano" class="card" data-actividad="balonmano">
+                    <div class="card-image">
+                        <img src="imagenes/balonmano-02.jpg" alt="balonmano">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Balonmano</h3>
+                        <p class="card-description">Deporte de velocidad, fuerza y coordinación. Exige precisión en cada
+lanzamiento y fomenta la disciplina en equipo.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- Natación -->
+                <div id="natacion" class="card" data-actividad="natacion">
+                    <div class="card-image">
+                        <img src="imagenes/natacion-02.jpg" alt="Natación">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Natación</h3>
+                        <p class="card-description">Disciplina individual donde se recorre una distancia en el agua
+                            utilizando diferentes estilos como libre, pecho, espalda o mariposa.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Atletismo -->
+                <div id="atletismo" class="card" data-actividad="atletismo">
+                    <div class="card-image">
+                        <img src="imagenes/atletismo-02.jpg" alt="Atletismo">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Atletismo</h3>
+                        <p class="card-description">La esencia del movimiento. Correr, saltar y lanzar son la base de la superación
+personal, donde se ponen a prueba velocidad, fuerza y resistencia.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- patinaje-->
+                <div id="patinaje" class="card" data-actividad="patinaje">
+                    <div class="card-image">
+                        <img src="imagenes/patinaje-02.jpg" alt="patinaje">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Patinaje</h3>
+                        <p class="card-description">Equilibrio y velocidad sobre ruedas. Favorece la coordinación motora, la
+disciplina y el dominio del cuerpo en movimiento.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- rugby -->
+                <div id="rugby" class="card" data-actividad="rugby">
+                    <div class="card-image">
+                        <img src="imagenes/rugby-02.jpg" alt="rugby">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Rugby</h3>
+                        <p class="card-description">Fuerza, estrategia y unión. Más que contacto, es un deporte de respeto,
+disciplina y compañerismo.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Tenis -->
+                <div id="tenis_de_campo" class="card" data-actividad="tenis_de_campo">
+                    <div class="card-image">
+                        <img src="imagenes/tenis-02.jpg" alt="Tenis">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Tenis de Campo</h3>
+                        <p class="card-description">Elegancia y precisión en la cancha. Desarrolla agilidad, resistencia y
+concentración, combinando técnica y estrategia.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Voleibol -->
+                <div id="voleibol" class="card" data-actividad="voleibol">
+                    <div class="card-image">
+                        <img src="imagenes/voleibol-02.jpg" alt="Voleibol">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Voleibol</h3>
+                        <p class="card-description">DUn deporte de unión y confianza. Cada saque y cada punto fortalecen la
+comunicación, la coordinación y el espíritu de equipo.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Tenis de Mesa -->
+                <div id="descubre_tu_talento" class="card" data-actividad="descubre_tu_talento">
+                    <div class="card-image">
+                        <img src="imagenes/descubre_tu_talento-02.jpg" alt="descubre_tu_talento">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Tenis de Mesa</h3>
+                        <p class="card-description">Reflejos, agilidad y concentración al máximo. Cada intercambio es un reto de
+coordinación y estrategia mental.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- BMX -->
+                <div id="bmx" class="card" data-actividad="bmx">
+                    <div class="card-image">
+                        <img src="imagenes/bmx-02.jpg" alt="BMX">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">BMX</h3>
+                        <p class="card-description">Velocidad, adrenalina y control sobre dos ruedas. Fortalece la disciplina, el
+equilibrio y la pasión por superar obstáculos.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="boxeo" class="card" data-actividad="boxeo">
+                    <div class="card-image">
+                        <img src="imagenes/boxeo-02.jpg" alt="Boxeo">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Boxeo</h3>
+                        <p class="card-description">Más que un deporte de combate, es disciplina, autocontrol y fortaleza mental.
+Desarrolla resistencia, rapidez y concentración.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- gimnasia -->
+                <div id="gimnasia" class="card" data-actividad="gimnasia">
+                    <div class="card-image">
+                        <img src="imagenes/gimnasia-02.jpg" alt="Gimnasia">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Gimnasia</h3>
+                        <p class="card-description">El arte de la fuerza y la flexibilidad. Con movimientos llenos de precisión,
+impulsa la coordinación, el equilibrio y la disciplina.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- jiu jitsu-->
+                <div id="jiu_jitsu" class="card" data-actividad="jiu_jitsu">
+                    <div class="card-image">
+                        <img src="imagenes/jiu jitsu-02.jpg" alt="jiu_jitsu">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Jiu Jitsu</h3>
+                        <p class="card-description">Deporte de defensa y autocontrol. Refuerza la confianza, la concentración y el
+respeto, a través de técnicas de combate inteligentes.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- levantamiento de pesas-->
+                <div id="levantamiento_de_pesas" class="card" data-actividad="levantamiento_de_pesas">
+                    <div class="card-image">
+                        <img src="imagenes/levantamiento-de-pesas-02.jpg" alt="levantamiento_de_pesas">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Levantamiento de Pesas</h3>
+                        <p class="card-description">Fuerza, potencia y técnica. Más que levantar kilos, es aprender a dominar el
+cuerpo y la mente con disciplina.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- TAEKWONDO-->
+                <div id="taekwondo" class="card" data-actividad="taekwondo">
+                    <div class="card-image">
+                        <img src="imagenes/taekwondo-02.jpg" alt="taekwondo">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Taekwondo</h3>
+                        <p class="card-description">Arte marcial que combina fuerza y respeto. Enseña autocontrol, concentración
+y seguridad a través de la técnica y la disciplina.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" data-stat="total">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" data-stat="hombres">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" data-stat="mujeres">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="gender-chart">
+                            <div class="gender-bar">
+                                <div class="gender-segment male" data-chart="male" style="width: 0%;">0%</div>
+                                <div class="gender-segment female" data-chart="female" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color male"></div>
+                                    <span>Hombres</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color female"></div>
+                                    <span>Mujeres</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+            </div>
+            </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Pie de página -->
+    <footer>
+        <div class="container" style="text-align: center;">
+            <p>© 2025 INDER Copacabana. Todos los Derechos Reservados.</p>
+        </div>
+    </footer>
+
+
+    <script type="module">
+        import {
+            supabaseClient,
+            isAuthenticated,
+            getUserProfile,
+            signOut
+        } from './supabase-config.js';
+
+        // --- Navegación: verificar sesión e info de usuario ---
+        async function updateNavigation() {
+            try {
+                const isAuth = await isAuthenticated();
+                const loginBtn = document.getElementById('login-btn');
+                const userMenu = document.getElementById('user-menu');
+                const userNameHeader = document.getElementById('user-name-header');
+
+                if (isAuth) {
+                    const userProfile = await getUserProfile();
+                    if (userProfile) {
+                        loginBtn.style.display = 'none';
+                        userMenu.style.display = 'flex';
+                        userMenu.style.alignItems = 'center';
+                        userMenu.style.gap = '1rem';
+                        userNameHeader.textContent = userProfile.full_name || userProfile.username || 'Usuario';
+
+                        document.getElementById('logout-btn').addEventListener('click', async () => {
+                            try {
+                                await signOut();
+                                window.location.reload();
+                            } catch (error) {
+                                console.error('Error al cerrar sesión:', error);
+                            }
+                        });
+                    }
+                } else {
+                    loginBtn.style.display = 'inline-block';
+                    userMenu.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error al actualizar navegación:', error);
+            }
+        }
+
+        // --- Obtener estadísticas generales por actividad ---
+        async function obtenerEstadisticasActividades() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('participantes')
+                    .select('actividad, genero');
+
+                if (error) throw error;
+
+                const estadisticas = {};
+                data.forEach(({ actividad, genero }) => {
+                    if (!estadisticas[actividad]) {
+                        estadisticas[actividad] = { total: 0, hombres: 0, mujeres: 0 };
+                    }
+
+                    estadisticas[actividad].total++;
+                    if (genero === 'Hombre') estadisticas[actividad].hombres++;
+                    if (genero === 'Mujer') estadisticas[actividad].mujeres++;
+                });
+
+                return estadisticas;
+            } catch (error) {
+                console.error('Error al obtener estadísticas:', error);
+                return {};
+            }
+        }
+
+        // --- Actualizar tarjeta individual ---
+        function actualizarTarjeta(actividad, stats) {
+            const tarjeta = document.querySelector(`[data-actividad="${actividad}"]`);
+            if (!tarjeta) return;
+
+            const { total = 0, hombres = 0, mujeres = 0 } = stats;
+            const porcentajeHombres = total > 0 ? Math.round((hombres / total) * 100) : 0;
+            const porcentajeMujeres = total > 0 ? Math.round((mujeres / total) * 100) : 0;
+
+            tarjeta.querySelector('[data-stat="total"]').textContent = total;
+            tarjeta.querySelector('[data-stat="hombres"]').textContent = `${hombres} (${porcentajeHombres}%)`;
+            tarjeta.querySelector('[data-stat="mujeres"]').textContent = `${mujeres} (${porcentajeMujeres}%)`;
+
+            const barraHombres = tarjeta.querySelector('[data-chart="male"]');
+            const barraMujeres = tarjeta.querySelector('[data-chart="female"]');
+
+            barraHombres.style.width = `${porcentajeHombres}%`;
+            barraMujeres.style.width = `${porcentajeMujeres}%`;
+
+            barraHombres.textContent = `${porcentajeHombres}%`;
+            barraMujeres.textContent = `${porcentajeMujeres}%`;
+
+            setTimeout(() => {
+                barraHombres.style.transition = 'width 0.8s ease-in-out';
+                barraMujeres.style.transition = 'width 0.8s ease-in-out';
+            }, 100);
+        }
+
+        // --- Actualizar todas las estadísticas ---
+        async function actualizarEstadisticas() {
+            const boton = document.getElementById('btn-actualizar');
+            const ultimaActualizacion = document.getElementById('ultima-actualizacion');
+
+            boton.textContent = '🔄 Actualizando...';
+            boton.disabled = true;
+
+            try {
+                const estadisticas = await obtenerEstadisticasActividades();
+
+                const actividades = [
+                    'futbol', 'futbol_de_salon', 'futbol_sala', 'ajedrez',
+                    'baloncesto', 'balonmano', 'natacion', 'atletismo',
+                    'patinaje', 'rugby', 'tenis_de_campo', 'voleibol',
+                    'bmx', 'boxeo', 'descubre_tu_talento', 'gimnasia',
+                    'jiu_jitsu', 'levantamiento_de_pesas',
+                    'tenis_mesa', 'taekwondo'
+                ];
+
+                actividades.forEach(actividad => {
+                    const stats = estadisticas[actividad] || { total: 0, hombres: 0, mujeres: 0 };
+                    actualizarTarjeta(actividad, stats);
+                });
+
+                const ahora = new Date().toLocaleString('es-ES', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                ultimaActualizacion.textContent = `Última actualización: ${ahora}`;
+
+                console.log('Estadísticas actualizadas');
+            } catch (error) {
+                ultimaActualizacion.textContent = 'Error al actualizar estadísticas';
+                console.error('Error al actualizar estadísticas:', error);
+            } finally {
+                boton.textContent = '🔄 Actualizar Estadísticas';
+                boton.disabled = false;
+            }
+        }
+
+        // --- Actualización automática cada 30 segundos ---
+        function iniciarActualizacionAutomatica() {
+            setInterval(actualizarEstadisticas, 30000);
+        }
+
+        // --- Listeners globales ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            await updateNavigation();
+            await actualizarEstadisticas();
+            iniciarActualizacionAutomatica();
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) actualizarEstadisticas();
+        });
+
+        // Exponer función al botón
+        window.actualizarEstadisticas = actualizarEstadisticas;
+
+        // Manejar dropdowns en móvil
+        function setupMobileDropdowns() {
+            const dropdowns = document.querySelectorAll('.dropdown');
+
+            dropdowns.forEach(dropdown => {
+                const toggle = dropdown.querySelector('.dropdown-toggle');
+                if (toggle) {
+                    toggle.addEventListener('click', function (e) {
+                        // Solo en móvil (ancho menor a 768px)
+                        if (window.innerWidth <= 768) {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            // Cerrar otros dropdowns
+                            dropdowns.forEach(otherDropdown => {
+                                if (otherDropdown !== dropdown) {
+                                    otherDropdown.classList.remove('active');
+                                }
+                            });
+
+                            // Toggle el dropdown actual
+                            dropdown.classList.toggle('active');
+                        }
+                    });
+                }
+            });
+
+            // Cerrar dropdowns al hacer click fuera
+            document.addEventListener('click', function (e) {
+                if (window.innerWidth <= 768) {
+                    if (!e.target.closest('.dropdown')) {
+                        dropdowns.forEach(dropdown => {
+                            dropdown.classList.remove('active');
+                        });
+                    }
+                }
+            });
+        }
+
+        // Llamar la función cuando cargue la página
+        document.addEventListener('DOMContentLoaded', setupMobileDropdowns);
+    </script>
+
+</body>
+
+</html>

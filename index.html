@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INDER Copacabana - Plataforma de Gestión Deportiva</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+
+<body>
+    <!-- Encabezado con navegación -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">INDER Copacabana</div>
+            <nav>
+                <ul>
+                    <li class="dropdown">
+                        <a href="index.html">Inicio</a>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="deportes.html" class="dropdown-toggle">Deportes Formativo<span
+                                class="arrow">▼</span></a>
+                        <div class="dropdown-content">
+                            <a href="deportes.html#futbol">Fútbol</a>
+                            <a href="deportes.html#futbol_de_salon">Fútbol de Salón</a>
+                            <a href="deportes.html#futbol_sala">Fútbol sala</a>
+                            <a href="deportes.html#ajedrez">Ajedrez</a>
+                            <a href="deportes.html#baloncesto">Baloncesto</a>
+                            <a href="deportes.html#balonmano">Balonmano</a>
+                            <a href="deportes.html#natacion">Natación</a>
+                            <a href="deportes.html#atletismo">Atletismo</a>
+                            <a href="deportes.html#patinaje">Patinaje</a>
+                            <a href="deportes.html#rugby">Rugby</a>
+                            <a href="deportes.html#tenis">Tenis de campo</a>
+                            <a href="deportes.html#voleibol">Voleibol</a>
+                            <a href="deportes.html#tenis">Tenis de Mesa</a>
+                            <a href="deportes.html">BMX</a>
+                            <a href="deportes.html#boxeo">Boxeo</a>
+                            <a href="deportes.html#gimnasia">Gimnasia</a>
+                            <a href="deportes.html#jiu_jitsu">Jiu Jitsu</a>
+                            <a href="deportes.html#levantamiento_de_pesas">Levantamiento de Pesas</a>
+                            <a href="deportes.html#taekwondo">Taekwondo</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="actividades.html" class="dropdown-toggle">Actividades Físicas <span
+                                class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="actividades.html#gimnasio_municipal">Gimnasio Municipal</a>
+                            <a href="actividades.html#descubre_tu_talento">Descubre tu Talento</a>
+                            <a href="actividades.html#nadadores_activos">Nadadores Activos</a>
+                            <a href="actividades.html#yoga">Yoga</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="recreacion.html" class="dropdown-toggle">Recreación<span class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="recreacion.html#rumba_aerobica">Rumba Aeróbica</a>
+                            <a href="recreacion.html#hidroaerobicos">Hidroaerobicos</a>
+
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="eventos_institucionales.html" class="dropdown-toggle">Eventos Institucionales<span
+                                class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="eventos_institucionales.html#vacaciones_recreativas">Vacaciones Recreativas</a>
+                            <a href="eventos_institucionales.html#celebracion_deporte_cultura">Celebración del Deporte y
+                                Cultura</a>
+
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="torneos_festivales.html" class="dropdown-toggle">Torneos y Festivales
+                            Institucionales<span class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="torneos_festivales.html#master">Master</a>
+                            <a href="torneos_festivales.html#open">Open</a>
+                            <a href="torneos_festivales.html#gran_master">Gran Master</a>
+                            <a href="torneos_festivales.html#libre">Libre</a>
+                            <a href="torneos_festivales.html#prebenjamines">Prebenjamines</a>
+                            <a href="torneos_festivales.html#benjamines">Benjamines</a>
+                            <a href="torneos_festivales.html#baby">Baby</a>
+                            <a href="torneos_festivales.html#babyfutbol">BabyFútbol</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="juegos_institucionales.html" class="dropdown-toggle">Juegos Institucionales<span
+                                class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="juegos_institucionales.html#escolares_subregional">Escolares Sub_Regional</a>
+                            <a href="juegos_institucionales.html#escolares_departamental">Escolares Departamental</a>
+                            <a href="juegos_institucionales.html#intercolegiados_municipal">Intercolegiados
+                                Municipal</a>
+                            <a href="juegos_institucionales.html#intercolegiados_subregional">Intercolegiados
+                                Sub_Regional</a>
+                            <a href="juegos_institucionales.html#intercolegiados_departamental">Intercolegiados
+                                Departamental</a>
+                            <a href="juegos_institucionales.html#mayores_subregional">Mayores sub_regional</a>
+                            <a href="juegos_institucionales.html#mayores_departamental">Mayores Departamental</a>
+                        </div>
+                    </li>
+
+                    <li><a href="diagrama.html">Estadísticas</a></li>
+                </ul>
+            </nav>
+            <!-- Navegación dinámica basada en autenticación -->
+            <div id="auth-navigation">
+                <a href="inicio_de_sesion.html" class="btn btn-secondary" id="login-btn">Iniciar Sesión</a>
+                <div id="user-menu" style="display: none;">
+                    <span id="user-name-header">Usuario</span>
+                    <a href="Dashboard.html" class="btn btn-primary" id="dashboard-btn">Dashboard</a>
+                    <button id="logout-btn" class="btn btn-secondary">Cerrar Sesión</button>
+
+                </div>
+                <button id="menu-toggle" class="menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+    </header>
+
+    <!-- Sección Hero -->
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="container hero-content">
+            <h1>Programas Inder Copacabana</h1>
+            <p>Monitorea y analiza la participación en diferentes actividades físicas, deportes y recreaciones.</p>
+            <a href="deportes.html" class="btn btn-primary btn-lg">Explorar Actividades</a>
+        </div>
+    </section>
+
+    <!-- Sección de Categorías -->
+    <section class="section-categories">
+        <div class="container">
+            <div class="section-header">
+                <h2>Categorías Principales</h2>
+                <p>Descubre las diferentes actividades disponibles y sus estadísticas</p>
+            </div>
+            <div class="cards-container cards-categorias">
+
+                <!-- Tarjeta de Deportes -->
+                <div class="card">
+                    <div class="card-image">
+                        <img src="imagenes/tiro-con-arco-02.jpg">
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Deporte Formativo</h3>
+                        <p class="card-description">Actividades competitivas que requieren habilidad física, estrategia
+                            y competición.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" id="total-deportes">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" id="hombres-deportes">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" id="mujeres-deportes">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <a href="deportes.html" class="btn btn-outline">Ver Deportes</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta de Actividades Físicas -->
+                <div class="card">
+                    <div class="card-image">
+                        <img src="imagenes/actividad-fisica-02.jpg" alt="Actividades Físicas">
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Actividades Físicas</h3>
+                        <p class="card-description">Ejercicios y prácticas orientadas al bienestar físico y mental que
+                            mejoran la calidad de vida.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" id="total-actividades">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" id="hombres-actividades">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" id="mujeres-actividades">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <a href="actividades.html" class="btn btn-outline">Ver Actividades</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recreación -->
+                <div class="card">
+                    <div class="card-image">
+                        <img src="imagenes/tiro-con-arco-02.jpg">
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Recreación</h3>
+                        <p class="card-description">Actividades físicas dinámicas y grupales orientadas al disfrute, la
+                            salud y la integración social.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" id="total-recreacion">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" id="hombres-recreacion">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" id="mujeres-recreacion">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <a href="recreacion.html" class="btn btn-outline">Ver Recreación</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Eventos Institucionales -->
+                <div class="card">
+                    <div class="card-image">
+                        <img src="imagenes/tiro-con-arco-02.jpg">
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Eventos Institucionales</h3>
+                        <p class="card-description">Jornadas organizadas para promover la participación, la convivencia
+                            y la cultura a través de actividades.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" id="total-eventos">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" id="hombres-eventos">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" id="mujeres-eventos">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <a href="eventos_institucionales.html" class="btn btn-outline">Ver Eventos</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Torneos y Festivales Institucionales -->
+                <div class="card">
+                    <div class="card-image">
+                        <img src="imagenes/tiro-con-arco-02.jpg">
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Torneos y Festivales Institucionales</h3>
+                        <p class="card-description">Encuentros deportivos organizados por la institución que fomentan la
+                            competencia, el desarrollo y habilidades.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" id="total-torneos">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" id="hombres-torneos">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" id="mujeres-torneos">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <a href="torneos_festivales.html" class="btn btn-outline">Ver Torneos</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Juegos Institucionales -->
+                <div class="card">
+                    <div class="card-image">
+                        <img src="imagenes/tiro-con-arco-02.jpg">
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Juegos Institucionales</h3>
+                        <p class="card-description">Competencias deportivas entre instituciones educativas y
+                            comunitarias, promueve la participación local y departamental.</p>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Participantes:</span>
+                                <span class="stat-value" id="total-juegos">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hombres:</span>
+                                <span class="stat-value" id="hombres-juegos">Cargando...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Mujeres:</span>
+                                <span class="stat-value" id="mujeres-juegos">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <a href="juegos_institucionales.html" class="btn btn-outline">Ver Juegos</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Diagrama -->
+    <section class="section-diagram">
+        <div class="container">
+            <div class="section-header">
+                <h2>Análisis de Datos</h2>
+                <p>Visualización del proceso y estructura de la aplicación</p>
+            </div>
+            <div class="diagrama">
+                <h3>Dashboard de Estadísticas</h3>
+                <p>Accede a análisis detallados y gráficos interactivos de participación deportiva.</p>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <a href="diagrama.html" class="btn btn-primary">Ver Estadísticas Completas</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Estadísticas -->
+    <section class="section-stats">
+        <div class="container">
+            <div class="section-header">
+                <h2>Estadísticas Generales</h2>
+                <p>Análisis de participación por género, edad y actividad en tiempo real</p>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button onclick="actualizarEstadisticasGenerales()" class="btn btn-outline"
+                        id="btn-actualizar-general">
+                        🔄 Actualizar Estadísticas
+                    </button>
+                    <span id="ultima-actualizacion-general"
+                        style="margin-left: 1rem; color: #6c757d; font-size: 0.9rem;"></span>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stats-card">
+                    <h4>Distribución por Género</h4>
+                    <div class="pie-chart-container">
+                        <div class="pie-chart" id="pie-chart-genero">
+                            <div class="pie-slice" style="--percentage: 0; --color: var(--color-male);"></div>
+                            <div class="pie-slice" style="--percentage: 0; --color: var(--color-female);"></div>
+                        </div>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--color-male);"></div>
+                            <span id="leyenda-hombres">Hombres (0%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--color-female);"></div>
+                            <span id="leyenda-mujeres">Mujeres (0%)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <h4>Distribución por Edad</h4>
+                    <div class="bar-chart" id="chart-edades">
+                        <div class="bar-container">
+                            <div class="bar-label">0-5</div>
+                            <div class="bar" style="--percentage: 0;" id="bar-0-5"></div>
+                            <div class="bar-value" id="value-0-5">0%</div>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-label">6-11</div>
+                            <div class="bar" style="--percentage: 0;" id="bar-6-11"></div>
+                            <div class="bar-value" id="value-6-18">0%</div>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-label">12-18</div>
+                            <div class="bar" style="--percentage: 0;" id="bar-12-18"></div>
+                            <div class="bar-value" id="value-12-18">0%</div>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-label">19-26</div>
+                            <div class="bar" style="--percentage: 0;" id="bar-19-26"></div>
+                            <div class="bar-value" id="value-19-26">0%</div>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-label">27-59</div>
+                            <div class="bar" style="--percentage: 0;" id="bar-27-59"></div>
+                            <div class="bar-value" id="value-27-59">0%</div>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-label">60+</div>
+                            <div class="bar" style="--percentage: 0;" id="bar-60+"></div>
+                            <div class="bar-value" id="value-60+">0%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <h4>Actividades Más Populares</h4>
+                    <div class="stats" id="actividades-populares">
+                        <div class="stat-item">
+                            <span class="stat-label">Cargando...</span>
+                            <span class="stat-value">...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pie de página -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="logo">INDER Copacabana</div>
+                    <p>Plataforma de gestión y análisis deportivo</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Categorías</h4>
+                        <ul>
+                            <li><a href="deportes.html">Deportes</a></li>
+                            <li><a href="actividades.html">Actividades Físicas</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Información</h4>
+                        <ul>
+                            <li><a href="diagrama.html">Estadísticas</a></li>
+                            <li><a href="#">Acerca de</a></li>
+                            <li><a href="#">Contacto</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom" style="text-align: center;">
+                <p>© 2025 INDER Copacabana. Todos los Derechos Reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { supabaseClient, isAuthenticated, getUserProfile, signOut } from './supabase-config.js';
+
+        // Variables globales
+        let userProfile = null;
+
+        // Función para verificar autenticación y actualizar navegación
+        async function updateNavigation() {
+            try {
+                const isAuth = await isAuthenticated();
+                const loginBtn = document.getElementById('login-btn');
+                const userMenu = document.getElementById('user-menu');
+                const userNameHeader = document.getElementById('user-name-header');
+
+                if (isAuth) {
+                    userProfile = await getUserProfile();
+
+                    if (userProfile) {
+                        // Mostrar menú de usuario autenticado
+                        loginBtn.style.display = 'none';
+                        userMenu.style.display = 'flex';
+                        userMenu.style.alignItems = 'center';
+                        userMenu.style.gap = '1rem';
+
+                        userNameHeader.textContent = userProfile.full_name || userProfile.username || 'Usuario';
+
+                        // Configurar botón de logout
+                        document.getElementById('logout-btn').addEventListener('click', async function () {
+                            try {
+                                await signOut();
+                                window.location.reload();
+                            } catch (error) {
+                                console.error('Error al cerrar sesión:', error);
+                            }
+                        });
+                    }
+                } else {
+                    // Mostrar botón de login
+                    loginBtn.style.display = 'inline-block';
+                    userMenu.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error al actualizar navegación:', error);
+                // En caso de error, mostrar botón de login
+                document.getElementById('login-btn').style.display = 'inline-block';
+                document.getElementById('user-menu').style.display = 'none';
+            }
+        }
+
+        // Función para obtener todas las estadísticas generales
+        async function obtenerEstadisticasGenerales() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('participantes')
+                    .select('*');
+
+                if (error) throw error;
+
+                return data || [];
+            } catch (error) {
+                console.error('Error al obtener estadísticas generales:', error);
+                return [];
+            }
+        }
+
+        // Función para calcular distribución por género
+        function calcularDistribucionGenero(participantes) {
+            const total = participantes.length;
+            const hombres = participantes.filter(p => p.genero === 'Hombre').length;
+            const mujeres = participantes.filter(p => p.genero === 'Mujer').length;
+
+            const porcentajeHombres = total > 0 ? ((hombres / total) * 100).toFixed(1) : 0;
+            const porcentajeMujeres = total > 0 ? ((mujeres / total) * 100).toFixed(1) : 0;
+
+            return { total, hombres, mujeres, porcentajeHombres, porcentajeMujeres };
+        }
+
+        // Función para calcular distribución por edad
+        function calcularDistribucionEdad(participantes) {
+            const total = participantes.length;
+            const rangos = {
+                '0-5': 0,
+                '6-11': 0,
+                '12-18': 0,
+                '19-26': 0,
+                '27-59': 0,
+                '60+': 0
+            };
+
+            participantes.forEach(p => {
+                const edad = p.edad;
+                if (edad >= 5 && edad <= 12) rangos['0-5']++;
+                else if (edad >= 13 && edad <= 18) rangos['6-11']++;
+                else if (edad >= 19 && edad <= 25) rangos['12-18']++;
+                else if (edad >= 26 && edad <= 35) rangos['19-26']++;
+                else if (edad >= 36 && edad <= 50) rangos['27-59']++;
+                else if (edad >= 51) rangos['60+']++;
+            });
+
+            // Calcular porcentajes
+            const porcentajes = {};
+            Object.keys(rangos).forEach(rango => {
+                porcentajes[rango] = total > 0 ? ((rangos[rango] / total) * 100).toFixed(1) : 0;
+            });
+
+            return { rangos, porcentajes, total };
+        }
+
+        // Función para obtener actividades más populares
+        function obtenerActividadesPopulares(participantes) {
+            const conteo = {};
+
+            participantes.forEach(p => {
+                const actividad = p.actividad;
+                conteo[actividad] = (conteo[actividad] || 0) + 1;
+            });
+
+            // Convertir a array y ordenar por cantidad
+            const actividadesOrdenadas = Object.entries(conteo)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 5); // Top 5
+
+            return actividadesOrdenadas;
+        }
+
+        // Función para actualizar gráfico de género
+        function actualizarGraficoGenero(stats) {
+            const pieChart = document.getElementById('pie-chart-genero');
+            const leyendaHombres = document.getElementById('leyenda-hombres');
+            const leyendaMujeres = document.getElementById('leyenda-mujeres');
+
+            // Actualizar gráfico circular
+            pieChart.style.background = `conic-gradient(
+                var(--color-male) 0% ${stats.porcentajeHombres}%, 
+                var(--color-female) ${stats.porcentajeHombres}% 100%
+            )`;
+
+            // Actualizar leyendas
+            leyendaHombres.textContent = `Hombres (${stats.porcentajeHombres}%)`;
+            leyendaMujeres.textContent = `Mujeres (${stats.porcentajeMujeres}%)`;
+        }
+
+        // Función para actualizar gráfico de edades
+        function actualizarGraficoEdades(stats) {
+            Object.keys(stats.rangos).forEach(rango => {
+                const barId = `bar-${rango.replace('+', '').replace('-', '-')}`;
+                const valueId = `value-${rango.replace('+', '').replace('-', '-')}`;
+
+                const bar = document.getElementById(barId);
+                const value = document.getElementById(valueId);
+
+                if (bar && value) {
+                    const porcentaje = stats.porcentajes[rango];
+                    bar.style.setProperty('--percentage', porcentaje);
+                    value.textContent = `${porcentaje}%`;
+
+                    // Animación
+                    setTimeout(() => {
+                        bar.style.width = `${porcentaje}%`;
+                    }, 100);
+                }
+            });
+        }
+
+        // Función para actualizar actividades populares
+        function actualizarActividadesPopulares(actividades) {
+            const container = document.getElementById('actividades-populares');
+
+            if (actividades.length === 0) {
+                container.innerHTML = '<div class="stat-item"><span class="stat-label">No hay datos disponibles</span></div>';
+                return;
+            }
+
+            let html = '';
+            actividades.forEach(([actividad, cantidad]) => {
+                // Convertir nombre de actividad a formato legible
+                const nombreLegible = actividad.replace(/_/g, ' ')
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+
+                html += `
+                    <div class="stat-item">
+                        <span class="stat-label">${nombreLegible}:</span>
+                        <span class="stat-value">${cantidad} participantes</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Función para actualizar estadísticas por categoría
+        function actualizarEstadisticasCategorias(participantes) {
+            const categoriasActividades = {
+                deportes: [
+                    'futbol', 'futbol_de_salon', 'futbol_sala', 'ajedrez',
+                    'baloncesto', 'balonmano', 'natacion', 'atletismo',
+                    'patinaje', 'rugby', 'tenis_de_campo', 'voleibol',
+                    'bmx', 'boxeo', 'descubre_tu_talento', 'gimnasia',
+                    'jiu_jitsu', 'levantamiento_de_pesas',
+                    'tenis_mesa', 'taekwondo',
+                ],
+                actividades_fisicas: [
+                    'gimnasio_municipal', 'descubre_tu_talento',
+                    'nadadores_activos', 'yoga',
+                ],
+                recreacion: [
+                    'rumba_aerobica', 'hidroaerobicos',
+                ],
+                eventos: [
+                    'vacaciones_recreativas', 'celebracion_deporte_cultura',
+                ],
+                torneos: [
+                    'master', 'open',
+                    'gran_master', 'libre',
+                    'prebenjamines', 'benjamines',
+                    'baby', 'baby_futbol',
+                ],
+                juegos: [
+                    'escolares_subregional', 'escolares_departamental',
+                    'intercolegiados_municipal', 'intercolegiados_subregional',
+                    'intercolegiados_departamental', 'mayores_subregional',
+                    'mayores_departamental'
+                ]
+            };
+
+
+            const deportes = participantes.filter(p =>
+                categoriasActividades.deportes.includes(p.actividad?.toLowerCase())
+            );
+            const actividades = participantes.filter(p =>
+                categoriasActividades.actividades_fisicas.includes(p.actividad?.toLowerCase())
+            );
+            const recreacion = participantes.filter(p =>
+                categoriasActividades.recreacion.includes(p.actividad?.toLowerCase())
+            );
+            const eventos = participantes.filter(p =>
+                categoriasActividades.eventos.includes(p.actividad?.toLowerCase())
+            );
+            const torneos = participantes.filter(p =>
+                categoriasActividades.torneos.includes(p.actividad?.toLowerCase())
+            );
+            const juegos = participantes.filter(p =>
+                categoriasActividades.juegos.includes(p.actividad?.toLowerCase())
+            );
+
+
+            // Deportes
+            const totalDeportes = deportes.length;
+            const hombresDeportes = deportes.filter(p => p.genero === 'Hombre').length;
+            const mujeresDeportes = deportes.filter(p => p.genero === 'Mujer').length;
+            const porcentajeHombresDeportes = totalDeportes > 0 ? Math.round((hombresDeportes / totalDeportes) * 100) : 0;
+            const porcentajeMujeresDeportes = totalDeportes > 0 ? Math.round((mujeresDeportes / totalDeportes) * 100) : 0;
+
+            document.getElementById('total-deportes').textContent = totalDeportes;
+            document.getElementById('hombres-deportes').textContent = `${hombresDeportes} (${porcentajeHombresDeportes}%)`;
+            document.getElementById('mujeres-deportes').textContent = `${mujeresDeportes} (${porcentajeMujeresDeportes}%)`;
+
+            // Actividades Físicas
+            const totalActividades = actividades.length;
+            const hombresActividades = actividades.filter(p => p.genero === 'Hombre').length;
+            const mujeresActividades = actividades.filter(p => p.genero === 'Mujer').length;
+            const porcentajeHombresActividades = totalActividades > 0 ? Math.round((hombresActividades / totalActividades) * 100) : 0;
+            const porcentajeMujeresActividades = totalActividades > 0 ? Math.round((mujeresActividades / totalActividades) * 100) : 0;
+
+            document.getElementById('total-actividades').textContent = totalActividades;
+            document.getElementById('hombres-actividades').textContent = `${hombresActividades} (${porcentajeHombresActividades}%)`;
+            document.getElementById('mujeres-actividades').textContent = `${mujeresActividades} (${porcentajeMujeresActividades}%)`;
+
+            const totalRecreacion = recreacion.length;
+            const hombresRecreacion = recreacion.filter(p => p.genero === 'Hombre').length;
+            const mujeresRecreacion = recreacion.filter(p => p.genero === 'Mujer').length;
+            const porcentajeHombresRecreacion = totalRecreacion > 0 ? Math.round((hombresRecreacion / totalRecreacion) * 100) : 0;
+            const porcentajeMujeresRecreacion = totalRecreacion > 0 ? Math.round((mujeresRecreacion / totalRecreacion) * 100) : 0;
+
+            document.getElementById('total-recreacion').textContent = totalRecreacion;
+            document.getElementById('hombres-recreacion').textContent = `${hombresRecreacion} (${porcentajeHombresRecreacion}%)`;
+            document.getElementById('mujeres-recreacion').textContent = `${mujeresRecreacion} (${porcentajeMujeresRecreacion}%)`;
+
+            const totalEventos = eventos.length;
+            const hombresEventos = eventos.filter(p => p.genero === 'Hombre').length;
+            const mujeresEventos = eventos.filter(p => p.genero === 'Mujer').length;
+            const porcentajeHombresEventos = totalEventos > 0 ? Math.round((hombresEventos / totalEventos) * 100) : 0;
+            const porcentajeMujeresEventos = totalEventos > 0 ? Math.round((mujeresEventos / totalEventos) * 100) : 0;
+
+            document.getElementById('total-eventos').textContent = totalEventos;
+            document.getElementById('hombres-eventos').textContent = `${hombresEventos} (${porcentajeHombresEventos}%)`;
+            document.getElementById('mujeres-eventos').textContent = `${mujeresEventos} (${porcentajeMujeresEventos}%)`;
+
+            const totalTorneos = torneos.length;
+            const hombresTorneos = torneos.filter(p => p.genero === 'Hombre').length;
+            const mujeresTorneos = torneos.filter(p => p.genero === 'Mujer').length;
+            const porcentajeHombresTorneos = totalTorneos > 0 ? Math.round((hombresTorneos / totalTorneos) * 100) : 0;
+            const porcentajeMujeresTorneos = totalTorneos > 0 ? Math.round((mujeresTorneos / totalTorneos) * 100) : 0;
+
+            document.getElementById('total-torneos').textContent = totalTorneos;
+            document.getElementById('hombres-torneos').textContent = `${hombresTorneos} (${porcentajeHombresTorneos}%)`;
+            document.getElementById('mujeres-torneos').textContent = `${mujeresTorneos} (${porcentajeMujeresTorneos}%)`;
+
+            const totalJuegos = juegos.length;
+            const hombresJuegos = juegos.filter(p => p.genero === 'Hombre').length;
+            const mujeresJuegos = juegos.filter(p => p.genero === 'Mujer').length;
+            const porcentajeHombresJuegos = totalJuegos > 0 ? Math.round((hombresJuegos / totalJuegos) * 100) : 0;
+            const porcentajeMujeresJuegos = totalJuegos > 0 ? Math.round((mujeresJuegos / totalJuegos) * 100) : 0;
+
+            document.getElementById('total-juegos').textContent = totalJuegos;
+            document.getElementById('hombres-juegos').textContent = `${hombresJuegos} (${porcentajeHombresJuegos}%)`;
+            document.getElementById('mujeres-juegos').textContent = `${mujeresJuegos} (${porcentajeMujeresJuegos}%)`;
+        }
+
+
+        // Función principal para actualizar todas las estadísticas
+        async function actualizarEstadisticasGenerales() {
+            const boton = document.getElementById('btn-actualizar-general');
+            const ultimaActualizacion = document.getElementById('ultima-actualizacion-general');
+
+            // Mostrar estado de carga
+            boton.textContent = '🔄 Actualizando...';
+            boton.disabled = true;
+
+            try {
+                const participantes = await obtenerEstadisticasGenerales();
+
+                // Calcular estadísticas
+                const statsGenero = calcularDistribucionGenero(participantes);
+                const statsEdad = calcularDistribucionEdad(participantes);
+                const actividadesPopulares = obtenerActividadesPopulares(participantes);
+
+                // Actualizar visualizaciones
+                actualizarGraficoGenero(statsGenero);
+                actualizarGraficoEdades(statsEdad);
+                actualizarActividadesPopulares(actividadesPopulares);
+                actualizarEstadisticasCategorias(participantes);
+
+                // Actualizar timestamp
+                const ahora = new Date().toLocaleString('es-ES', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                ultimaActualizacion.textContent = `Última actualización: ${ahora}`;
+
+                console.log('Estadísticas generales actualizadas exitosamente');
+            } catch (error) {
+                console.error('Error al actualizar estadísticas generales:', error);
+                ultimaActualizacion.textContent = 'Error al actualizar estadísticas';
+            } finally {
+                // Restaurar botón
+                boton.textContent = '🔄 Actualizar Estadísticas';
+                boton.disabled = false;
+            }
+        }
+
+        // Función para actualización automática
+        function iniciarActualizacionAutomatica() {
+            setInterval(async () => {
+                await actualizarEstadisticasGenerales();
+            }, 45000);
+        }
+
+        // Exponer función globalmente
+        window.actualizarEstadisticasGenerales = actualizarEstadisticasGenerales;
+
+        // Cargar estadísticas al iniciar
+        document.addEventListener('DOMContentLoaded', async function () {
+            console.log('Cargando página de inicio...');
+
+            // Actualizar navegación basada en autenticación
+            await updateNavigation();
+
+            // Cargar estadísticas públicas
+            await actualizarEstadisticasGenerales();
+
+            // Iniciar actualización automática
+            iniciarActualizacionAutomatica();
+
+            console.log('Página de inicio cargada correctamente');
+        });
+
+        // Actualizar cuando la página vuelve a estar visible
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) {
+                actualizarEstadisticasGenerales();
+            }
+        });
+    </script>
+    <script src="script.js"></script>
+</body>
+
+</html>

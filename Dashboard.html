@@ -1,0 +1,3519 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - INDER Copacabana</title>
+    <link rel="stylesheet" href="estilos.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        .dashboard-container {
+            padding: 2rem 0;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .dashboard-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-card h3 {
+            margin-bottom: 1rem;
+            color: var(--color-primary);
+        }
+
+        .stat-large {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--color-dark);
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-description {
+            color: var(--color-text-light);
+            margin-bottom: 1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .floating-menu {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .floating-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .floating-menu:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .loading-stat {
+            opacity: 0.6;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .update-info {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .refresh-button {
+            margin-left: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .refresh-button:hover {
+            background-color: var(--color-primary-dark);
+        }
+
+        .refresh-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .stat-breakdown {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .admin-notice {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .admin-notice h3 {
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .user-avatar {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background-color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .avatar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 50%;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .user-avatar:hover .avatar-overlay {
+            opacity: 1;
+        }
+
+        .avatar-upload-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .avatar-modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 1rem auto;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 3px solid #ddd;
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .avatar-upload-area:hover {
+            border-color: var(--color-primary);
+            background-color: #f8f9ff;
+        }
+
+        .avatar-upload-area.dragover {
+            border-color: var(--color-primary);
+            background-color: #e3f2fd;
+        }
+
+        .avatar-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-modal:hover {
+            color: #000;
+        }
+
+        .loading-avatar {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading-avatar::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #fff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card.secondary {
+            background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);
+        }
+
+        .stat-card.tertiary {
+            background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);
+        }
+
+        .stat-card.quaternary {
+            background: linear-gradient(135deg, #364b8a 0%, #5f6ed6 100%);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .filter-dropdown {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .filter-dropdown:focus {
+            outline: 2px solid var(--color-primary);
+            border-color: var(--color-primary);
+        }
+    </style>
+</head>
+
+
+<body>
+    <!-- Menú flotante para acceso rápido al formulario -->
+    <div class="floating-menu">
+        <a href="formulario_excel.html">📝 Gestionar Participantes</a>
+    </div>
+    <header>
+        <div class="container header-content">
+            <div class="logo">INDER Copacabana</div>
+            <nav>
+                <ul>
+                    <li class="dropdown">
+                        <a href="index.html">Inicio</a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="deportes.html" class="dropdown-toggle">Deportes Formativo<span
+                                class="arrow">▼</span></a>
+                        <div class="dropdown-content">
+                            <a href="deportes.html#futbol">Fútbol</a>
+                            <a href="deportes.html#futbol_de_salon">Fútbol de Salón</a>
+                            <a href="deportes.html#futbol_sala">Fútbol sala</a>
+                            <a href="deportes.html#ajedrez">Ajedrez</a>
+                            <a href="deportes.html#baloncesto">Baloncesto</a>
+                            <a href="deportes.html#balonmano">Balonmano</a>
+                            <a href="deportes.html#natacion">Natación</a>
+                            <a href="deportes.html#atletismo">Atletismo</a>
+                            <a href="deportes.html#patinaje">Patinaje</a>
+                            <a href="deportes.html#rugby">Rugby</a>
+                            <a href="deportes.html#tenis">Tenis de campo</a>
+                            <a href="deportes.html#voleibol">Voleibol</a>
+                            <a href="deportes.html#tenis">Tenis de Mesa</a>
+                            <a href="deportes.html">BMX</a>
+                            <a href="deportes.html#boxeo">Boxeo</a>
+                            <a href="deportes.html#gimnasia">Gimnasia</a>
+                            <a href="deportes.html#jiu_jitsu">Jiu Jitsu</a>
+                            <a href="deportes.html#levantamiento_de_pesas">Levantamiento de Pesas</a>
+                            <a href="deportes.html#taekwondo">Taekwondo</a>
+                        </div>
+                    </li>
+                    <li class="dropdown">
+                        <a href="actividades.html" class="dropdown-toggle">Actividades Físicas <span
+                                class="arrow">▼</span></a>
+                        <div class="dropdown-content">
+                            <a href="actividades.html#gimnasio_municipal">Gimnasio Municipal</a>
+                            <a href="actividades.html#descubre_tu_talento">Descubre tu Talento</a>
+                            <a href="actividades.html#nadadores_activos">Nadadores Activos</a>
+                            <a href="actividades.html#yoga">Yoga</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="recreacion.html" class="dropdown-toggle">Recreación<span class="arrow">▼</span></a>
+                        <div class="dropdown-content">
+                            <a href="recreacion.html#rumba_aerobica">Rumba Aeróbica</a>
+                            <a href="recreacion.html#hidroaerobicos">Hidroaerobicos</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="eventos_institucionales.html" class="dropdown-toggle">Eventos Institucionales<span
+                                class="arrow">▼</span></a>
+                        <div class="dropdown-content">
+                            <a href="eventos_institucionales.html#vacaciones_recreativas">Vacaciones Recreativas</a>
+                            <a href="eventos_institucionales.html#celebracion_deporte_cultura">Celebración del Deporte y
+                                Cultura</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="torneos_festivales.html" class="dropdown-toggle">Torneos y Festivales
+                            Institucionales<span class="arrow">▼</span></a>
+                        <div class="dropdown-content">
+                            <a href="torneos_festivales.html#master">Master</a>
+                            <a href="torneos_festivales.html#open">Open</a>
+                            <a href="torneos_festivales.html#gran_master">Gran Master</a>
+                            <a href="torneos_festivales.html#libre">Libre</a>
+                            <a href="torneos_festivales.html#prebenjamines">Prebenjamines</a>
+                            <a href="torneos_festivales.html#benjamines">Benjamines</a>
+                            <a href="torneos_festivales.html#baby">Baby</a>
+                            <a href="torneos_festivales.html#babyfutbol">BabyFútbol</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="juegos_institucionales.html" class="dropdown-toggle">Juegos Institucionales<span
+                                class="arrow">▼</span></a>
+
+                        <div class="dropdown-content">
+                            <a href="juegos_institucionales.html#escolares_subregional">Escolares Sub_Regional</a>
+                            <a href="juegos_institucionales.html#escolares_departamental">Escolares Departamental</a>
+                            <a href="juegos_institucionales.html#intercolegiados_municipal">Intercolegiados
+                                Municipal</a>
+                            <a href="juegos_institucionales.html#intercolegiados_subregional">Intercolegiados
+                                Sub_Regional</a>
+                            <a href="juegos_institucionales.html#intercolegiados_departamental">Intercolegiados
+                                Departamental</a>
+                            <a href="juegos_institucionales.html#mayores_subregional">Mayores sub_regional</a>
+                            <a href="juegos_institucionales.html#mayores_departamental">Mayores Departamental</a>
+                        </div>
+                    </li>
+
+                    <li><a href="diagrama.html">Estadísticas</a></li>
+                </ul>
+            </nav>
+            <button id="logout-btn" class="btn btn-secondary">Cerrar Sesión</button>
+            <button id="menu-toggle" class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main>
+        <div class="page-header">
+            <div class="container">
+                <h1>Panel de Administración</h1>
+                <p>Gestión y análisis de actividades deportivas</p>
+            </div>
+        </div>
+
+        <div class="container dashboard-container">
+            <!-- Aviso para administradores -->
+            <div class="admin-notice">
+                <h3>🔒 Área Restringida</h3>
+                <p>Esta es un área privada solo para instructores y administradores autorizados.</p>
+            </div>
+
+            <div class="dashboard-header">
+                <div class="user-info">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div>
+                        <h3 id="user-name">Cargando...</h3>
+                        <p id="user-role">Administrador</p>
+                    </div>
+                </div>
+                <select id="filter-instructor" class="filter-dropdown" style="display: none; margin-right: 1rem;">
+                    <option value="todos">Todos los Instructores</option>
+                </select>
+                <div>
+                    <button onclick="actualizarEstadisticas()" class="refresh-button" id="btn-refresh">
+                        🔄 Actualizar
+                    </button>
+
+                    <button id="btnDescargarEstadisticas"
+                        style="display: none; background-color: #28a745; margin-left: 0.5rem;"
+                        onclick="abrirModalDescarga()" class="refresh-button">
+                        📊 Descargar Estadísticas
+                    </button>
+
+                    <button id="btnDescargarPDF" style="display: none; background-color: #dc3545; margin-left: 0.5rem;"
+                        onclick="abrirModalDescargaPDF()" class="refresh-button">
+                        📄 Descargar PDF
+                    </button>
+                </div>
+            </div>
+
+            <div class="dashboard-controls" style="display: none;">
+                <select id="filter-tipo" class="filter-dropdown">
+                    <option value="todos">Todas las Actividades</option>
+                    <option value="deporte">Solo Deportes</option>
+                    <option value="actividad_fisica">Solo Actividades Físicas</option>
+                </select>
+                <select id="filter-genero" class="filter-dropdown">
+                    <option value="todos">Todos los Géneros</option>
+                    <option value="Hombre">Solo Hombres</option>
+                    <option value="Mujer">Solo Mujeres</option>
+                </select>
+            </div>
+
+            <!-- Resumen de Estadísticas Dinámicas -->
+            <div class="stats-overview" id="stats-container">
+                <!-- Las tarjetas se generarán dinámicamente aquí -->
+            </div>
+
+            <!-- Sección de Gestión de Grupos -->
+            <div class="grupos-section" style="margin: 2rem 0;">
+                <div class="grupos-header"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3>🏆 Gestión de Grupos</h3>
+                    <button onclick="abrirModalCrearGrupo()" class="btn btn-primary">
+                        ➕ Crear Grupo
+                    </button>
+                </div>
+                <div id="grupos-container" class="grupos-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+                    <!-- Los grupos se cargarán aquí dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Modal para Crear/Editar Grupo -->
+            <div id="modalGrupo" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 500px;">
+                    <span class="close" onclick="cerrarModalGrupo()">&times;</span>
+                    <h2 id="titulo-modal-grupo">➕ Crear Nuevo Grupo</h2>
+                    <form id="form-grupo" onsubmit="guardarGrupo(event)">
+                        <div style="margin-bottom: 1rem;">
+                            <label>Nombre del Grupo:</label>
+                            <input type="text" id="grupo-nombre" required
+                                placeholder="Ej: Baloncesto Principiante Infante">
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label>Deporte:</label>
+                            <select id="grupo-deporte" required>
+                                <!-- Se llenará dinámicamente con los deportes del instructor -->
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label>Descripción (opcional):</label>
+                            <textarea id="grupo-descripcion" placeholder="Descripción del grupo..."></textarea>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label>Color del Grupo:</label>
+                            <input type="color" id="grupo-color" value="#667eea">
+                        </div>
+                        <div style="display: flex; gap: 1rem; justify-content: center;">
+                            <button type="submit" class="btn btn-primary">💾 Guardar</button>
+                            <button type="button" onclick="cerrarModalGrupo()" class="btn btn-secondary">❌
+                                Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal para Gestionar Participantes del Grupo -->
+            <div id="modalParticipantesGrupo" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 800px;">
+                    <span class="close" onclick="cerrarModalParticipantes()">&times;</span>
+                    <h2 id="titulo-participantes-grupo">👥 Gestionar Participantes</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <!-- Participantes Disponibles -->
+                        <div>
+                            <h4>Participantes Disponibles</h4>
+                            <div id="participantes-disponibles"
+                                style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 1rem;">
+                                <!-- Se llenarán dinámicamente -->
+                            </div>
+                        </div>
+                        <!-- Participantes en el Grupo -->
+                        <div>
+                            <h4>Participantes en el Grupo</h4>
+                            <div id="participantes-grupo"
+                                style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 1rem;">
+                                <!-- Se llenarán dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <button onclick="cerrarModalParticipantes()" class="btn btn-primary">✅ Cerrar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="update-info">
+                <p id="ultima-actualizacion">Última actualización: Cargando...</p>
+                <p><small>Los datos se actualizan automáticamente cada 30 segundos</small></p>
+            </div>
+        </div>
+        <!-- Modal de Descarga de Estadísticas -->
+        <div id="modalDescarga" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 600px;">
+                <span class="close" onclick="cerrarModalDescarga()">&times;</span>
+                <h2>📊 Descargar Estadísticas</h2>
+
+                <div style="margin-bottom: 2rem;">
+                    <h4>Seleccionar Período:</h4>
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-enero" value="1"> Enero
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-febrero" value="2"> Febrero
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-marzo" value="3"> Marzo
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-abril" value="4"> Abril
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-mayo" value="5"> Mayo
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-junio" value="6"> Junio
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-julio" value="7"> Julio
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-agosto" value="8"> Agosto
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-septiembre" value="9"> Septiembre
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-octubre" value="10"> Octubre
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-noviembre" value="11"> Noviembre
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="mes-diciembre" value="12"> Diciembre
+                        </label>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                        <button onclick="seleccionarTodosMeses()" class="btn btn-outline">Seleccionar Todos</button>
+                        <button onclick="limpiarSeleccionMeses()" class="btn btn-outline">Limpiar Selección</button>
+
+
+                        <select id="filter-grupo-descarga" class="filter-dropdown" style="min-width: 200px;">
+                            <option value="todos">Todos los Grupos</option>
+                        </select>
+
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <select id="año-descarga" class="filter-dropdown">
+                            <option value="2024">2024</option>
+                            <option value="2025" selected>2025</option>
+                        </select>
+                    </div>
+                </div>
+                <!--
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button onclick="previsualizarEstadisticas()" class="btn btn-primary">
+                        👁️ Previsualizar
+                    </button>
+                -->
+                <button onclick="descargarEstadisticas()" class="btn btn-primary" style="background-color: #28a745;">
+                    📥 Descargar Excel
+                </button>
+            </div>
+
+            <div id="preview-estadisticas" style="margin-top: 2rem; max-height: 400px; overflow-y: auto;"></div>
+        </div>
+
+        </div>
+        <!-- Modal de Descarga PDF -->
+        <div id="modalDescargaPDF" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 500px;">
+                <span class="close" onclick="cerrarModalDescargaPDF()">&times;</span>
+                <h2>📄 Descargar Reporte PDF</h2>
+                <div style="margin-bottom: 2rem;">
+                    <h4>Seleccionar Período:</h4>
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-enero" value="1"> Enero
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-febrero" value="2"> Febrero
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-marzo" value="3"> Marzo
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-abril" value="4"> Abril
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-mayo" value="5"> Mayo
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-junio" value="6"> Junio
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-julio" value="7"> Julio
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-agosto" value="8"> Agosto
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-septiembre" value="9"> Septiembre
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-octubre" value="10"> Octubre
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-noviembre" value="11"> Noviembre
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="pdf-mes-diciembre" value="12"> Diciembre
+                        </label>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                        <button onclick="seleccionarTodosMesesPDF()" class="btn btn-outline">Seleccionar Todos</button>
+                        <button onclick="limpiarSeleccionMesesPDF()" class="btn btn-outline">Limpiar Selección</button>
+                        <select id="filter-grupo-descarga-pdf" class="filter-dropdown" style="min-width: 200px;">
+                            <option value="todos">Grupos</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <select id="año-descarga-pdf" class="filter-dropdown">
+                            <option value="2024">2024</option>
+                            <option value="2025" selected>2025</option>
+                        </select>
+                    </div>
+                </div>
+                <!--
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button onclick="previsualizarEstadisticasPDF()" class="btn btn-primary">
+                        👁️ Previsualizar
+                    </button>
+                    -->
+                <button onclick="descargarPDF()" class="btn btn-primary" style="background-color: #dc3545;">
+                    📥 Descargar PDF
+                </button>
+            </div>
+            <div id="preview-estadisticas-pdf" style="margin-top: 2rem; max-height: 400px; overflow-y: auto;"></div>
+        </div>
+
+        </div>
+
+    </main>
+
+    <!-- Pie de página -->
+    <footer>
+        <div class="container" style="text-align: center;">
+            <p>© 2025 INDER Copacabana. Todos los Derechos Reservados.</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        $(document).ready(function () {
+            console.log("jQuery está funcionando");
+            console.log("typeof $.fn.select2:", typeof $.fn.select2);
+
+            $('#filter-grupo-descarga').select2({
+                placeholder: "🔍 Buscar grupo por nombre...",
+                allowClear: true
+            });
+        });
+
+        // Variables globales para grupos
+        let grupoIdEditando = null;
+        let gruposData = [];
+        let grupoEditando = null;
+        let grupoSeleccionado = null;
+
+        // Función para gestionar participantes de un grupo específico
+        async function gestionarParticipantesGrupo(grupoId) {
+            try {
+                grupoSeleccionado = grupoId;
+
+                // Obtener información del grupo
+                const { data: grupo, error: errorGrupo } = await supabaseClient
+                    .from('grupos')
+                    .select('*')
+                    .eq('id', grupoId)
+                    .single();
+
+                if (errorGrupo) throw errorGrupo;
+
+                // Actualizar título del modal
+                document.getElementById('titulo-participantes-grupo').textContent =
+                    `👥 Gestionar Participantes - ${grupo.nombre}`;
+                console.log('📌 Deporte del grupo:', grupo.deporte);
+
+                // Obtener participantes del deporte específico del grupo
+                const { data: participantesDelDeporte, error: errorParticipantes } = await supabaseClient
+                    .from('participantes')
+                    .select('*')
+                    .eq('actividad', grupo.deporte)
+                    .order('nombre');
+
+                if (errorParticipantes) throw errorParticipantes;
+
+                // Obtener participantes ya asignados al grupo
+                const { data: participantesGrupo, error: errorAsignados } = await supabaseClient
+                    .from('participantes_grupos')
+                    .select(`
+                     participante_id,
+                     participantes(id, nombre, edad, genero)
+            `)
+                    .eq('grupo_id', grupoId)
+                    .eq('activo', true);
+
+                if (errorAsignados) throw errorAsignados;
+
+                const participantesAsignadosIds = participantesGrupo.map(pg => pg.participante_id);
+
+                // Renderizar participantes disponibles (del mismo deporte, no asignados)
+                const participantesDisponibles = participantesDelDeporte.filter(p =>
+                    !participantesAsignadosIds.includes(p.id)
+                );
+
+                renderizarParticipantesDisponibles(participantesDisponibles);
+                renderizarParticipantesEnGrupo(participantesGrupo);
+
+                // Mostrar modal
+                document.getElementById('modalParticipantesGrupo').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error gestionando participantes:', error);
+                alert('❌ Error al cargar participantes del grupo');
+            }
+        }
+        // Renderizar participantes disponibles del deporte
+        function renderizarParticipantesDisponibles(participantes) {
+            const container = document.getElementById('participantes-disponibles');
+
+            if (participantes.length === 0) {
+                container.innerHTML = `
+            <div style="text-align: center; color: #666; padding: 2rem;">
+                <p>No hay participantes disponibles de este deporte</p>
+            </div>
+        `;
+                return;
+            }
+
+            container.innerHTML = participantes.map(participante => `
+        <div class="participante-item" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; border: 1px solid #ddd; margin-bottom: 0.5rem; border-radius: 4px;">
+            <div>
+                <strong>${participante.nombre}</strong><br>
+                <small>${participante.edad} años - ${participante.genero}</small>
+            </div>
+            <button onclick="agregarParticipanteAGrupo('${participante.id}')" 
+                    class="btn-small" style="background: #28a745; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer;">
+                ➕ Agregar
+            </button>
+        </div>
+    `).join('');
+        }
+
+        // Renderizar participantes ya en el grupo
+        function renderizarParticipantesEnGrupo(participantesGrupo) {
+            const participantesActivos = participantesGrupo.filter(pg => pg.activo !== false);
+            const container = document.getElementById('participantes-grupo');
+
+            if (participantesGrupo.length === 0) {
+                container.innerHTML = `
+            <div style="text-align: center; color: #666; padding: 2rem;">
+                <p>No hay participantes en este grupo</p>
+            </div>
+        `;
+                return;
+            }
+
+            container.innerHTML = participantesActivos.map(pg => {
+                const participante = pg.participantes;
+                return `
+            <div class="participante-item" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; border: 1px solid #ddd; margin-bottom: 0.5rem; border-radius: 4px; background-color: #f8f9fa;">
+                <div>
+                    <strong>${participante.nombre}</strong><br>
+                    <small>${participante.edad} años - ${participante.genero}</small>
+                </div>
+                <button onclick="removerParticipanteDeGrupo('${participante.id}')" 
+                        class="btn-small" style="background: #dc3545; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer;">
+                    ❌ Remover
+                </button>
+            </div>
+        `;
+            }).join('');
+        }
+
+        async function agregarParticipanteAGrupo(participanteId) {
+            try {
+                // Siempre eliminar cualquier relación previa (si existe)
+                await supabaseClient
+                    .from('participantes_grupos')
+                    .delete()
+                    .eq('participante_id', participanteId)
+                    .eq('grupo_id', grupoSeleccionado);
+
+                // Ahora insertar nuevamente
+                const { error: errorInsert } = await supabaseClient
+                    .from('participantes_grupos')
+                    .insert([{
+                        participante_id: participanteId,
+                        grupo_id: grupoSeleccionado,
+                        fecha_asignacion: new Date().toISOString(),
+                        activo: true
+                    }]);
+                if (errorInsert) throw errorInsert;
+
+                // Recargar listas visuales
+                await gestionarParticipantesGrupo(grupoSeleccionado);
+
+            } catch (error) {
+                console.error('Error agregando participante:', error);
+                alert('❌ Error al agregar participante al grupo');
+            }
+        }
+
+        // Remover participante del grupo
+        async function removerParticipanteDeGrupo(participanteId) {
+            if (!confirm('¿Está seguro de remover este participante del grupo?')) {
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('participantes_grupos')
+                    .delete()
+                    .eq('participante_id', participanteId)
+                    .eq('grupo_id', grupoSeleccionado);
+
+
+                if (error) throw error;
+
+                // Recargar listas
+                await gestionarParticipantesGrupo(grupoSeleccionado);
+
+            } catch (error) {
+                console.error('Error removiendo participante:', error);
+                alert('❌ Error al remover participante del grupo');
+            }
+        }
+
+        // Cerrar modal de participantes
+        function cerrarModalParticipantes() {
+            document.getElementById('modalParticipantesGrupo').style.display = 'none';
+            grupoSeleccionado = null;
+        }
+
+        async function cargarGrupos() {
+            try {
+                let query = supabaseClient
+                    .from('grupos')
+                    .select(`
+                *,
+                participantes_grupos(
+                    participante_id,
+                    participantes(nombre, edad, genero)
+                )
+            `)
+                    .eq('activo', true);
+
+                if (currentUserProfile.role === 'instructor') {
+                    query = query.eq('instructor_id', currentUserProfile.id);
+                } else if (currentUserProfile.role === 'admin') {
+                    // Si es admin, verificar si hay un instructor específico seleccionado
+                    const filterInstructor = document.getElementById('filter-instructor')?.value;
+                    if (filterInstructor && filterInstructor !== 'todos') {
+                        query = query.eq('instructor_id', filterInstructor);
+                    }
+                }
+
+                const { data, error } = await query;
+                if (error) throw error;
+
+                gruposData = data || [];
+                renderizarGrupos();
+            } catch (error) {
+                console.error('Error cargando grupos:', error);
+            }
+        }
+
+        // Renderizar grupos en el dashboard
+        function renderizarGrupos() {
+            const container = document.getElementById('grupos-container');
+            if (!container) return;
+
+            if (gruposData.length === 0) {
+                container.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #666;">
+                <p>No hay grupos creados aún.</p>
+                <p>Haz clic en "Crear Grupo" para comenzar.</p>
+            </div>
+        `;
+                return;
+            }
+
+            container.innerHTML = gruposData.map(grupo => {
+                const participantesCount = grupo.participantes_grupos?.length || 0;
+                return `
+            <div class="grupo-card" style="border-left-color: ${grupo.color}">
+                <div class="grupo-header">
+                    <div>
+                        <div class="grupo-nombre">${grupo.nombre}</div>
+                        <div class="grupo-deporte">${grupo.deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
+                    </div>
+                </div>
+                
+                <div class="grupo-stats">
+                    <div class="grupo-stat">
+                        <div class="grupo-stat-number">${participantesCount}</div>
+                        <div class="grupo-stat-label">Participantes</div>
+                    </div>
+                </div>
+                
+                ${grupo.descripcion ? `<p style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">${grupo.descripcion}</p>` : ''}
+                
+                <div class="grupo-actions">
+                    <button onclick="gestionarParticipantesGrupo('${grupo.id}')" class="btn-small btn-manage">
+                        👥 Gestionar
+                    </button>
+                    
+                    <button onclick="editarGrupo('${grupo.id}')" class="btn-small btn-manage">
+                        ✏️ Editar
+                    </button>
+                    <button onclick="eliminarGrupo('${grupo.id}')" class="btn-small btn-delete">
+                        🗑️ Eliminar
+                    </button>
+                </div>
+            </div>
+        `;
+            }).join('');
+        }
+
+
+        async function editarGrupo(grupoId) {
+            const grupo = gruposData.find(g => g.id === grupoId);
+            if (!grupo) {
+                alert('❌ Grupo no encontrado');
+                return;
+            } a
+
+            grupoEditando = grupoId;
+
+            document.getElementById('titulo-modal-grupo').innerText = '✏️ Editar Grupo';
+
+            // ⚠️ Espera a llenar las opciones antes de asignar el valor
+            await llenarSelectorDeportes();
+
+            document.getElementById('grupo-nombre').value = grupo.nombre;
+            document.getElementById('grupo-deporte').value = grupo.deporte;
+            document.getElementById('grupo-descripcion').value = grupo.descripcion || '';
+            document.getElementById('grupo-color').value = grupo.color || '#667eea';
+            document.getElementById('modalGrupo').style.display = 'block';
+        }
+
+        window.eliminarGrupo = async function (grupoId) {
+            try {
+                const { data: grupo, error } = await supabaseClient
+                    .from('grupos')
+                    .select('id, nombre, participantes_grupos (id)')
+                    .eq('id', grupoId)
+                    .single();
+
+                if (error) {
+                    console.error('Error consultando el grupo:', error.message);
+                    alert('Error al consultar el grupo.');
+                    return;
+                }
+
+                const tieneParticipantes = grupo.participantes_grupos && grupo.participantes_grupos.length > 0;
+
+                if (tieneParticipantes) {
+                    alert('❌ No se puede eliminar el grupo porque tiene participantes.');
+                    return;
+                }
+
+                const confirmar = confirm(`¿Estás segura de que quieres eliminar el grupo "${grupo.nombre}"? Esta acción no se puede deshacer.`);
+                if (!confirmar) return;
+
+                const { error: deleteError } = await supabaseClient
+                    .from('grupos')
+                    .delete()
+                    .eq('id', grupoId);
+
+                if (deleteError) {
+                    console.error('Error al eliminar grupo:', deleteError.message);
+                    alert('Error al eliminar el grupo.');
+                    return;
+                }
+
+
+                alert('✅ Grupo eliminado exitosamente.');
+                location.reload();
+
+            } catch (err) {
+                console.error('Error general al eliminar grupo:', err.message);
+                alert('Ocurrió un error al eliminar el grupo.');
+            }
+        }
+
+        // Abrir modal para crear grupo
+        async function abrirModalCrearGrupo() {
+            grupoEditando = null;
+            document.getElementById('titulo-modal-grupo').textContent = '➕ Crear Nuevo Grupo';
+            document.getElementById('form-grupo').reset();
+
+            // Llenar selector de deportes
+            await llenarSelectorDeportes();
+
+            document.getElementById('modalGrupo').style.display = 'block';
+        }
+
+        // Llenar selector de deportes del instructor
+        async function llenarSelectorDeportes() {
+            const selector = document.getElementById('grupo-deporte');
+            let deportes = [];
+
+            if (currentUserProfile.username) {
+                deportes = currentUserProfile.username.split(',').map(d => d.trim());
+            }
+
+            selector.innerHTML = deportes.map(deporte =>
+                `<option value="${deporte}">${deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>`
+            ).join('');
+        }
+
+        // Guardar grupo
+        async function guardarGrupo(event) {
+            event.preventDefault();
+
+            const nombre = document.getElementById('grupo-nombre').value;
+            const deporte = document.getElementById('grupo-deporte').value;
+            const descripcion = document.getElementById('grupo-descripcion').value;
+            const color = document.getElementById('grupo-color').value;
+
+            try {
+                const grupoData = {
+                    nombre,
+                    deporte,
+                    descripcion,
+                    color,
+                    instructor_id: currentUserProfile.id
+                };
+
+                if (grupoEditando) {
+                    const { error } = await supabaseClient
+                        .from('grupos')
+                        .update(grupoData)
+                        .eq('id', grupoEditando);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabaseClient
+                        .from('grupos')
+                        .insert([grupoData]);
+                    if (error) throw error;
+                }
+
+                await cargarGrupos();
+                cerrarModalGrupo();
+                alert('✅ Grupo guardado exitosamente');
+            } catch (error) {
+                console.error('Error guardando grupo:', error);
+                alert('❌ Error al guardar el grupo');
+            }
+        }
+
+        // Cerrar modal de grupo
+        function cerrarModalGrupo() {
+            document.getElementById('modalGrupo').style.display = 'none';
+            grupoEditando = null;
+        }
+
+        // Exponer funciones globalmente
+        window.abrirModalCrearGrupo = abrirModalCrearGrupo;
+        window.cerrarModalGrupo = cerrarModalGrupo;
+        window.guardarGrupo = guardarGrupo;
+
+        import {
+            protectPage,
+            getUserProfile,
+            signOut,
+            supabaseClient
+        } from './supabase-config.js';
+
+        // Variables globales
+        let intervalId = null;
+        let currentUserProfile = null;
+
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                console.log("Verificando protección de página...");
+                // PROTEGER PÁGINA: Solo instructores y admins
+                await protectPage(['instructor', 'admin']);
+                const profile = await getUserProfile();
+                if (profile) {
+                    console.log("Perfil obtenido:", profile);
+
+                    currentUserProfile = profile;
+                    document.getElementById('user-name').textContent =
+                        profile.full_name || profile.username || 'Usuario';
+
+                    const botonDescarga = document.getElementById('btnDescargarEstadisticas');
+                    if (botonDescarga && profile.role !== 'admin') {
+                        botonDescarga.style.display = 'none';
+                    } else if (botonDescarga && profile.role === 'admin') {
+                        botonDescarga.style.display = 'inline-block';
+                    }
+
+                    const botonDescargaPDF = document.getElementById('btnDescargarPDF');
+                    if (botonDescargaPDF && (profile.role === 'instructor' || profile.role === 'admin')) {
+                        botonDescargaPDF.style.display = 'inline-block';
+                    } else if (botonDescargaPDF) {
+                        botonDescargaPDF.style.display = 'none';
+                    }
+
+                    // Actualizar rol mostrado
+                    const roleText = profile.role === 'admin' ? 'Administrador' : 'Instructor';
+                    document.getElementById('user-role').textContent = roleText;
+                    // Actualizar título de la página según el rol
+                    if (profile.role === 'admin') {
+                        document.querySelector('.page-header h1').textContent = 'Panel de Administración';
+                    } else {
+                        document.querySelector('.page-header h1').textContent = 'Panel de Instructor';
+                    }
+                    // Configurar avatar
+                    await configurarAvatar(profile);
+                    await configurarSelectorInstructor(profile);
+                }
+                document.getElementById('logout-btn').addEventListener('click', async function () {
+                    try {
+                        await signOut();
+                        window.location.href = 'index.html';
+                    } catch (error) {
+                        console.error('Error al cerrar sesión:', error);
+                        alert('Error al cerrar sesión. Intente nuevamente.');
+                    }
+                });
+
+                await cargarGrupos();
+
+                // Cargar estadísticas iniciales
+                await actualizarEstadisticas();
+                // Configurar actualización automática
+                iniciarActualizacionAutomatica();
+            } catch (error) {
+                console.error("Error en la inicialización del dashboard:", error);
+                // Redirigir a login si hay error
+                window.location.href = 'inicio_de_sesion.html';
+            }
+        });
+
+        async function cargarGruposEnSelectorPDF() {
+            try {
+                const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+                if (sessionError) throw sessionError;
+
+                const user = sessionData?.session?.user;
+                if (!user) {
+                    console.warn('No se pudo obtener el usuario autenticado');
+                    return;
+                }
+                let query = supabaseClient
+                    .from('grupos')
+                    .select('*')
+                    .eq('activo', true);
+
+                // Si es instructor, solo sus grupos
+                if (currentUserProfile.role === 'instructor') {
+                    query = query.eq('instructor_id', user.id);
+                }
+                // Si es admin, puede ver todos los grupos
+
+                const { data: grupos, error: gruposError } = await query;
+                if (gruposError) throw gruposError;
+
+                console.log("Grupos encontrados para PDF:", grupos);
+
+                const selector = document.getElementById('filter-grupo-descarga-pdf');
+                let options = '<option value="todos">Todos los Grupos</option>';
+
+                if (grupos && grupos.length > 0) {
+                    grupos.forEach(grupo => {
+                        options += `<option value="${grupo.id}">${grupo.nombre}</option>`;
+                    });
+                }
+
+                selector.innerHTML = options;
+            } catch (error) {
+                console.error('Error cargando grupos para PDF:', error.message);
+            }
+        }
+
+        // Función para configurar el avatar del usuario
+        async function configurarAvatar(profile) {
+            const avatarElement = document.getElementById('user-avatar');
+            if (profile.avatar_url) {
+                // Mostrar imagen del avatar
+                avatarElement.innerHTML = `
+            <img src="${profile.avatar_url}" alt="Avatar" onerror="mostrarIniciales('${profile.full_name || profile.username || 'U'}')">
+            <div class="avatar-overlay">📷 Cambiar</div>
+        `;
+            } else {
+                // Mostrar iniciales
+                const initials = (profile.full_name || profile.username || 'U')
+                    .charAt(0)
+                    .toUpperCase();
+                avatarElement.innerHTML = `
+            ${initials}
+            <div class="avatar-overlay">📷 Subir</div>
+        `;
+            }
+            // Agregar evento click para abrir modal
+            avatarElement.addEventListener('click', abrirModalAvatar);
+        }
+
+        // Función para mostrar iniciales cuando falla la carga de imagen
+        function mostrarIniciales(name) {
+            const avatarElement = document.getElementById('user-avatar');
+            const initials = name.charAt(0).toUpperCase();
+            avatarElement.innerHTML = `
+        ${initials}
+        <div class="avatar-overlay">📷 Subir</div>
+    `;
+        }
+
+        // Función para abrir modal de avatar
+        function abrirModalAvatar() {
+            const modal = document.getElementById('avatarModal');
+            if (!modal) {
+                crearModalAvatar();
+            }
+            document.getElementById('avatarModal').style.display = 'block';
+            // Mostrar avatar actual en preview
+            const preview = document.getElementById('avatarPreview');
+            if (currentUserProfile.avatar_url) {
+                preview.innerHTML = `<img src="${currentUserProfile.avatar_url}" alt="Avatar actual">`;
+            } else {
+                const initials = (currentUserProfile.full_name || currentUserProfile.username || 'U')
+                    .charAt(0).toUpperCase();
+                preview.innerHTML = `<div style="font-size: 3rem; color: #666;">${initials}</div>`;
+            }
+        }
+
+        // Función para crear modal de avatar
+        function crearModalAvatar() {
+            const modalHTML = `
+        <div id="avatarModal" class="avatar-upload-modal">
+            <div class="avatar-modal-content">
+                <button class="close-modal" onclick="cerrarModalAvatar()">&times;</button>
+                <h3>Cambiar Foto de Perfil</h3>
+                
+                <div id="avatarPreview" class="avatar-preview">
+                    <div style="font-size: 3rem; color: #666;">📷</div>
+                </div>
+                
+                <div class="avatar-upload-area" id="uploadArea" onclick="document.getElementById('avatarInput').click()">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📁</div>
+                    <p><strong>Haz clic aquí o arrastra una imagen</strong></p>
+                    <p style="font-size: 0.8rem; color: #666;">JPG, PNG o GIF (máximo 2MB)</p>
+                    <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="previsualizarAvatar(this.files[0])">
+                </div>
+                
+                <div class="avatar-buttons">
+                    <button onclick="subirAvatar()" class="btn btn-primary" id="btnSubirAvatar" disabled>
+                        💾 Guardar Foto
+                    </button>
+                    <button onclick="eliminarAvatar()" class="btn btn-outline" id="btnEliminarAvatar">
+                        🗑️ Eliminar Foto
+                    </button>
+                    <button onclick="cerrarModalAvatar()" class="btn btn-secondary">
+                        ❌ Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            // Configurar drag and drop
+            const uploadArea = document.getElementById('uploadArea');
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    previsualizarAvatar(files[0]);
+                }
+            });
+        }
+
+        // Variable global para el archivo seleccionado
+        let archivoSeleccionado = null;
+
+        // Función para previsualizar avatar
+        function previsualizarAvatar(file) {
+            if (!file) return;
+            // Validar tipo de archivo
+            if (!file.type.startsWith('image/')) {
+                alert('Por favor, seleccione solo archivos de imagen.');
+                return;
+            }
+            // Validar tamaño (2MB máximo)
+            if (file.size > 2097152) {
+                alert('El archivo es demasiado grande. Máximo 2MB.');
+                return;
+            }
+            archivoSeleccionado = file;
+            // Mostrar preview
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('avatarPreview').innerHTML =
+                    `<img src="${e.target.result}" alt="Preview">`;
+                document.getElementById('btnSubirAvatar').disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Función para subir avatar
+        async function subirAvatar() {
+            if (!archivoSeleccionado) {
+                alert('Por favor, seleccione una imagen primero.');
+                return;
+            }
+            const btnSubir = document.getElementById('btnSubirAvatar');
+            const originalText = btnSubir.textContent;
+            try {
+                btnSubir.textContent = '⏳ Subiendo...';
+                btnSubir.disabled = true;
+                // Generar nombre único para el archivo
+                const fileExtension = archivoSeleccionado.name.split('.').pop();
+                const fileName = `avatar_${currentUserProfile.id}_${Date.now()}.${fileExtension}`;
+                // Eliminar avatar anterior si existe
+                if (currentUserProfile.avatar_url) {
+                    const oldFileName = currentUserProfile.avatar_url.split('/').pop();
+                    await supabaseClient.storage
+                        .from('avatars')
+                        .remove([oldFileName]);
+                }
+                // Subir nuevo archivo
+                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                    .from('avatars')
+                    .upload(fileName, archivoSeleccionado);
+                if (uploadError) throw uploadError;
+                // Obtener URL pública
+                const { data: urlData } = supabaseClient.storage
+                    .from('avatars')
+                    .getPublicUrl(fileName);
+                // Actualizar perfil en la base de datos
+                const { error: updateError } = await supabaseClient
+                    .from('profiles')
+                    .update({ avatar_url: urlData.publicUrl })
+                    .eq('id', currentUserProfile.id);
+                if (updateError) throw updateError;
+                // Actualizar perfil local
+                currentUserProfile.avatar_url = urlData.publicUrl;
+                // Actualizar UI
+                await configurarAvatar(currentUserProfile);
+                alert('✅ Foto de perfil actualizada exitosamente');
+                cerrarModalAvatar();
+            } catch (error) {
+                console.error('Error al subir avatar:', error);
+                alert(`❌ Error al subir la foto: ${error.message}`);
+            } finally {
+                btnSubir.textContent = originalText;
+                btnSubir.disabled = false;
+            }
+        };
+
+        // Función para eliminar avatar
+        async function eliminarAvatar() {
+            if (!currentUserProfile.avatar_url) {
+                alert('No hay foto de perfil para eliminar.');
+                return;
+            }
+            if (!confirm('¿Está seguro de que desea eliminar su foto de perfil?')) {
+                return;
+            }
+            const btnEliminar = document.getElementById('btnEliminarAvatar');
+            const originalText = btnEliminar.textContent;
+            try {
+                btnEliminar.textContent = '⏳ Eliminando...';
+                btnEliminar.disabled = true;
+                // Eliminar archivo del storage
+                const fileName = currentUserProfile.avatar_url.split('/').pop();
+                await supabaseClient.storage
+                    .from('avatars')
+                    .remove([fileName]);
+                // Actualizar perfil en la base de datos
+                const { error: updateError } = await supabaseClient
+                    .from('profiles')
+                    .update({ avatar_url: null })
+                    .eq('id', currentUserProfile.id);
+                if (updateError) throw updateError;
+                // Actualizar perfil local
+                currentUserProfile.avatar_url = null;
+                // Actualizar UI
+                await configurarAvatar(currentUserProfile);
+                alert('✅ Foto de perfil eliminada exitosamente');
+                cerrarModalAvatar();
+            } catch (error) {
+                console.error('Error al eliminar avatar:', error);
+                alert(`❌ Error al eliminar la foto: ${error.message}`);
+            } finally {
+                btnEliminar.textContent = originalText;
+                btnEliminar.disabled = false;
+            }
+        };
+
+        // Función para cerrar modal
+        function cerrarModalAvatar() {
+            document.getElementById('avatarModal').style.display = 'none';
+            archivoSeleccionado = null;
+            document.getElementById('btnSubirAvatar').disabled = true;
+        }
+
+        // Exponer funciones globalmente
+        window.abrirModalAvatar = abrirModalAvatar;
+        window.cerrarModalAvatar = cerrarModalAvatar;
+        window.previsualizarAvatar = previsualizarAvatar;
+        window.subirAvatar = subirAvatar;
+        window.eliminarAvatar = eliminarAvatar;
+        window.mostrarIniciales = mostrarIniciales;
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                cerrarModalAvatar();
+            }
+        });
+
+        // Función para configurar selector de instructor
+        async function configurarSelectorInstructor(profile) {
+            const selectorInstructor = document.getElementById('filter-instructor');
+            // Mostrar selector de deporte solo para administradores
+            const selectorDeporte = document.getElementById('filter-grupo-descarga');
+            if (profile.role === 'admin') {
+                selectorDeporte.style.display = 'inline-block';
+            } else {
+                selectorDeporte.style.display = 'none';
+            }
+
+            if (profile.role === 'admin') {
+                // Admin puede ver todos los instructores
+                selectorInstructor.style.display = 'inline-block';
+
+                try {
+                    // Cargar lista de instructores
+                    const { data: instructores, error } = await supabaseClient
+                        .from('profiles')
+                        .select('id, full_name, username')
+                        .eq('role', 'instructor')
+                        .order('full_name');
+
+                    if (!error && instructores) {
+                        let options = '<option value="todos">Todos los Instructores</option>';
+                        instructores.forEach(instructor => {
+                            const nombre = instructor.full_name || instructor.username;
+                            options += `<option value="${instructor.id}">${nombre}</option>`;
+                        });
+                        selectorInstructor.innerHTML = options;
+
+                        selectorInstructor.addEventListener('change', async function () {
+                            // Mostrar indicador de carga
+                            const refreshBtn = document.getElementById('btn-refresh');
+                            const originalText = refreshBtn.textContent;
+                            refreshBtn.textContent = '🔄 Actualizando...';
+                            refreshBtn.disabled = true;
+
+                            try {
+                                // Primero cargar grupos del instructor seleccionado
+                                await cargarGrupos();
+                                // Luego actualizar todas las estadísticas
+                                await actualizarEstadisticas();
+                            } catch (error) {
+                                console.error('Error al cambiar instructor:', error);
+                            } finally {
+                                // Restaurar botón
+                                refreshBtn.textContent = originalText;
+                                refreshBtn.disabled = false;
+                            }
+                        });
+                    }
+
+                } catch (error) {
+                    console.error('Error cargando instructores:', error);
+                }
+            } else {
+                // Instructor solo ve sus propios datos
+                selectorInstructor.style.display = 'none';
+            }
+        }
+        async function obtenerDatos() {
+            try {
+                const filterTipo = 'todos';
+                const filterGenero = 'todos';
+                const filterInstructor = document.getElementById('filter-instructor').value;
+
+                let query = supabaseClient.from('participantes').select('*');
+                let participanteIds = null;
+
+                // 1. Filtrar por instructor (basado en asistencia)
+                if (currentUserProfile.role === 'instructor') {
+                    const deportesInstructor = currentUserProfile.username
+                        .split(',')
+                        .map(d => d.trim().toLowerCase());
+
+                    // Traer todos los participantes
+                    const { data, error } = await supabaseClient
+                        .from('participantes')
+                        .select('*');
+
+                    if (error) throw error;
+
+                    // Filtrar por las actividades que tiene el instructor asignadas
+                    let datosFiltrados = data.filter(p =>
+                        deportesInstructor.includes(p.actividad?.toLowerCase())
+                    );
+
+                    console.log('Instructor puede ver:', deportesInstructor);
+                    console.log('Actividades en participantes:', datosFiltrados.map(p => p.actividad));
+
+                    return datosFiltrados;
+                }
+                else if (currentUserProfile.role === 'admin' && filterInstructor !== 'todos') {
+                    const { data: asistenciasInstructor } = await supabaseClient
+                        .from('asistencias')
+                        .select('participante_id')
+                        .eq('instructor_id', filterInstructor);
+
+                    if (!asistenciasInstructor || asistenciasInstructor.length === 0) return [];
+
+                    participanteIds = [...new Set(asistenciasInstructor.map(a => a.participante_id))];
+                    query = query.in('id', participanteIds);
+                }
+                // 2. Filtro por género
+                if (filterGenero !== 'todos') {
+                    query = query.eq('genero', filterGenero);
+                }
+
+                // 3. Obtener los datos
+                const { data, error } = await query;
+                if (error) throw error;
+
+                let datosFiltrados = data || [];
+
+                // 4. Filtro por tipo de actividad (deporte vs actividad física)
+                if (filterTipo !== 'todos') {
+                    const deportes = ['futbol', 'futbol_de_salon', 'futbol sala', 'ajedrez', 'baloncesto', 'balonmano', 'natacion', 'atletismo', 'patinaje', 'rugby', 'tenis', 'voleibol'];
+
+                    if (filterTipo === 'deporte') {
+                        datosFiltrados = datosFiltrados.filter(p =>
+                            deportes.includes(p.actividad?.toLowerCase())
+                        );
+                    } else if (filterTipo === 'actividad_fisica') {
+                        datosFiltrados = datosFiltrados.filter(p =>
+                            !deportes.includes(p.actividad?.toLowerCase())
+                        );
+                    }
+                }
+
+
+                let deportesInstructor = [];
+
+                if (currentUserProfile.role === 'instructor' && currentUserProfile.username) {
+                    // Instructor: deportes según su perfil
+                    deportesInstructor = currentUserProfile.username
+                        .split(',')
+                        .map(d => d.trim().toLowerCase());
+
+                    datosFiltrados = datosFiltrados.filter(p =>
+                        deportesInstructor.includes(p.actividad?.toLowerCase())
+                    );
+
+                } else if (currentUserProfile.role === 'admin') {
+                    // Admin: ver todos los deportes (sin filtrar datos)
+                    deportesInstructor = [...new Set(datosFiltrados.map(p => p.actividad?.toLowerCase()))].filter(Boolean);
+
+                }
+
+                // Mostrar en consola lo que puede ver el usuario (para debugging)
+                console.log(`${currentUserProfile.role} puede ver:`, deportesInstructor);
+                console.log('Actividades en participantes:', datosFiltrados.map(p => p.actividad));
+
+                return datosFiltrados;
+
+
+            } catch (error) {
+                console.error('Error al obtener datos:', error);
+                return [];
+            }
+        }
+
+
+        // Función para obtener asistencias
+        async function obtenerAsistencias() {
+            try {
+                const filterInstructor = document.getElementById('filter-instructor').value;
+
+                let query = supabaseClient.from('asistencias').select('*');
+
+                if (currentUserProfile.role === 'instructor') {
+                    query = query.eq('instructor_id', currentUserProfile.id);
+                } else if (currentUserProfile.role === 'admin' && filterInstructor !== 'todos') {
+                    query = query.eq('instructor_id', filterInstructor);
+                }
+
+                const { data, error } = await query;
+                if (error) throw error;
+
+                return data || [];
+            } catch (error) {
+                console.error('Error al obtener asistencias:', error);
+                return [];
+            }
+        }
+
+        // Función para calcular estadísticas por edad
+        function calcularEstadisticasEdad(datos) {
+            const rangos = {
+                'Primera infancia (0-5)': 0,
+                'Infancia (6-11)': 0,
+                'Adolescencia (12-18)': 0,
+                'Juventud (19-26)': 0,
+                'Adultez (27-59)': 0,
+                'Persona mayor (60+)': 0
+            };
+
+            datos.forEach(p => {
+                const edad = p.edad;
+                if (edad >= 0 && edad <= 5) rangos['Primera infancia (0-5)']++;
+                else if (edad >= 6 && edad <= 11) rangos['Infancia (6-11)']++;
+                else if (edad >= 12 && edad <= 18) rangos['Adolescencia (12-18)']++;
+                else if (edad >= 19 && edad <= 26) rangos['Juventud (19-26)']++;
+                else if (edad >= 27 && edad <= 59) rangos['Adultez (27-59)']++;
+                else if (edad >= 60) rangos['Persona mayor (60+)']++;
+            });
+
+            return rangos;
+        }
+
+        // Función para calcular actividades populares
+        function calcularActividadesPopulares(datos) {
+            const conteo = {};
+            datos.forEach(p => {
+                const actividad = p.actividad.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                conteo[actividad] = (conteo[actividad] || 0) + 1;
+            });
+
+            return Object.entries(conteo)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 8);
+        }
+
+        // Función para actualizar gráfico de edades
+        function actualizarGraficoEdades(datos) {
+            const estadisticas = calcularEstadisticasEdad(datos);
+            const ctx = document.getElementById('chart-edades').getContext('2d');
+
+            if (chartEdades) chartEdades.destroy();
+
+            chartEdades = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(estadisticas),
+                    datasets: [{
+                        data: Object.values(estadisticas),
+                        backgroundColor: [
+                            '#21284d',
+                            '#7280f2',
+                            '#364b8a',
+                            '#4a5cb0',
+                            '#9966FF',
+                            '#7084d1'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 20, usePointStyle: true }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función para actualizar gráfico de género
+        function actualizarGraficoGenero(datos) {
+            const hombres = datos.filter(p => p.genero === 'Hombre').length;
+            const mujeres = datos.filter(p => p.genero === 'Mujer').length;
+            const ctx = document.getElementById('chart-genero').getContext('2d');
+
+            if (chartGenero) chartGenero.destroy();
+
+            chartGenero = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Hombres', 'Mujeres'],
+                    datasets: [{
+                        data: [hombres, mujeres],
+                        backgroundColor: ['#4361ee', '#f72585'],
+                        borderWidth: 3,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 20, usePointStyle: true }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función para actualizar gráfico de actividades
+        function actualizarGraficoActividades(datos) {
+            const actividades = calcularActividadesPopulares(datos);
+            const ctx = document.getElementById('chart-actividades').getContext('2d');
+
+            if (chartActividades) chartActividades.destroy();
+
+            chartActividades = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: actividades.map(([nombre]) => nombre),
+                    datasets: [{
+                        label: 'Participantes',
+                        data: actividades.map(([, cantidad]) => cantidad),
+                        backgroundColor: 'rgba(67, 97, 238, 0.8)',
+                        borderColor: 'rgba(67, 97, 238, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                        x: { ticks: { maxRotation: 45 } }
+                    }
+                }
+            });
+        }
+
+        // Función para actualizar gráfico de asistencias
+        function actualizarGraficoAsistencias(asistencias) {
+            const asistieron = asistencias.filter(a => a.asistio).length;
+            const noAsistieron = asistencias.filter(a => !a.asistio).length;
+            const ctx = document.getElementById('chart-asistencias').getContext('2d');
+
+            if (chartAsistencias) chartAsistencias.destroy();
+
+            chartAsistencias = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Asistieron', 'No Asistieron'],
+                    datasets: [{
+                        data: [asistieron, noAsistieron],
+                        backgroundColor: ['#21284d', '#7084d1'],
+                        borderWidth: 3,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 20, usePointStyle: true }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función para generar tarjetas dinámicas según el instructor
+        async function generarTarjetasDinamicas(datos) {
+            const container = document.getElementById('stats-container');
+            const totalParticipantes = datos.length;
+            const asistencias = await obtenerAsistencias();
+            const totalAsistencias = asistencias.length;
+
+            // Limpiar container
+            container.innerHTML = '';
+
+            // Tarjeta de Total Participantes (siempre se muestra)
+            container.innerHTML += `
+        <div class="stat-card">
+            <div class="stat-number">${totalParticipantes}</div>
+            <div class="stat-label">Total Participantes</div>
+        </div>
+    `;
+            // Obtener deportes del instructor actual
+            let deportesInstructor = [];
+            if (currentUserProfile && currentUserProfile.username) {
+                deportesInstructor = currentUserProfile.username.split(',').map(d => d.trim());
+            }
+
+            // Si es admin, mostrar todos los deportes únicos
+            if (currentUserProfile.role === 'admin') {
+                const deportesUnicos = [...new Set(datos.map(p => p.actividad))];
+                deportesInstructor = deportesUnicos;
+            }
+            const coloresDeportes = ['secondary', 'tertiary', 'quaternary', '', 'secondary', 'tertiary'];
+
+            // Generar tarjetas para cada deporte
+            /*
+            const coloresDeportes = ['secondary', 'tertiary', 'quaternary', '', 'secondary', 'tertiary'];
+            deportesInstructor.forEach((deporte, index) => {
+                const participantesDeporte = datos.filter(p =>
+                    p.actividad.toLowerCase() === deporte.toLowerCase()
+                ).length;
+
+                const colorClass = coloresDeportes[index % coloresDeportes.length];
+                const deporteFormateado = deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                // Solo hacer clickeable si es un deporte específico (no Total Participantes ni Total Asistencias)
+                if (deporte !== 'Total Participantes' && deporte !== 'Total Asistencias') {
+                    container.innerHTML += `
+        <div class="stat-card ${colorClass}" style="cursor: pointer; transition: transform 0.2s ease;" 
+             onclick="irATomarAsistencia('${deporte}')" 
+             onmouseover="this.style.transform='scale(1.05)'" 
+             onmouseout="this.style.transform='scale(1)'">
+            <div class="stat-number">${participantesDeporte}</div>
+            <div class="stat-label">${deporteFormateado}</div>
+            <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 0.5rem;">📝 Click para tomar asistencia</div>
+        </div>
+    `;
+                } else {
+                    container.innerHTML += `
+        <div class="stat-card ${colorClass}">
+            <div class="stat-number">${participantesDeporte}</div>
+            <div class="stat-label">${deporteFormateado}</div>
+        </div>
+    `;
+                }
+    
+            });*/
+
+            // ================= GRUPOS NUEVOS =================
+            gruposData.forEach((grupo, index) => {
+                const participantesGrupo = grupo.participantes_grupos?.length || 0;
+                const colorClass = coloresDeportes[index % coloresDeportes.length];
+                console.log(grupo.id)
+
+                container.innerHTML += `
+            <div class="stat-card ${colorClass}" style="cursor: pointer; transition: transform 0.2s ease;"
+                 onclick="tomarAsistenciaGrupo('${grupo.id}')"
+                 onmouseover="this.style.transform='scale(1.05)'"
+                 onmouseout="this.style.transform='scale(1)'">
+                <div class="stat-number">${participantesGrupo}</div>
+                <div class="stat-label">${grupo.nombre}</div>
+                <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 0.5rem;">📝 Click para tomar asistencia</div>
+            </div>
+        `;
+            });
+
+            // Tarjeta de Total Asistencias (siempre se muestra al final)
+            container.innerHTML += `
+        <div class="stat-card quaternary">
+            <div class="stat-number">${totalAsistencias}</div>
+            <div class="stat-label">Total Asistencias</div>
+        </div>
+    `;
+        }
+        // Función para actualizar resumen (ahora usa tarjetas dinámicas)
+        async function actualizarResumen(datos) {
+            await generarTarjetasDinamicas(datos);
+        }
+
+        // Funciones para descarga de estadísticas        
+        window.abrirModalDescarga = async function () {
+            document.getElementById('modalDescarga').style.display = 'block';
+            if (currentUserProfile.role === 'admin') {
+                await cargarGruposEnSelectorExcel();
+            } else {
+                await cargarDeportesEnSelector();
+            }
+        }
+
+        async function cargarGruposEnSelectorExcel() {
+            try {
+                // Admin puede ver todos los grupos
+                const { data: grupos, error } = await supabaseClient
+                    .from('grupos')
+                    .select(`
+                id, nombre, deporte, instructor_id,
+                profiles(full_name, username)
+            `)
+                    .eq('activo', true)
+                    .order('nombre');
+
+                if (error) throw error;
+
+                // Guardar grupos globalmente para filtrado
+                window.todosLosGrupos = grupos || [];
+
+                // Renderizar todos los grupos inicialmente
+                renderizarGruposEnSelector(window.todosLosGrupos);
+
+            } catch (error) {
+                console.error('Error cargando grupos:', error);
+            }
+        }
+
+        function renderizarGruposEnSelector(grupos) {
+            const selector = document.getElementById('filter-grupo-descarga');
+            let options = '<option value="todos">Todos los Grupos</option>';
+
+            grupos.forEach(grupo => {
+                const instructorNombre = grupo.profiles?.full_name || grupo.profiles?.username || 'Sin instructor';
+                const deporteFormateado = grupo.deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                options += `<option value="${grupo.id}">
+            ${grupo.nombre} - ${deporteFormateado} (${instructorNombre})
+        </option>`;
+            });
+
+            selector.innerHTML = options;
+        }
+
+        function filtrarGruposEnSelector() {
+            const filtro = document.getElementById('filtro-busqueda-grupos').value.toLowerCase();
+
+            if (!window.todosLosGrupos) return;
+
+            const gruposFiltrados = window.todosLosGrupos.filter(grupo => {
+                const instructorNombre = grupo.profiles?.full_name || grupo.profiles?.username || '';
+                const deporteFormateado = grupo.deporte.replace(/_/g, ' ');
+
+                return grupo.nombre.toLowerCase().includes(filtro) ||
+                    deporteFormateado.toLowerCase().includes(filtro) ||
+                    instructorNombre.toLowerCase().includes(filtro);
+            });
+
+            renderizarGruposEnSelector(gruposFiltrados);
+        }
+
+        window.cerrarModalDescarga = function () {
+            document.getElementById('modalDescarga').style.display = 'none';
+            document.getElementById('preview-estadisticas').innerHTML = '';
+        }
+
+        window.seleccionarTodosMeses = function () {
+            const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = true);
+        }
+
+        window.limpiarSeleccionMeses = function () {
+            const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+        }
+
+        async function obtenerDatosPorMeses() {
+            const mesesSeleccionados = [];
+            const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => mesesSeleccionados.push(parseInt(cb.value)));
+
+            if (mesesSeleccionados.length === 0) {
+                alert('Por favor, seleccione al menos un mes.');
+                return null;
+            }
+
+            const año = document.getElementById('año-descarga').value;
+
+            try {
+                let queryAsistencias = supabaseClient.from('asistencias').select('*');
+
+                // Determinar qué instructor usar
+                if (currentUserProfile.role === 'instructor') {
+                    // Si es instructor, solo sus datos
+                    queryAsistencias = queryAsistencias.eq('instructor_id', currentUserProfile.id);
+                } else if (currentUserProfile.role === 'admin') {
+                    // Si es admin, verificar el filtro seleccionado
+                    const filterInstructor = document.getElementById('filter-instructor').value;
+                    if (filterInstructor !== 'todos') {
+                        queryAsistencias = queryAsistencias.eq('instructor_id', filterInstructor);
+                    }
+                }
+
+                const { data: asistencias, error: errorAsistencias } = await queryAsistencias;
+                if (errorAsistencias) throw errorAsistencias;
+
+                if (!asistencias || asistencias.length === 0) {
+                    return [];
+                }
+
+                const participanteIds = [...new Set(asistencias.map(a => a.participante_id))];
+
+                // FILTRAR PARTICIPANTES POR DEPORTE SELECCIONADO
+                let queryParticipantes = supabaseClient.from('participantes').select('*');
+
+                if (currentUserProfile.role === 'admin') {
+                    const grupoSeleccionado = document.getElementById('filter-grupo-descarga').value;
+                    if (grupoSeleccionado !== 'todos') {
+                        // Obtener participantes del grupo específico
+                        const { data: participantesGrupo, error: errorGrupo } = await supabaseClient
+                            .from('participantes_grupos')
+                            .select('participante_id')
+                            .eq('grupo_id', grupoSeleccionado)
+                            .eq('activo', true);
+
+                        if (!errorGrupo && participantesGrupo) {
+                            const participanteIds = participantesGrupo.map(pg => pg.participante_id);
+                            queryParticipantes = queryParticipantes.in('id', participanteIds);
+                        }
+                    }
+                } else {
+                    // Lógica original para instructores
+                    const deporteSeleccionado = document.getElementById('filter-deporte-descarga').value;
+                    if (deporteSeleccionado !== 'todos') {
+                        queryParticipantes = queryParticipantes.eq('actividad', deporteSeleccionado);
+                    }
+                }
+
+                const { data: todosParticipantes, error: errorParticipantes } = await queryParticipantes;
+                if (errorParticipantes) throw errorParticipantes;
+
+                // FILTRAR PARTICIPANTES QUE ESTÁN EN LA LISTA DE ASISTENCIAS
+                const participantesDelDeporte = todosParticipantes.filter(p => participanteIds.includes(p.id));
+                const participantesDelDeporteIds = participantesDelDeporte.map(p => p.id);
+
+                // FILTRAR ASISTENCIAS POR FECHA Y PARTICIPANTE (DE ACUERDO AL DEPORTE)
+                const datosFiltrados = asistencias.filter(asistencia => {
+                    let fechaStr = asistencia.fecha || asistencia.fecha_asistencia || asistencia.created_at;
+                    if (!fechaStr) return false;
+
+                    const fecha = new Date(fechaStr);
+                    const mesAsistencia = fecha.getMonth() + 1;
+                    const añoAsistencia = fecha.getFullYear();
+
+                    const cumpleFecha = mesesSeleccionados.includes(mesAsistencia) && añoAsistencia === parseInt(año);
+                    const cumpleDeporte = participantesDelDeporteIds.includes(asistencia.participante_id);
+
+                    return cumpleFecha && cumpleDeporte;
+                });
+
+                return datosFiltrados;
+
+            } catch (error) {
+                console.error('Error al obtener datos:', error);
+                alert('Error al obtener los datos');
+                return null;
+            }
+        }
+
+        window.previsualizarEstadisticas = async function () {
+            const datos = await obtenerDatosPorMeses();
+            if (!datos) return;
+
+            const preview = document.getElementById('preview-estadisticas');
+            const totalAsistencias = datos.length;
+            const asistieron = datos.filter(d => d.asistio).length;
+            const noAsistieron = totalAsistencias - asistieron;
+
+            preview.innerHTML = `
+        <h4>📋 Previsualización de Estadísticas</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: bold; color: #007bff;">${totalAsistencias}</div>
+                <div>Total Asistencias</div>
+            </div>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: bold; color: #28a745;">${asistieron}</div>
+                <div>Asistieron</div>
+            </div>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: bold; color: #dc3545;">${noAsistieron}</div>
+                <div>No Asistieron</div>
+            </div>
+        </div>
+    `;
+        }
+
+        window.descargarEstadisticas = async function () {
+            const datos = await obtenerDatosPorMeses();
+            if (!datos || datos.length === 0) {
+                alert('No hay datos para descargar');
+                return;
+            }
+
+            try {
+                const participanteIds = [...new Set(datos.map(a => a.participante_id))];
+                const { data: participantes, error } = await supabaseClient
+                    .from('participantes')
+                    .select('*')
+                    .in('id', participanteIds);
+                if (error) throw error;
+
+                const participantesMap = {};
+                participantes.forEach(p => {
+                    participantesMap[p.id] = p;
+                });
+
+                // CALCULAR ESTADÍSTICAS COMO LOS GRÁFICOS
+                const totalParticipantes = participantes.length;
+                const totalAsistencias = datos.length;
+                const asistieron = datos.filter(d => d.asistio).length;
+                const noAsistieron = totalAsistencias - asistieron;
+
+                const hombres = participantes.filter(p => p.genero === 'Hombre').length;
+                const mujeres = participantes.filter(p => p.genero === 'Mujer').length;
+
+                const deportes = participantes.filter(p => p.tipo_actividad === 'deporte').length;
+                const actividadesFisicas = participantes.filter(p => p.tipo_actividad === 'actividad_fisica').length;
+
+
+                // ESTADÍSTICAS POR EDAD (usando participantes)
+                const rangos = {
+                    'Primera infancia (0-5)': 0,
+                    'Infancia (6-11)': 0,
+                    'Adolescencia (12-18)': 0,
+                    'Juventud (19-26)': 0,
+                    'Adultez (27-59)': 0,
+                    'Persona mayor (60+)': 0
+                };
+
+                participantes.forEach(p => {
+                    const edad = parseInt(p.edad);
+                    if (edad >= 0 && edad <= 5) rangos['Primera infancia (0-5)']++;
+                    else if (edad >= 6 && edad <= 11) rangos['Infancia (6-11)']++;
+                    else if (edad >= 12 && edad <= 18) rangos['Adolescencia (12-18)']++;
+                    else if (edad >= 19 && edad <= 26) rangos['Juventud (19-26)']++;
+                    else if (edad >= 27 && edad <= 59) rangos['Adultez (27-59)']++;
+                    else if (edad >= 60) rangos['Persona mayor (60+)']++;
+                });
+
+                const actividadesConteo = {};
+                participantes.forEach(p => {
+                    const actividad = p.actividad.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    actividadesConteo[actividad] = (actividadesConteo[actividad] || 0) + 1;
+                });
+
+                // BARRIOS
+                const barriosConteo = {};
+                participantes.forEach(p => {
+                    barriosConteo[p.barrio] = (barriosConteo[p.barrio] || 0) + 1;
+                });
+
+                // Obtener meses seleccionados
+                const mesesSeleccionados = [];
+                const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]:checked');
+                checkboxes.forEach(cb => {
+                    const meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                    mesesSeleccionados.push(meses[parseInt(cb.value)]);
+                });
+                const año = document.getElementById('año-descarga').value;
+
+                async function exportarEstadisticasAExcel() {
+                    const wb = XLSX.utils.book_new(); // Crear libro
+
+                    // ==================== HOJA 1: ESTADÍSTICAS ====================
+                    const dataEstadisticas = [
+                        [`📊 REPORTE ESTADÍSTICO COMPLETO - ${obtenerTituloReporte()}`],
+                        [`Período: ${mesesSeleccionados.join(', ')} ${año}`],
+                        [],
+                        ['📈 RESUMEN GENERAL'],
+                        ['CONCEPTO', 'CANTIDAD', 'PORCENTAJE'],
+                        ['Total Participantes', totalParticipantes, '100%'],
+                        ['Total Asistencias Registradas', totalAsistencias, '-'],
+                        ['Asistencias Confirmadas', asistieron, totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) + '%' : '0%'],
+                        ['Asistencias No Confirmadas', noAsistieron, totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) + '%' : '0%'],
+                        [],
+                        ['👥 DISTRIBUCIÓN POR GÉNERO'],
+                        ['GÉNERO', 'PARTICIPANTES', 'PORCENTAJE'],
+                        ['Hombres', hombres, totalParticipantes > 0 ? Math.round((hombres / totalParticipantes) * 100) + '%' : '0%'],
+                        ['Mujeres', mujeres, totalParticipantes > 0 ? Math.round((mujeres / totalParticipantes) * 100) + '%' : '0%'],
+                        ['TOTAL', totalParticipantes, '100%'],
+
+                        [],
+                        ['📊 DISTRIBUCIÓN POR EDAD'],
+                        ['RANGO DE EDAD', 'PARTICIPANTES', 'PORCENTAJE'],
+                    ];
+
+                    // Agregar rangos de edad
+                    Object.entries(rangos).forEach(([rango, cantidad]) => {
+                        const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) + '%' : '0%';
+                        dataEstadisticas.push([rango, cantidad, porcentaje]);
+                    });
+                    dataEstadisticas.push(['TOTAL', totalParticipantes, '100%']);
+                    dataEstadisticas.push([]);
+
+                    // Actividades más populares
+                    dataEstadisticas.push(['🏃‍♂️ ACTIVIDADES MÁS POPULARES']);
+                    dataEstadisticas.push(['ACTIVIDAD', 'PARTICIPANTES', 'PORCENTAJE']);
+                    Object.entries(actividadesConteo)
+                        .sort(([, a], [, b]) => b - a)
+                        .forEach(([actividad, cantidad]) => {
+                            const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) + '%' : '0%';
+                            dataEstadisticas.push([actividad, cantidad, porcentaje]);
+                        });
+                    dataEstadisticas.push([]);
+
+                    // Barrios
+                    dataEstadisticas.push(['🏘️ DISTRIBUCIÓN POR BARRIO']);
+                    dataEstadisticas.push(['BARRIO', 'PARTICIPANTES', 'PORCENTAJE']);
+                    Object.entries(barriosConteo)
+                        .sort(([, a], [, b]) => b - a)
+                        .forEach(([barrio, cantidad]) => {
+                            const porcentaje = totalParticipantes > 0 ? Math.round((cantidad / totalParticipantes) * 100) + '%' : '0%';
+                            dataEstadisticas.push([barrio, cantidad, porcentaje]);
+                        });
+                    dataEstadisticas.push([]);
+
+                    // Asistencia
+                    dataEstadisticas.push(['✅ ESTADÍSTICAS DE ASISTENCIA']);
+                    dataEstadisticas.push(['ESTADO', 'CANTIDAD', 'PORCENTAJE']);
+                    dataEstadisticas.push(['Asistieron', asistieron, totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) + '%' : '0%']);
+                    dataEstadisticas.push(['No Asistieron', noAsistieron, totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) + '%' : '0%']);
+                    dataEstadisticas.push(['TOTAL REGISTROS', totalAsistencias, '100%']);
+
+                    // Crear hoja de estadísticas
+                    const wsEstadisticas = XLSX.utils.aoa_to_sheet(dataEstadisticas);
+                    XLSX.utils.book_append_sheet(wb, wsEstadisticas, "📊 Estadísticas");
+
+                    // ==================== HOJA 2: LISTA DE ASISTENCIAS ====================
+                    const dataAsistencias = await obtenerDatosAsistenciasDetalladas(datos);
+                    const wsAsistencias = XLSX.utils.aoa_to_sheet(dataAsistencias);
+                    XLSX.utils.book_append_sheet(wb, wsAsistencias, "📋 Asistencias");
+
+                    // ==================== HOJA 3: EVIDENCIAS FOTOGRÁFICAS ====================
+                    const dataEvidencias = await obtenerDatosEvidencias(datos);
+                    const wsEvidencias = XLSX.utils.aoa_to_sheet(dataEvidencias);
+                    XLSX.utils.book_append_sheet(wb, wsEvidencias, "📷 Evidencias");
+
+                    // Descargar archivo
+                    const nombreArchivo = `Reporte_Completo_${obtenerNombreArchivo()}_${mesesSeleccionados.join('-')}_${año}.xlsx`;
+                    XLSX.writeFile(wb, nombreArchivo);
+                    alert('✅ Reporte completo descargado exitosamente (3 hojas: Estadísticas, Asistencias y Evidencias)');
+                }
+
+                await exportarEstadisticasAExcel();
+
+
+
+                window.cerrarModalDescarga();
+            } catch (error) {
+                console.error('Error al descargar estadísticas:', error);
+                alert(`❌ Error al descargar: ${error.message}`);
+            }
+        }
+        function obtenerNombreArchivo() {
+            if (currentUserProfile.role === 'instructor') {
+                return currentUserProfile.full_name || 'Instructor';
+            } else if (currentUserProfile.role === 'admin') {
+                const filterInstructor = document.getElementById('filter-instructor').value;
+                if (filterInstructor === 'todos') {
+                    return 'Reporte_General';
+                } else {
+                    const selectorInstructor = document.getElementById('filter-instructor');
+                    const instructorSeleccionado = selectorInstructor.options[selectorInstructor.selectedIndex].text;
+                    return instructorSeleccionado.replace(/\s+/g, '_');
+                }
+            }
+            return 'Admin';
+        }
+
+        // Función principal para actualizar estadísticas
+        async function actualizarEstadisticas() {
+            const refreshBtn = document.getElementById('btn-refresh');
+            const originalText = refreshBtn.textContent;
+
+            try {
+                refreshBtn.textContent = '🔄 Actualizando...';
+                refreshBtn.disabled = true;
+
+                const datos = await obtenerDatos();
+                const asistencias = await obtenerAsistencias();
+
+                await actualizarResumen(datos);
+
+
+                // Actualizar timestamp
+                const ahora = new Date().toLocaleString('es-ES', {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit'
+                });
+                document.getElementById('ultima-actualizacion').textContent = `Última actualización: ${ahora}`;
+
+            } catch (error) {
+                console.error('Error al actualizar estadísticas:', error);
+                document.getElementById('ultima-actualizacion').textContent = 'Error al actualizar estadísticas';
+            } finally {
+                refreshBtn.textContent = originalText;
+                refreshBtn.disabled = false;
+            }
+        }
+
+        function obtenerTituloReporte() {
+            let titulo = '';
+
+            // Si no hay perfil cargado aún, no hagas nada ni lances error
+            if (typeof currentUserProfile !== 'object' || currentUserProfile === null) {
+                return '';
+            }
+
+            if (currentUserProfile.role === 'instructor') {
+                titulo = `INSTRUCTOR: ${currentUserProfile.full_name || currentUserProfile.username || 'INSTRUCTOR'}`;
+            } else if (currentUserProfile.role === 'admin') {
+                const filterInstructor = document.getElementById('filter-instructor')?.value;
+                if (filterInstructor === 'todos') {
+                    titulo = 'REPORTE GENERAL - TODOS LOS INSTRUCTORES';
+                } else {
+                    const selectorInstructor = document.getElementById('filter-instructor');
+                    const instructorSeleccionado = selectorInstructor?.options[selectorInstructor.selectedIndex]?.text || '';
+                    titulo = `INSTRUCTOR: ${instructorSeleccionado}`;
+                }
+            } else {
+                titulo = 'ADMINISTRADOR';
+            }
+
+            // Filtro por deporte
+            const deporteSeleccionado = document.getElementById('filter-grupo-descarga')?.value;
+            if (deporteSeleccionado && deporteSeleccionado !== 'todos') {
+                const deporteFormateado = deporteSeleccionado.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                titulo += ` - DEPORTE: ${deporteFormateado}`;
+            }
+
+            // Filtro por grupo (solo si es admin)
+            if (currentUserProfile.role === 'admin') {
+                const grupoSeleccionado = document.getElementById('filter-grupo-descarga')?.value;
+                if (grupoSeleccionado && grupoSeleccionado !== 'todos') {
+                    const selectorGrupo = document.getElementById('filter-grupo-descarga');
+                    const grupoTexto = selectorGrupo?.options[selectorGrupo.selectedIndex]?.text || '';
+                    titulo += ` - GRUPO: ${grupoTexto}`;
+                }
+            }
+
+            return titulo;
+        }
+
+
+        // Función para iniciar actualización automática
+        function iniciarActualizacionAutomatica() {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+            intervalId = setInterval(async () => {
+                await actualizarEstadisticas();
+            }, 30000);
+        }
+
+        // Limpiar intervalo cuando se cierra la página
+        window.addEventListener('beforeunload', () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        });
+
+
+        async function obtenerDatosAsistenciasDetalladas(datosAsistencias) {
+            try {
+                // OBTENER mesesSeleccionados desde el DOM
+                const mesesSeleccionados = [];
+                const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]:checked');
+                checkboxes.forEach(cb => {
+                    const meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                    mesesSeleccionados.push(meses[parseInt(cb.value)]);
+                });
+                const año = document.getElementById('año-descarga').value;
+
+                // Obtener participantes relacionados
+                const participanteIds = [...new Set(datosAsistencias.map(a => a.participante_id))];
+                const { data: participantes, error: errorParticipantes } = await supabaseClient
+                    .from('participantes')
+                    .select('*')
+                    .in('id', participanteIds);
+
+                if (errorParticipantes) throw errorParticipantes;
+
+                // Obtener instructores relacionados
+                const instructorIds = [...new Set(datosAsistencias.map(a => a.instructor_id))];
+                const { data: instructores, error: errorInstructores } = await supabaseClient
+                    .from('profiles')
+                    .select('id, full_name, username')
+                    .in('id', instructorIds);
+
+                if (errorInstructores) throw errorInstructores;
+
+                // Crear mapas para búsqueda rápida
+                const participantesMap = {};
+                participantes.forEach(p => participantesMap[p.id] = p);
+
+                const instructoresMap = {};
+                instructores.forEach(i => instructoresMap[i.id] = i);
+
+                // Construir datos para Excel
+                const data = [
+                    [`📋 LISTA DETALLADA DE ASISTENCIAS - ${obtenerTituloReporte()}`],
+                    [`Período: ${mesesSeleccionados.join(', ')} ${año}`],
+                    [`Total de registros: ${datosAsistencias.length}`],
+                    [],
+                    ['FECHA', 'PARTICIPANTE', 'DOCUMENTO', 'EDAD', 'GÉNERO', 'ACTIVIDAD', 'BARRIO', 'INSTRUCTOR', 'ASISTIÓ', 'OBSERVACIONES']
+                ];
+
+                // Agregar cada asistencia
+                datosAsistencias.forEach(asistencia => {
+                    const participante = participantesMap[asistencia.participante_id];
+                    const instructor = instructoresMap[asistencia.instructor_id];
+
+                    if (participante) {
+                        const fecha = asistencia.fecha_clase || asistencia.created_at;
+                        const fechaFormateada = fecha; // Usar directamente la fecha como string desde Supabase
+
+
+
+                        data.push([
+                            fechaFormateada,
+                            participante.nombre || 'Sin nombre',
+                            participante.documento_identidad || 'Sin documento',
+                            participante.edad || 'Sin edad',
+                            participante.genero || 'Sin género',
+                            (participante.actividad || 'Sin actividad').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                            participante.barrio || 'Sin barrio',
+                            instructor ? (instructor.full_name || instructor.username) : 'Sin instructor',
+                            asistencia.asistio ? '✅ SÍ' : '❌ NO',
+                            asistencia.observaciones || ''
+                        ]);
+                    }
+                });
+
+                // Agregar resumen al final
+                data.push([]);
+                data.push(['RESUMEN DE ASISTENCIAS']);
+                data.push(['Total registros:', datosAsistencias.length]);
+                data.push(['Asistieron:', datosAsistencias.filter(a => a.asistio).length]);
+                data.push(['No asistieron:', datosAsistencias.filter(a => !a.asistio).length]);
+
+                return data;
+
+            } catch (error) {
+                console.error('Error al obtener datos de asistencias:', error);
+                return [
+                    ['❌ ERROR AL CARGAR DATOS DE ASISTENCIAS'],
+                    ['Error:', error.message]
+                ];
+            }
+        }
+        async function obtenerDatosEvidencias(datosAsistencias) {
+            try {
+                // OBTENER mesesSeleccionados desde el DOM
+                const mesesSeleccionados = [];
+                const checkboxes = document.querySelectorAll('#modalDescarga input[type="checkbox"]:checked');
+                checkboxes.forEach(cb => {
+                    const meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                    mesesSeleccionados.push(meses[parseInt(cb.value)]);
+                });
+                const año = document.getElementById('año-descarga').value;
+
+                // Obtener instructores únicos de las asistencias
+                const instructorIds = [...new Set(datosAsistencias.map(a => a.instructor_id))];
+
+                // CONSULTA CORREGIDA: Obtener evidencias por instructor_id (no por asistencia_id)
+                let queryEvidencias = supabaseClient
+                    .from('evidencias')
+                    .select('*')
+                    .in('instructor_id', instructorIds);
+
+                const { data: evidencias, error: errorEvidencias } = await queryEvidencias;
+
+                if (errorEvidencias) throw errorEvidencias;
+
+                // Obtener datos de instructores para mostrar nombres
+                const { data: instructores, error: errorInstructores } = await supabaseClient
+                    .from('profiles')
+                    .select('id, full_name, username')
+                    .in('id', instructorIds);
+
+                if (errorInstructores) throw errorInstructores;
+
+                // Crear mapa de instructores
+                const instructoresMap = {};
+                instructores.forEach(i => instructoresMap[i.id] = i);
+
+                // Filtrar evidencias por período seleccionado
+                const evidenciasFiltradas = evidencias ? evidencias.filter(evidencia => {
+                    const fechaEvidencia = new Date(evidencia.fecha_subida);
+                    const mesEvidencia = fechaEvidencia.getMonth() + 1;
+                    const añoEvidencia = fechaEvidencia.getFullYear();
+
+                    const mesesNumericos = [];
+                    checkboxes.forEach(cb => {
+                        if (cb.checked) {
+                            mesesNumericos.push(parseInt(cb.value));
+                        }
+                    });
+
+                    return mesesNumericos.includes(mesEvidencia) && añoEvidencia === parseInt(año);
+                }) : [];
+
+                // Construir datos para Excel
+                const data = [
+                    [`📷 EVIDENCIAS FOTOGRÁFICAS - ${obtenerTituloReporte()}`],
+                    [`Período: ${mesesSeleccionados.join(', ')} ${año}`],
+                    [`Total de evidencias: ${evidenciasFiltradas.length}`],
+                    [],
+                    ['FECHA', 'INSTRUCTOR', 'ARCHIVO', 'URL IMAGEN', 'UBICACIÓN', 'COORDENADAS', 'DESCRIPCIÓN']
+                ];
+
+                if (evidenciasFiltradas.length > 0) {
+                    evidenciasFiltradas.forEach(evidencia => {
+                        const instructor = instructoresMap[evidencia.instructor_id];
+                        const fecha = new Date(evidencia.fecha_subida).toLocaleDateString('es-ES');
+
+                        // Formatear ubicación
+                        let ubicacion = 'Sin ubicación';
+                        let coordenadas = 'Sin coordenadas';
+
+                        if (evidencia.direccion) {
+                            ubicacion = evidencia.direccion;
+                        }
+
+                        if (evidencia.latitud && evidencia.longitud) {
+                            coordenadas = `${evidencia.latitud.toFixed(6)}, ${evidencia.longitud.toFixed(6)}`;
+                        }
+
+                        data.push([
+                            fecha,
+                            instructor ? (instructor.full_name || instructor.username) : 'Sin instructor',
+                            evidencia.archivo_nombre || 'Sin nombre',
+                            evidencia.archivo_url || 'Sin URL',
+                            ubicacion,
+                            coordenadas,
+                            'Evidencia fotográfica de actividad'
+                        ]);
+                    });
+
+                    // Agregar resumen
+                    data.push([]);
+                    data.push(['RESUMEN DE EVIDENCIAS']);
+                    data.push(['Total evidencias:', evidenciasFiltradas.length]);
+
+                    // Contar por instructor
+                    const evidenciasPorInstructor = {};
+                    evidenciasFiltradas.forEach(e => {
+                        const instructor = instructoresMap[e.instructor_id];
+                        const nombreInstructor = instructor ? (instructor.full_name || instructor.username) : 'Sin instructor';
+                        evidenciasPorInstructor[nombreInstructor] = (evidenciasPorInstructor[nombreInstructor] || 0) + 1;
+                    });
+
+                    Object.entries(evidenciasPorInstructor).forEach(([instructor, cantidad]) => {
+                        data.push([`${instructor}:`, cantidad]);
+                    });
+
+                } else {
+                    data.push(['Sin evidencias fotográficas para este período']);
+                }
+
+                return data;
+
+            } catch (error) {
+                console.error('Error al obtener evidencias:', error);
+                return [
+                    ['❌ ERROR AL CARGAR EVIDENCIAS'],
+                    ['Error:', error.message],
+                    [],
+                    ['NOTA: Las evidencias se obtienen por instructor, no por asistencia individual'],
+                    ['Campos disponibles: instructor_id, archivo_nombre, archivo_url, fecha_subida, direccion, latitud, longitud']
+                ];
+            }
+        }
+
+        // Exponer función globalmente
+        window.actualizarEstadisticas = actualizarEstadisticas;
+        // Prevenir cierre accidental del modal
+        document.addEventListener('click', function (e) {
+            if (e.target.id === 'modalDescarga') {
+                window.cerrarModalDescarga();
+            }
+        });
+
+        async function obtenerEstadisticasPorGrupo(datosAsistencias) {
+            try {
+
+                // Filtrar por grupo específico si está seleccionado
+                const grupoSeleccionado = document.getElementById('filter-grupo-descarga-pdf').value;
+                let query = supabaseClient
+                    .from('grupos')
+                    .select(`
+        *,
+        
+        participantes_grupos(
+            participante_id,
+            activo,
+            participantes(id, nombre, edad, genero, barrio, actividad)
+        )
+    `)
+                    .eq('activo', true);
+                if (currentUserProfile.role === 'instructor') {
+                    query = query.eq('instructor_id', currentUserProfile.id);
+                }
+
+
+                if (grupoSeleccionado !== 'todos') {
+                    query = query.eq('id', grupoSeleccionado);
+                }
+
+                const { data: grupos, error: errorGrupos } = await query;
+
+                if (errorGrupos) throw errorGrupos;
+
+                const estadisticasPorGrupo = {};
+
+                grupos.forEach(grupo => {
+                    const participantesGrupo = grupo.participantes_grupos
+                        .filter(pg => pg.participantes && pg.activo !== false)
+                        .map(pg => pg.participantes);
+
+                    // Calcular estadísticas del grupo
+                    const totalParticipantes = participantesGrupo.length;
+                    const hombres = participantesGrupo.filter(p => p.genero === 'Hombre').length;
+                    const mujeres = participantesGrupo.filter(p => p.genero === 'Mujer').length;
+
+                    // Rangos de edad
+                    const edades = {
+                        'Primera infancia (0-5)': 0,
+                        'Infancia (6-11)': 0,
+                        'Adolescencia (12-18)': 0,
+                        'Juventud (19-26)': 0,
+                        'Adultez (27-59)': 0,
+                        'Persona mayor (60+)': 0
+                    };
+
+                    // Barrios
+                    const barrios = {};
+
+                    participantesGrupo.forEach(p => {
+                        // Contar edades
+                        const edad = p.edad;
+                        if (edad >= 0 && edad <= 5) edades['Primera infancia (0-5)']++;
+                        else if (edad >= 6 && edad <= 11) edades['Infancia (6-11)']++;
+                        else if (edad >= 12 && edad <= 18) edades['Adolescencia (12-18)']++;
+                        else if (edad >= 19 && edad <= 26) edades['Juventud (19-26)']++;
+                        else if (edad >= 27 && edad <= 59) edades['Adultez (27-59)']++;
+                        else if (edad >= 60) edades['Persona mayor (60+)']++;
+
+                        // Contar barrios
+                        const barrio = p.barrio || 'Sin barrio';
+                        barrios[barrio] = (barrios[barrio] || 0) + 1;
+                    });
+
+                    // Asistencias del grupo
+                    const participantesIds = participantesGrupo.map(p => p.id);
+                    const asistenciasGrupo = datosAsistencias.filter(a =>
+                        participantesIds.includes(a.participante_id)
+                    );
+
+                    estadisticasPorGrupo[grupo.id] = {
+                        nombre: grupo.nombre,
+                        deporte: grupo.deporte,
+                        totalParticipantes,
+                        hombres,
+                        mujeres,
+                        edades,
+                        barrios,
+                        asistencias: asistenciasGrupo,
+                        participantes: participantesGrupo
+                    };
+                });
+
+                return estadisticasPorGrupo;
+            } catch (error) {
+                console.error('Error obteniendo estadísticas por grupo:', error);
+                return {};
+            }
+        }
+
+        async function obtenerDatosPorMesesPDF() {
+            const mesesSeleccionados = [];
+            const checkboxes = document.querySelectorAll('#modalDescargaPDF input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => mesesSeleccionados.push(parseInt(cb.value)));
+
+            if (mesesSeleccionados.length === 0) {
+                alert('Por favor, seleccione al menos un mes.');
+                return null;
+            }
+
+            const año = document.getElementById('año-descarga-pdf').value;
+
+            try {
+                // Obtener asistencias con información de grupo
+                let queryAsistencias = supabaseClient
+                    .from('asistencias')
+                    .select(`
+        *,
+        participantes(
+            id, nombre, edad, genero, barrio, actividad,
+            participantes_grupos(
+                grupo_id,
+                grupos(id, nombre, deporte)
+            )
+        )
+    `);
+
+                // Filtrar por instructor
+                if (currentUserProfile.role === 'instructor') {
+                    queryAsistencias = queryAsistencias.eq('instructor_id', currentUserProfile.id);
+                } else if (currentUserProfile.role === 'admin') {
+                    // Admin: obtener datos del instructor que creó el grupo seleccionado
+                    const grupoSeleccionado = document.getElementById('filter-grupo-descarga-pdf').value;
+                    if (grupoSeleccionado !== 'todos') {
+                        // Obtener el instructor_id del grupo seleccionado
+                        const { data: grupoInfo, error: errorGrupo } = await supabaseClient
+                            .from('grupos')
+                            .select('instructor_id')
+                            .eq('id', grupoSeleccionado)
+                            .single();
+
+                        if (!errorGrupo && grupoInfo) {
+                            queryAsistencias = queryAsistencias.eq('instructor_id', grupoInfo.instructor_id);
+                        }
+                    }
+                    // Si no hay grupo específico, usar el filtro de instructor general
+                    const filterInstructor = document.getElementById('filter-instructor')?.value;
+                    if (filterInstructor && filterInstructor !== 'todos') {
+                        queryAsistencias = queryAsistencias.eq('instructor_id', filterInstructor);
+                    }
+                }
+
+                const { data: asistencias, error: errorAsistencias } = await queryAsistencias;
+                // Filtrar por grupo seleccionado después de obtener los datos
+                const grupoSeleccionado = document.getElementById('filter-grupo-descarga-pdf').value;
+                let asistenciasFiltradas = asistencias;
+
+                if (grupoSeleccionado !== 'todos') {
+                    asistenciasFiltradas = asistencias.filter(asistencia => {
+                        const participante = asistencia.participantes;
+                        if (!participante || !participante.participantes_grupos) return false;
+
+                        return participante.participantes_grupos.some(pg =>
+                            pg.grupos && pg.grupos.id === grupoSeleccionado
+                        );
+                    });
+                }
+
+                // Usar asistenciasFiltradas en lugar de asistencias para el resto del código
+                if (errorAsistencias) throw errorAsistencias;
+
+                if (!asistencias || asistencias.length === 0) {
+                    return [];
+                }
+
+                // Filtrar por fechas seleccionadas
+                const datosFiltrados = asistencias.filter(asistencia => {
+                    let fechaStr = asistencia.fecha || asistencia.fecha_asistencia || asistencia.created_at;
+                    if (!fechaStr) return false;
+
+                    const fecha = new Date(fechaStr);
+                    const mesAsistencia = fecha.getMonth() + 1;
+                    const añoAsistencia = fecha.getFullYear();
+
+                    return mesesSeleccionados.includes(mesAsistencia) && añoAsistencia === parseInt(año);
+                });
+
+                return datosFiltrados;
+            } catch (error) {
+                console.error('Error al obtener datos:', error);
+                alert('Error al obtener los datos');
+                return null;
+            }
+        }
+        window.previsualizarEstadisticasPDF = async function () {
+            const datos = await obtenerDatosPorMesesPDF();
+            if (!datos) return;
+
+            const preview = document.getElementById('preview-estadisticas-pdf');
+            const totalAsistencias = datos.length;
+            const asistieron = datos.filter(d => d.asistio).length;
+            const noAsistieron = totalAsistencias - asistieron;
+
+            preview.innerHTML = `
+        <h4>📋 Previsualización de Reporte PDF</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: bold; color: #007bff;">${totalAsistencias}</div>
+                <div>Total Asistencias</div>
+            </div>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: bold; color: #28a745;">${asistieron}</div>
+                <div>Asistieron</div>
+            </div>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: bold; color: #dc3545;">${noAsistieron}</div>
+                <div>No Asistieron</div>
+            </div>
+        </div>
+        <p><strong>Nota:</strong> El PDF incluirá estadísticas detalladas, lista de asistencias y evidencias fotográficas.</p>
+    `;
+        }
+        function ajustarFechaUTC(fechaOriginal) {
+            const fecha = new Date(fechaOriginal);
+            fecha.setHours(fecha.getHours() + 5); // Ajustar de UTC a Colombia (UTC-5)
+            return fecha.toLocaleDateString('es-ES');
+        }
+
+        window.descargarPDF = async function () {
+            const datos = await obtenerDatosPorMesesPDF();
+            if (!datos || datos.length === 0) {
+                alert('No hay datos para descargar');
+                return;
+            }
+
+            try {
+                // Obtener meses seleccionados para el título
+                const mesesSeleccionados = [];
+                const checkboxes = document.querySelectorAll('#modalDescargaPDF input[type="checkbox"]:checked');
+                checkboxes.forEach(cb => {
+                    const meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                    mesesSeleccionados.push(meses[parseInt(cb.value)]);
+                });
+                const año = document.getElementById('año-descarga-pdf').value;
+
+                // Crear nuevo documento PDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // <CHANGE> Mejorando posición del logo para verse más profesional
+                const img = new Image();
+                img.src = 'imagenes/logo.png';
+                img.onload = function () {
+                    // Logo más grande y mejor posicionado en la esquina superior derecha
+                    doc.addImage(img, 'PNG', 160, 8, 35, 25); // x, y, ancho, alto optimizado
+
+                    // Línea decorativa debajo del header
+                    doc.setDrawColor(67, 97, 238); // Color azul corporativo
+                    doc.setLineWidth(0.5);
+                    doc.line(20, 55, 190, 55); // línea horizontal debajo del header
+                };
+
+
+                // Configurar fuente
+                doc.setFont('helvetica');
+
+                // Título principal
+                doc.setFontSize(16);
+                doc.setTextColor(40, 40, 40);
+                doc.text('REPORTE DE ACTIVIDADES - INDER COPACABANA', 20, 20);
+
+                doc.setFontSize(12);
+                doc.text(`Instructor: ${currentUserProfile.full_name || currentUserProfile.username}`, 20, 30);
+                doc.text(`Período: ${mesesSeleccionados.join(', ')} ${año}`, 20, 40);
+                doc.text(`Fecha de generación: ${new Date().toLocaleDateString('es-ES')}`, 20, 50);
+
+                // Obtener datos de participantes
+                const participanteIds = [...new Set(datos.map(a => a.participante_id))];
+                const { data: participantes, error } = await supabaseClient
+                    .from('participantes')
+                    .select('*')
+                    .in('id', participanteIds);
+
+                if (error) throw error;
+
+                // Obtener estadísticas por grupo
+                const estadisticasPorGrupo = await obtenerEstadisticasPorGrupo(datos);
+
+                // Obtener participantes únicos del grupo seleccionado
+                const grupoSeleccionado = document.getElementById('filter-grupo-descarga-pdf').value;
+                const participantesUnicos = new Set();
+
+                if (grupoSeleccionado !== 'todos') {
+                    // Si hay grupo específico, contar participantes de ese grupo
+                    const { data: participantesGrupo, error: errorParticipantes } = await supabaseClient
+                        .from('participantes_grupos')
+                        .select('participante_id')
+                        .eq('grupo_id', grupoSeleccionado)
+                        .eq('activo', true);
+
+                    if (!errorParticipantes && participantesGrupo) {
+                        participantesGrupo.forEach(pg => participantesUnicos.add(pg.participante_id));
+                    }
+                } else {
+                    // Si es "todos", usar los datos de asistencias
+                    datos.forEach(asistencia => {
+                        participantesUnicos.add(asistencia.participante_id);
+                    });
+                }
+
+                const totalAsistencias = datos.length;
+                const totalParticipantesUnicos = participantesUnicos.size;
+
+                const asistieron = datos.filter(d => d.asistio).length;
+                const noAsistieron = totalAsistencias - asistieron;
+
+                // Estadísticas por deporte
+                const estadisticasPorDeporte = {};
+                const deportesInstructor = currentUserProfile.username ?
+                    currentUserProfile.username.split(',').map(d => d.trim()) : [];
+
+                deportesInstructor.forEach(deporte => {
+                    const participantesDeporte = participantes.filter(p =>
+                        p.actividad?.toLowerCase() === deporte.toLowerCase()
+                    );
+
+                    estadisticasPorDeporte[deporte] = {
+                        total: participantesDeporte.length,
+                        hombres: participantesDeporte.filter(p => p.genero === 'Hombre').length,
+                        mujeres: participantesDeporte.filter(p => p.genero === 'Mujer').length,
+                        barrios: {},
+                        edades: {
+                            'Primera infancia (0-5)': 0,
+                            'Infancia (6-11)': 0,
+                            'Adolescencia (12-18)': 0,
+                            'Juventud (19-26)': 0,
+                            'Adultez (27-59)': 0,
+                            'Persona mayor (60+)': 0
+                        }
+                    };
+
+                    // Contar barrios y edades por deporte
+                    participantesDeporte.forEach(p => {
+                        // Barrios
+                        const barrio = p.barrio || 'Sin barrio';
+                        estadisticasPorDeporte[deporte].barrios[barrio] =
+                            (estadisticasPorDeporte[deporte].barrios[barrio] || 0) + 1;
+
+                        // Edades
+                        const edad = p.edad;
+                        if (edad >= 0 && edad <= 5) estadisticasPorDeporte[deporte].edades['Primera infancia (0-5)']++;
+                        else if (edad >= 6 && edad <= 11) estadisticasPorDeporte[deporte].edades['Infancia (6-11)']++;
+                        else if (edad >= 12 && edad <= 18) estadisticasPorDeporte[deporte].edades['Adolescencia (12-18)']++;
+                        else if (edad >= 19 && edad <= 26) estadisticasPorDeporte[deporte].edades['Juventud (19-26)']++;
+                        else if (edad >= 27 && edad <= 59) estadisticasPorDeporte[deporte].edades['Adultez (27-59)']++;
+                        else if (edad >= 60) estadisticasPorDeporte[deporte].edades['Persona mayor (60+)']++;
+                    });
+                });
+
+                // Sección de estadísticas generales
+                let yPosition = 70;
+                doc.setFontSize(14);
+                doc.setTextColor(0, 0, 0);
+                doc.text('RESUMEN ESTADÍSTICO COMPLETO', 20, yPosition);
+                yPosition += 15;
+
+                // Crear tabla de resumen estadístico
+                const resumenData = [
+                    ['Total de participantes únicos', totalParticipantesUnicos.toString(), '100%'],
+                    ['Total de registros de asistencia', totalAsistencias.toString(), '-'],
+                    ['Asistencias confirmadas', asistieron.toString(), `${totalAsistencias > 0 ? Math.round((asistieron / totalAsistencias) * 100) : 0}%`],
+                    ['Asistencias no confirmadas', noAsistieron.toString(), `${totalAsistencias > 0 ? Math.round((noAsistieron / totalAsistencias) * 100) : 0}%`]
+                ];
+
+                doc.autoTable({
+                    startY: yPosition,
+                    head: [['CONCEPTO', 'CANTIDAD', 'PORCENTAJE']],
+                    body: resumenData,
+                    styles: { fontSize: 10 },
+                    headStyles: { fillColor: [67, 97, 238], textColor: [255, 255, 255] },
+                    alternateRowStyles: { fillColor: [245, 245, 245] },
+                    margin: { left: 20, right: 20 }
+                });
+
+                yPosition = doc.lastAutoTable.finalY + 15;
+                // Estadísticas por grupo
+                if (yPosition > 200) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                doc.setFontSize(14);
+                doc.text('ESTADÍSTICAS POR GRUPO', 20, yPosition);
+                yPosition += 15;
+
+                // Crear tabla consolidada de estadísticas por grupo
+                const gruposTableData = [];
+                Object.entries(estadisticasPorGrupo).forEach(([grupoId, stats]) => {
+                    const asistenciasGrupo = stats.asistencias.length;
+                    const asistieronGrupo = stats.asistencias.filter(a => a.asistio).length;
+                    const porcentajeAsistencia = asistenciasGrupo > 0 ? Math.round((asistieronGrupo / asistenciasGrupo) * 100) : 0;
+
+                    gruposTableData.push([
+                        stats.nombre,
+                        stats.deporte.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                        stats.totalParticipantes.toString(),
+                        stats.hombres.toString(),
+                        stats.mujeres.toString(),
+                        asistenciasGrupo.toString(),
+                        `${asistieronGrupo} (${porcentajeAsistencia}%)`
+                    ]);
+                });
+
+                doc.autoTable({
+                    startY: yPosition,
+                    head: [['GRUPO', 'DEPORTE', 'PARTICIPANTES', 'HOMBRE', 'MUJER', 'ASISTENCIAS', 'CONFIRMADAS']],
+                    body: gruposTableData,
+                    styles: { fontSize: 9 },
+                    headStyles: { fillColor: [67, 97, 238], textColor: [255, 255, 255] },
+                    alternateRowStyles: { fillColor: [245, 245, 245] },
+                    margin: { left: 20, right: 20 },
+                    columnStyles: {
+                        0: { cellWidth: 30 }, // Grupo
+                        1: { cellWidth: 25 }, // Deporte
+                        2: { cellWidth: 30 }, // Participantes
+                        3: { cellWidth: 15 }, // Mujer
+                        4: { cellWidth: 15 }, // Hombre
+                        5: { cellWidth: 25 }, // Asistencias
+                        6: { cellWidth: 30 }  // Confirmadas
+                    }
+                });
+
+                yPosition = doc.lastAutoTable.finalY + 15;
+
+                // Agregar tabla de distribución por edades si hay datos
+                if (Object.keys(estadisticasPorGrupo).length > 0) {
+                    if (yPosition > 200) {
+                        doc.addPage();
+                        yPosition = 20;
+                    }
+
+                    doc.setFontSize(12);
+                    doc.text('DISTRIBUCIÓN POR EDADES Y BARRIOS', 20, yPosition);
+                    yPosition += 10;
+
+                    const distribucionData = [];
+                    Object.entries(estadisticasPorGrupo).forEach(([grupoId, stats]) => {
+
+                        // Construir cadena con todas las edades
+                        const edadesStr = Object.entries(stats.edades)
+                            .sort(([, a], [, b]) => b - a)
+                            .map(([edad, cantidad]) => `${edad}: ${cantidad}`)
+                            .join('\n');
+
+                        // Construir cadena con todos los barrios
+                        const barriosStr = Object.entries(stats.barrios)
+                            .sort(([, a], [, b]) => b - a)
+                            .map(([barrio, cantidad]) => `${barrio}: ${cantidad}`)
+                            .join('\n');
+
+                        distribucionData.push([
+                            stats.nombre || 'Sin nombre',
+                            edadesStr || 'Sin datos',
+                            barriosStr || 'Sin datos'
+                        ]);
+                    });
+
+                    doc.autoTable({
+                        startY: yPosition,
+                        head: [['GRUPO', 'DISTRIBUCIÓN POR EDAD', 'DISTRIBUCIÓN POR BARRIOS']],
+                        body: distribucionData,
+                        styles: { fontSize: 9, cellPadding: 3, valign: 'top' },
+                        headStyles: { fillColor: [52, 152, 219], textColor: [255, 255, 255] },
+                        alternateRowStyles: { fillColor: [245, 245, 245] },
+                        margin: { left: 20, right: 20 },
+                        columnStyles: {
+                            1: { cellWidth: 60 }, // ancho columna edades
+                            2: { cellWidth: 60 }  // ancho columna barrios
+                        }
+                    });
+
+                    yPosition = doc.lastAutoTable.finalY + 15;
+                }
+
+                // Tabla de asistencias detallada
+                yPosition += 20;
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+
+                doc.setFontSize(14);
+                doc.text('DETALLE DE ASISTENCIAS', 20, yPosition);
+                yPosition += 10;
+
+                // Preparar datos para la tabla
+                const participantesMap = {};
+                participantes.forEach(p => participantesMap[p.id] = p);
+
+                const tableData = [];
+                Object.entries(estadisticasPorGrupo).forEach(([grupoId, stats]) => {
+                    // Mostrar todos los participantes del grupo, no solo los que tienen asistencias
+                    stats.participantes.forEach(participante => {
+                        // Buscar si tiene asistencias registradas
+                        const asistenciasParticipante = stats.asistencias.filter(a => a.participante_id === participante.id);
+
+                        if (asistenciasParticipante.length > 0) {
+                            // Si tiene asistencias, mostrar cada una
+                            asistenciasParticipante.forEach(asistencia => {
+                                const fecha = ajustarFechaUTC(asistencia.fecha_clase || asistencia.created_at);
+
+                                tableData.push([
+                                    fecha,
+                                    stats.nombre,
+                                    participante.nombre || 'Sin nombre',
+                                    participante.edad || 'N/A',
+                                    participante.genero || 'N/A',
+                                    participante.barrio || 'Sin barrio',
+                                    asistencia.asistio ? 'Sí' : 'No'
+                                ]);
+                            });
+                        } else {
+                            // Si no tiene asistencias, mostrar como "Sin registro"
+                            tableData.push([
+                                'Sin registro',
+                                stats.nombre,
+                                participante.nombre || 'Sin nombre',
+                                participante.edad || 'N/A',
+                                participante.genero || 'N/A',
+                                participante.barrio || 'Sin barrio',
+                                'Sin registro'
+                            ]);
+                        }
+                    });
+                });
+
+                // Crear tabla con autoTable
+                doc.autoTable({
+                    startY: yPosition,
+                    head: [['Fecha', 'Grupo', 'Participante', 'Edad', 'Género', 'Barrio', 'Asistió']],
+                    body: tableData,
+                    styles: { fontSize: 8 },
+                    headStyles: { fillColor: [67, 97, 238] },
+                    alternateRowStyles: { fillColor: [245, 245, 245] }
+                });
+
+                yPosition = doc.lastAutoTable.finalY + 20;
+
+                // Verificar si hay espacio suficiente para el título y al menos una fila
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+
+                doc.setFontSize(14);
+                doc.setTextColor(0, 0, 0);
+                doc.text('EVIDENCIAS FOTOGRÁFICAS', 20, yPosition);
+                yPosition += 10;
+
+                try {
+
+                    // Obtener evidencias según el rol
+                    let queryEvidencias = supabaseClient.from('evidencias').select('*');
+
+                    if (currentUserProfile.role === 'instructor') {
+                        queryEvidencias = queryEvidencias.eq('instructor_id', currentUserProfile.id);
+                    } else if (currentUserProfile.role === 'admin') {
+                        // Admin: obtener evidencias del instructor del grupo seleccionado
+                        const grupoSeleccionado = document.getElementById('filter-grupo-descarga-pdf').value;
+                        if (grupoSeleccionado !== 'todos') {
+                            const { data: grupoInfo, error: errorGrupo } = await supabaseClient
+                                .from('grupos')
+                                .select('instructor_id')
+                                .eq('id', grupoSeleccionado)
+                                .single();
+
+                            if (!errorGrupo && grupoInfo) {
+                                queryEvidencias = queryEvidencias.eq('instructor_id', grupoInfo.instructor_id);
+                            }
+                        }
+                    }
+
+                    const { data: evidencias, error: errorEvidencias } = await queryEvidencias;
+
+                    if (!errorEvidencias && evidencias && evidencias.length > 0) {
+                        // Filtrar evidencias por período
+                        const mesesNumericos = [];
+                        checkboxes.forEach(cb => {
+                            if (cb.checked) {
+                                mesesNumericos.push(parseInt(cb.value));
+                            }
+                        });
+
+                        const evidenciasFiltradas = evidencias.filter(evidencia => {
+                            const fechaEvidencia = new Date(evidencia.fecha_subida);
+                            const mesEvidencia = fechaEvidencia.getMonth() + 1;
+                            const añoEvidencia = fechaEvidencia.getFullYear();
+                            return mesesNumericos.includes(mesEvidencia) && añoEvidencia === parseInt(año);
+                        });
+
+                        if (evidenciasFiltradas.length > 0) {
+                            doc.setFontSize(10);
+                            doc.text(`Total de evidencias: ${evidenciasFiltradas.length}`, 25, yPosition);
+                            yPosition += 10;
+
+                            // Crear tabla de evidencias
+                            const evidenciasTableData = evidenciasFiltradas.map(evidencia => {
+                                const fecha = new Date(evidencia.fecha_subida).toLocaleDateString('es-ES');
+                                const ubicacion = evidencia.direccion || 'Sin ubicación';
+                                const coordenadas = evidencia.latitud && evidencia.longitud ?
+                                    `${evidencia.latitud.toFixed(4)}, ${evidencia.longitud.toFixed(4)}` : 'Sin coordenadas';
+
+                                return [
+                                    fecha,
+                                    evidencia.archivo_nombre || 'Sin nombre',
+                                    ubicacion,
+                                    coordenadas,
+                                    evidencia.archivo_url || 'Sin URL'
+                                ];
+                            });
+
+                            doc.autoTable({
+                                startY: yPosition,
+                                head: [['Fecha', 'Archivo', 'Ubicación', 'Coordenadas', 'URL']],
+                                body: evidenciasTableData,
+                                styles: { fontSize: 7 },
+                                headStyles: { fillColor: [220, 53, 69] },
+                                alternateRowStyles: { fillColor: [245, 245, 245] },
+                                columnStyles: {
+                                    4: { cellWidth: 40 }
+                                }
+                            });
+
+                            yPosition = doc.lastAutoTable.finalY + 10;
+                        } else {
+                            doc.setFontSize(10);
+                            doc.text('No hay evidencias fotográficas para este período', 25, yPosition);
+                        }
+                    } else {
+                        doc.setFontSize(10);
+                        doc.text('No hay evidencias fotográficas disponibles', 25, yPosition);
+                    }
+                } catch (error) {
+                    console.error('Error al obtener evidencias:', error);
+                    doc.setFontSize(10);
+                    doc.text('Error al cargar evidencias fotográficas', 25, yPosition);
+                }
+
+                // Generar nombre del archivo
+                const nombreArchivo = `Reporte_${currentUserProfile.full_name || 'Instructor'}_${mesesSeleccionados.join('-')}_${año}.pdf`;
+
+                // Descargar PDF
+                doc.save(nombreArchivo);
+
+                alert('✅ Reporte PDF descargado exitosamente');
+                window.cerrarModalDescargaPDF();
+
+            } catch (error) {
+                console.error('Error al generar PDF:', error);
+                alert(`❌ Error al generar PDF: ${error.message}`);
+            }
+
+
+        }
+
+        // Función para ir a tomar asistencia de un deporte específico
+        function irATomarAsistencia(deporte) {
+            // Guardar el deporte seleccionado en localStorage para usar en formulario_excel.html
+            localStorage.setItem('deporteSeleccionado', deporte.toLowerCase());
+            localStorage.setItem('instructorId', currentUserProfile.id);
+
+            // Redirigir a formulario_excel.html
+            window.location.href = `formulario_excel.html?autoAbrir=asistencia&deporte=${encodeURIComponent(deporte.toLowerCase())}`;
+        }
+
+        // Exponer función globalmente
+        window.irATomarAsistencia = irATomarAsistencia;
+
+        // Funciones para el modal PDF
+        window.abrirModalDescargaPDF = async function () {
+            document.getElementById('modalDescargaPDF').style.display = 'block';
+            await cargarGruposEnSelectorPDF();
+        }
+
+        window.cerrarModalDescargaPDF = function () {
+            document.getElementById('modalDescargaPDF').style.display = 'none';
+            document.getElementById('preview-estadisticas-pdf').innerHTML = '';
+        }
+
+        window.seleccionarTodosMesesPDF = function () {
+            const checkboxes = document.querySelectorAll('#modalDescargaPDF input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = true);
+        }
+
+        window.limpiarSeleccionMesesPDF = function () {
+            const checkboxes = document.querySelectorAll('#modalDescargaPDF input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+        }
+
+
+        window.tomarAsistenciaGrupo = async function (grupoId) {
+            console.log("Tomando asistencia para el grupo:", grupoId);
+
+            // Obtener información del grupo
+            const { data: grupo, error: errorGrupo } = await supabaseClient
+                .from('grupos')
+                .select('*')
+                .eq('id', grupoId)
+                .single();
+
+            if (errorGrupo) {
+                console.error('Error obteniendo grupo:', errorGrupo);
+                return;
+            }
+
+            // Guardar información del grupo en localStorage para el modal
+            localStorage.setItem('grupoSeleccionadoAsistencia', JSON.stringify({
+                id: grupoId,
+                nombre: grupo.nombre,
+                deporte: grupo.deporte
+            }));
+
+            // Redirigir al formulario con parámetros específicos del grupo
+            window.location.href = `formulario_excel.html?autoAbrir=asistencia&grupo=${grupoId}&deporte=${grupo.deporte}`;
+        }
+
+        // Exponer funciones de gestión de participantes globalmente
+        window.gestionarParticipantesGrupo = gestionarParticipantesGrupo;
+        window.agregarParticipanteAGrupo = agregarParticipanteAGrupo;
+        window.removerParticipanteDeGrupo = removerParticipanteDeGrupo;
+        window.cerrarModalParticipantes = cerrarModalParticipantes;
+        window.editarGrupo = editarGrupo;
+        window.cargarGruposEnSelectorExcel = cargarGruposEnSelectorExcel;
+        window.filtrarGruposEnSelector = filtrarGruposEnSelector;
+    </script>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
